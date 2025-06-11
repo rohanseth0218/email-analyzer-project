@@ -27,9 +27,9 @@ jobs:
         # We'll add secrets later for sensitive data
         ANALYSIS_MODE: "cloud"
       run: |
-        echo "🚀 Starting email analysis in the cloud..."
-        python enhance_existing_emails_for_bigquery.py
-        echo "✅ Email analysis complete!"
+        echo "🚀 Starting full mailbox email extraction..."
+        python export_emails_to_bigquery.py
+        echo "✅ Email extraction complete!"
         
     - name: Upload results
       uses: actions/upload-artifact@v3
