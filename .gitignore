@@ -1,0 +1,38 @@
+# Sensitive files
+mailboxaccounts.csv
+*.log
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Results files (we'll upload these as artifacts instead)
+enhanced_emails_bigquery_*.json
+enhanced_emails_bigquery_*.csv
+enhanced_emails_schema_*.json
+existing_analysis_*.json
+existing_analysis_*.csv
+brand_analysis_*.json
+brand_analysis_*.csv
+fixed_marketing_emails_*.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Large data files
+Storedomains.csv
+Storedomains_unprocessed.csv 

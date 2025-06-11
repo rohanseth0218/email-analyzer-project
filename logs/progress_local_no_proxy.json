@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-06-10T12:39:02.466Z",
+  "currentBatch": 69,
+  "totalProcessed": 3900,
+  "totalSuccessful": 22,
+  "totalFailed": 3878,
+  "successRate": "0.56",
+  "failureReasons": {
+    "no_form_found": 3,
+    "processing_error": 3850,
+    "form_submission_error": 18,
+    "form_clicked_but_not_confirmed": 7
+  }
+}

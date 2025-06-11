@@ -1,0 +1,438 @@
+<html><head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <style>
+      body {
+        background-color: #F8F8F8;
+      }
+
+      div {
+        word-wrap: break-word;
+        font-family: Arial;
+        font-size: 17px;
+        /*        
+        border-style: solid;
+        */
+      }
+
+      li {
+        padding-top: 4px;
+      }
+
+      a {
+        text-decoration: none;
+        font-weight: 500;
+        color: #0062b2;
+      }
+
+      .logo {
+        margin: auto;
+        width: 151px;
+        height: 32px;
+        padding-top: 32px;
+        padding-bottom: 42px;
+      }
+      
+      .content {
+        background-color: #FFFFFF;
+        margin: auto;
+        width: 520px;
+        height: 1251px;
+        border-color: #D8DDE6;
+        border-style: solid;
+      }
+
+      .title {
+        text-align: center;
+        margin: auto;
+        padding-top: 31px;
+        width: 452px;
+        height: 45px;
+        font-size: 35px;
+        font-weight: bold;
+      }
+    
+      .text_section1 {
+        margin: auto;
+        padding-top: 16px;
+        width: 452px;
+        height: 48px;
+        line-height: 1.5;
+      }
+
+      .text_section2 {
+        margin: auto;
+        padding-top: 16px;
+        width: 452px;
+        height: 95px;
+        line-height: 1.5;
+      }
+
+      .qrcode {
+        margin: auto;
+        padding-top: 32px;
+        width: 160px;
+        height:160px;
+      }
+
+      .text_section3 {
+        margin: auto;
+        padding-top: 16px;
+        padding-bottom: 25px;
+        width: 324px;
+        height: 56px;
+        text-align: center;
+        line-height: 1.5;
+      }
+
+      .data_row {
+        margin: auto;
+        padding-top: 0px;
+        width: 452px;
+        height: 77px;
+        border-bottom: 2px solid #D8DDE6;
+      }
+
+      .data_name {
+        float: left;
+        padding-top: 30px;
+        width: 174px;
+        height: 21px;
+        font-weight: bold;
+      }
+
+      .data_value {
+        float: right;
+        padding-top: 30px;
+        width: 250px;
+        height: 42px;
+        text-align: right;
+      }
+      
+
+      .shifted_lable_center {
+        padding-top: 30px;
+      }
+
+      .pod_lable_center {
+        padding-top: 30px;
+      }
+
+      .shifted_value_center {
+        padding-top: 20px;
+      }
+
+    @media only screen and (max-width: 540px) {
+      .logo {
+        margin: auto;
+        width: 138px;
+        height: 25px;
+        padding-top: 23px;
+        padding-bottom: 26px;
+      }
+      
+      .content {
+        background-color: #FFFFFF;
+        margin: auto;
+        width: 312px;
+        height: 1118px;
+        border-color: #D8DDE6;
+        border-style: solid;
+      }
+
+      .title {
+        text-align: center;
+        margin:auto;
+        padding-top: 24px;
+        width: 280px;
+        height: 90px;
+        font-size: 30px;
+      }
+   
+      .text_section1 {
+        margin: auto;
+        padding-top: 16px;
+        width: 280px;
+        height: 79px;
+      }
+
+      .text_section2 {
+        margin: auto;
+        padding-top: 9px;
+        width: 280px;
+        height: 150px;
+        padding-bottom: 39px;
+      }
+
+      .qrcode {
+        display: none;
+      }
+
+      .text_section3 {
+        display: none;
+      }
+    
+      .data_row {
+        margin: auto;
+        padding-top: 0px;
+        width: 264px;
+        height: 77px;
+        border-bottom: 2px solid #D8DDE6;
+      }
+
+      .data_name {
+        float: left;
+        padding-top: 16px; 
+        width: 264px;
+        height: 21px;
+        font-weight: bold;
+      }
+
+      .data_value {
+        float: left;
+        padding-top: 2px;
+        width: 265px;
+        height: 21;
+        text-align: left;
+      }
+ 
+      .shifted_lable_center {
+        padding-top: 5px;
+      }
+
+      .pod_lable_center {
+        padding-top: 5px;
+      }
+
+      .shifted_value_center {
+        padding-top: 2px;
+      }
+    }
+
+  </style>
+  <style>
+  /* Container styles */
+  .bb-custom-select-container {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+  }
+
+  /* Opener button styles */
+  .bb-custom-select-opener {
+    display: none;
+  }
+
+  /* Disabled state styles */
+  .bb-custom-select-container.bb-is-disabled .bb-custom-select-opener {
+    background-color: #e9ecef;
+    border-color: #505050;
+    color: #6c757d;
+    cursor: not-allowed;
+  }
+
+  /* Add not-allowed cursor to the entire container when disabled */
+  .bb-custom-select-container.bb-is-disabled {
+    cursor: not-allowed;
+  }
+
+  /* Also ensure the select element shows not-allowed cursor when disabled */
+  .bb-custom-select-container.bb-is-disabled select {
+    cursor: not-allowed;
+  }
+
+  .bb-custom-select-container.bb-is-disabled .bb-custom-select-opener::after {
+    border-top-color: #6c757d;
+  }
+
+  /* Add dropdown arrow */
+  .bb-custom-select-opener::after {
+    content: '';
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #666;
+  }
+
+  /* Rotate arrow when open */
+  .bb-custom-select-opener.bb-is-open::after {
+    transform: translateY(-50%) rotate(180deg);
+  }
+
+  /* Keep native select visible */
+  .bb-customSelect select {
+    position: relative;
+    width: 100%;
+  }
+
+  /* Dropdown panel */
+  .bb-custom-select-panel {
+    display: none;  /* Hide by default */
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 999999; /* Should always be on top of other elements */
+    margin-top: 4px;
+    width: max-content; /* Allow panel to grow based on content */
+    min-width: 100%;   /* But ensure it's at least as wide as the opener */
+    background-color: #fff;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  /* Show panel when container has bb-is-open class */
+  .bb-custom-select-container.bb-is-open .bb-custom-select-panel {
+    display: block;
+  }
+
+  /* Option styles */
+  .bb-custom-select-option {
+    padding: 6px 12px;
+    line-height: 1.5;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .bb-custom-select-option:hover,
+  .bb-custom-select-option.bb-has-focus {
+    background-color: #f0f9fa;
+  }
+
+  .bb-custom-select-option.bb-is-selected {
+    background-color: #e9ecef;
+  }
+</style></head>
+  <body>
+    <div class="logo">
+      <center><img src="/metadata/spectrum_logo.svg" alt="Spectrum Logo"></center>
+    </div>
+    <div class="content">
+      <div class="title">
+        Your Spectrum Router Info
+      </div>
+      <div class="text_section1">
+          Download the <a href="https://www.spectrum.net/getapp">My Spectrum app</a> to manage your WiFi Network settings, such as:
+      </div>
+      <div class="text_section2">
+          <ul>
+            <li align="left">Customize your network name and password.</li>
+            <li align="left">Manage devices connected to your network.</li>
+            <li align="left">Change advanced settings like DNS, port forwarding and more.</li>
+          </ul>
+      </div>
+      <div class="qrcode">
+        <center><img src="/metadata/qr_code.svg" alt="Get the My Spectrum app"></center>
+      </div>
+      <div class="text_section3">
+        To download My Spectrum, use your smartphone camera to scan this symbol.
+      </div>
+
+      <script async="async">
+       function doesConnectionExist() {
+           var httpRequest = new XMLHttpRequest();
+           var httpServer
+           var hostName = window.location.hostname;
+           httpServer = 'https://' + hostName + '/cgi-bin/connectivity_api';
+
+           httpRequest.onreadystatechange = function() {
+              if (httpRequest.readyState == XMLHttpRequest.DONE) {
+                 if (httpRequest.status >= 200 && httpRequest.status < 304) {
+                    updateRow('Internet Status', httpRequest.response);
+                 } else {
+                    updateRow('Internet Status', 'Not Connected');
+                 }
+              }
+           }
+
+           httpRequest.open('POST', httpServer, true);
+           httpRequest.responseType = 'text';
+           httpRequest.send();
+       }
+
+       function renderOnlinePods() {
+           var httpRequest = new XMLHttpRequest();
+           var httpServer
+           var hostName = window.location.hostname;
+           httpServer = 'https://' + hostName + '/cgi-bin/pods_api';
+
+           httpRequest.onreadystatechange = function() {
+              if (httpRequest.readyState == XMLHttpRequest.DONE) {
+                 if (httpRequest.status >= 200 && httpRequest.status < 304) {
+                    // Replace space with new lines
+                    var pods = httpRequest.response;
+                    pods = pods.replace(/\s/g, '\n');
+                    updateRow('Connected Pods S/N', pods);
+                 } else {
+                    updateRow('Connected Pods S/N', 'N/A');
+                 }
+              }
+           }
+
+           httpRequest.open('POST', httpServer, true);
+           httpRequest.responseType = 'text';
+           httpRequest.send();
+       }
+
+       function updateRow(title, value) {
+          el = document.getElementsByClassName('data_row');
+          for (var i=0; i < el.length; i++) {
+             if(title.localeCompare(el[i].firstElementChild.innerText) == 0) {
+                 el[i].lastElementChild.innerText = value;
+             }
+          }
+       }
+
+      </script>
+
+      <div class="data_row">
+          <div class="data_name">Internet Status</div>
+          <div class="data_value" id="Internet Status">Connected<br></div>
+      </div>
+      <div class="data_row">
+          <div class="data_name">Cloud Status</div>
+          <div class="data_value" id="Cloud Status">Connected</div>
+      </div>
+      <div class="data_row">
+          <div class="data_name">IPv4</div>
+          <div class="data_value" id="IPv4">66.65.35.208</div>
+      </div>
+      <div class="data_row">
+          <div class="data_name shifted_lable_center">IPv6</div>
+          <div class="data_value shifted_value_center" id="IPv6">2604:2000:dfc0:15:d42d:7715:35be:a2a6/128</div>
+      </div>
+      <div class="data_row">
+          <div class="data_name">MAC</div>
+          <div class="data_value" id="MAC">34:49:5B:D2:12:10</div>
+      </div>
+      <div class="data_row">
+          <div class="data_name">Serial Number</div>
+          <div class="data_value" id="Serial Number">QS2000609952559</div>
+      </div>
+      <div class="data_row">
+          <div class="data_name">Model</div>
+          <div class="data_value" id="Model">SAC2V2S</div>
+      </div>
+      <div class="data_row">
+          <div class="data_name shifted_lable_center">FW Version</div>
+          <div class="data_value shifted_value_center" id="FW Version">6.5.1-1-395070-g202407312204-SAC2V2S-prod</div>
+      </div>
+      <div class="data_row" style="border-bottom: none;">
+          <div class="data_name">Connected Pods S/N</div>
+          <div class="data_value" id="Connected Pods S/N">N/A<br></div>
+      </div>
+    </div>
+
+  
+
+
+</body></html>

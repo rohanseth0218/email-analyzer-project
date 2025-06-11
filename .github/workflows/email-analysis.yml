@@ -1,0 +1,42 @@
+name: Daily Email Analysis
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Run daily at 6 AM UTC
+  workflow_dispatch:  # Allow manual triggering
+  
+jobs:
+  analyze-emails:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install python-dateutil
+        
+    - name: Run email analysis
+      env:
+        # We'll add secrets later for sensitive data
+        ANALYSIS_MODE: "cloud"
+      run: |
+        echo "🚀 Starting email analysis in the cloud..."
+        python enhance_existing_emails_for_bigquery.py
+        echo "✅ Email analysis complete!"
+        
+    - name: Upload results
+      uses: actions/upload-artifact@v3
+      with:
+        name: email-analysis-results
+        path: |
+          enhanced_emails_bigquery_*.json
+          enhanced_emails_bigquery_*.csv
+          enhanced_emails_schema_*.json
+        retention-days: 30 

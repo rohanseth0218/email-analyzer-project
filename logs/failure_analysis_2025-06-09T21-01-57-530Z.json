@@ -1,0 +1,228 @@
+{
+  "summary": {
+    "totalProcessed": 20,
+    "successful": 2,
+    "failed": 18,
+    "successRate": "10.00%",
+    "timestamp": "2025-06-09T21:01:57.530Z"
+  },
+  "failureBreakdown": {
+    "noFormsFound": 6,
+    "navigationErrors": 2,
+    "timeoutErrors": 10,
+    "formSubmissionErrors": 0,
+    "captchaDetected": 5,
+    "siteDown": 0,
+    "otherErrors": 0
+  },
+  "failedDomains": [
+    {
+      "domain": "https://shoplimoni.com",
+      "errorType": "navigation_error",
+      "formsFound": 0,
+      "emailInputs": 0,
+      "platforms": [],
+      "captcha": false,
+      "screenshots": [
+        "logs/screenshots/https___shoplimoni_com_initial_2025-06-09T21-00-57-395Z.png",
+        "logs/screenshots/https___shoplimoni_com_failed_2025-06-09T21-01-09-139Z.png"
+      ],
+      "lastAttempt": "❌ No suitable forms found or submission failed"
+    },
+    {
+      "domain": "https://cutnpeelknives.com",
+      "errorType": "navigation_timeout",
+      "formsFound": 0,
+      "emailInputs": 0,
+      "platforms": [],
+      "captcha": false,
+      "screenshots": [],
+      "lastAttempt": "Error: page.goto: net::ERR_EMPTY_RESPONSE at https://cutnpeelknives.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\nCall log:\n\u001b[2m  - navigating to \"https://cutnpeelknives.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "domain": "https://mktours.com",
+      "errorType": "no_forms_found",
+      "formsFound": 0,
+      "emailInputs": 0,
+      "platforms": [],
+      "captcha": true,
+      "screenshots": [
+        "logs/screenshots/https___mktours_com_initial_2025-06-09T21-00-55-702Z.png",
+        "logs/screenshots/https___mktours_com_failed_2025-06-09T21-01-08-653Z.png"
+      ],
+      "lastAttempt": "❌ No suitable forms found or submission failed"
+    },
+    {
+      "domain": "https://allstyleswigs.com",
+      "errorType": "navigation_timeout",
+      "formsFound": 0,
+      "emailInputs": 0,
+      "platforms": [],
+      "captcha": false,
+      "screenshots": [],
+      "lastAttempt": "Error: page.goto: net::ERR_EMPTY_RESPONSE at https://allstyleswigs.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\nCall log:\n\u001b[2m  - navigating to \"https://allstyleswigs.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "domain": "https://sweetpeaskids.com",
+      "errorType": "navigation_timeout",
+      "formsFound": 0,
+      "emailInputs": 0,
+      "platforms": [],
+      "captcha": false,
+      "screenshots": [],
+      "lastAttempt": "Error: page.goto: net::ERR_EMPTY_RESPONSE at https://sweetpeaskids.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\nCall log:\n\u001b[2m  - navigating to \"https://sweetpeaskids.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "domain": "https://roseandpearl.com",
+      "errorType": "navigation_timeout",
+      "formsFound": 0,
+      "emailInputs": 0,
+      "platforms": [],
+      "captcha": false,
+      "screenshots": [],
+      "lastAttempt": "Error: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"https://roseandpearl.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "domain": "https://fancytreasures.com",
+      "errorType": "no_forms_found",
+      "formsFound": 0,
+      "emailInputs": 0,
+      "platforms": [],
+      "captcha": false,
+      "screenshots": [
+        "logs/screenshots/https___fancytreasures_com_initial_2025-06-09T21-00-56-321Z.png",
+        "logs/screenshots/https___fancytreasures_com_failed_2025-06-09T21-01-08-134Z.png"
+      ],
+      "lastAttempt": "❌ No suitable forms found or submission failed"
+    },
+    {
+      "domain": "https://gigiandmaxpets.com",
+      "errorType": "navigation_timeout",
+      "formsFound": 0,
+      "emailInputs": 0,
+      "platforms": [],
+      "captcha": false,
+      "screenshots": [],
+      "lastAttempt": "Error: page.goto: net::ERR_EMPTY_RESPONSE at https://gigiandmaxpets.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\nCall log:\n\u001b[2m  - navigating to \"https://gigiandmaxpets.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "domain": "https://luxuryskincarebykate.com",
+      "errorType": "navigation_timeout",
+      "formsFound": 0,
+      "emailInputs": 0,
+      "platforms": [],
+      "captcha": false,
+      "screenshots": [],
+      "lastAttempt": "Error: page.goto: net::ERR_EMPTY_RESPONSE at https://luxuryskincarebykate.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\nCall log:\n\u001b[2m  - navigating to \"https://luxuryskincarebykate.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "domain": "https://americandental.com",
+      "errorType": "no_forms_found",
+      "formsFound": 1,
+      "emailInputs": 0,
+      "platforms": [],
+      "captcha": false,
+      "screenshots": [
+        "logs/screenshots/https___americandental_com_initial_2025-06-09T21-00-56-250Z.png",
+        "logs/screenshots/https___americandental_com_failed_2025-06-09T21-01-09-287Z.png"
+      ],
+      "lastAttempt": "❌ No suitable forms found or submission failed"
+    },
+    {
+      "domain": "https://daysigma.com",
+      "errorType": "no_forms_found",
+      "formsFound": 0,
+      "emailInputs": 0,
+      "platforms": [],
+      "captcha": true,
+      "screenshots": [
+        "logs/screenshots/https___daysigma_com_initial_2025-06-09T21-00-56-646Z.png",
+        "logs/screenshots/https___daysigma_com_failed_2025-06-09T21-01-10-317Z.png"
+      ],
+      "lastAttempt": "❌ No suitable forms found or submission failed"
+    },
+    {
+      "domain": "https://graceandlaceboutique.com",
+      "errorType": "navigation_error",
+      "formsFound": 0,
+      "emailInputs": 0,
+      "platforms": [
+        "Shopify"
+      ],
+      "captcha": false,
+      "screenshots": [
+        "logs/screenshots/https___graceandlaceboutique_com_initial_2025-06-09T21-00-55-854Z.png",
+        "logs/screenshots/https___graceandlaceboutique_com_failed_2025-06-09T21-01-07-952Z.png"
+      ],
+      "lastAttempt": "❌ No suitable forms found or submission failed"
+    },
+    {
+      "domain": "https://blinktoys.com",
+      "errorType": "navigation_timeout",
+      "formsFound": 0,
+      "emailInputs": 0,
+      "platforms": [],
+      "captcha": false,
+      "screenshots": [],
+      "lastAttempt": "Error: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"https://blinktoys.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "domain": "https://shopbrightlingerie.com",
+      "errorType": "navigation_timeout",
+      "formsFound": 0,
+      "emailInputs": 0,
+      "platforms": [],
+      "captcha": false,
+      "screenshots": [],
+      "lastAttempt": "Error: page.goto: net::ERR_EMPTY_RESPONSE at https://shopbrightlingerie.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\nCall log:\n\u001b[2m  - navigating to \"https://shopbrightlingerie.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "domain": "https://chicbirdie.com",
+      "errorType": "no_forms_found",
+      "formsFound": 1,
+      "emailInputs": 0,
+      "platforms": [],
+      "captcha": true,
+      "screenshots": [
+        "logs/screenshots/https___chicbirdie_com_initial_2025-06-09T21-00-56-128Z.png",
+        "logs/screenshots/https___chicbirdie_com_failed_2025-06-09T21-01-09-123Z.png"
+      ],
+      "lastAttempt": "❌ No suitable forms found or submission failed"
+    },
+    {
+      "domain": "https://chicsafetyshop.com",
+      "errorType": "navigation_timeout",
+      "formsFound": 0,
+      "emailInputs": 0,
+      "platforms": [],
+      "captcha": false,
+      "screenshots": [],
+      "lastAttempt": "Error: page.goto: net::ERR_EMPTY_RESPONSE at https://chicsafetyshop.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\nCall log:\n\u001b[2m  - navigating to \"https://chicsafetyshop.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    },
+    {
+      "domain": "https://crystalintuition.com",
+      "errorType": "no_forms_found",
+      "formsFound": 1,
+      "emailInputs": 0,
+      "platforms": [
+        "Shopify"
+      ],
+      "captcha": true,
+      "screenshots": [
+        "logs/screenshots/https___crystalintuition_com_initial_2025-06-09T21-00-56-744Z.png",
+        "logs/screenshots/https___crystalintuition_com_failed_2025-06-09T21-01-09-786Z.png"
+      ],
+      "lastAttempt": "❌ No suitable forms found or submission failed"
+    },
+    {
+      "domain": "https://lorikennedystudio.com",
+      "errorType": "navigation_timeout",
+      "formsFound": 0,
+      "emailInputs": 0,
+      "platforms": [],
+      "captcha": false,
+      "screenshots": [],
+      "lastAttempt": "Error: page.goto: net::ERR_EMPTY_RESPONSE at https://lorikennedystudio.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\nCall log:\n\u001b[2m  - navigating to \"https://lorikennedystudio.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    }
+  ]
+}

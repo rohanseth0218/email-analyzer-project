@@ -1,0 +1,11 @@
+{
+  "timestamp": "2025-06-10T11:20:38.548Z",
+  "currentBatch": 31,
+  "totalProcessed": 3005,
+  "totalSuccessful": 1521,
+  "totalFailed": 1484,
+  "successRate": "50.62",
+  "failureReasons": {
+    "processing_error": 5
+  }
+}

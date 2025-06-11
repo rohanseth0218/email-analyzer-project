@@ -1,0 +1,733 @@
+[
+  {
+    "domain": "https://shoplimoni.com",
+    "email": "rohan.seth@openripplestudio.info",
+    "error": "Unknown error",
+    "attempts": [
+      "Created session: 0d010e7e-9185-48ac-8d67-22dccad962f0 (proxy: [{\"type\":\"browserbase\",\"geolocation\":{\"country\":\"US\",\"state\":\"NY\",\"city\":\"NEW_YORK\"}}])",
+      "Connected to browser session",
+      "UTM navigation failed (Status: 400), trying without UTM...",
+      "Navigated to https://shoplimoni.com (Status: 400) - No UTM",
+      "Attempting to reveal hidden forms...",
+      "Page analysis: 0 forms, 0 email inputs",
+      "🎯 Trying popup strategy (11 selectors)",
+      "🎯 Trying newsletter strategy (15 selectors)",
+      "🎯 Trying footer strategy (5 selectors)",
+      "Scrolled to footer",
+      "🎯 Trying header strategy (5 selectors)",
+      "🎯 Trying sidebar strategy (4 selectors)",
+      "🎯 Trying contact strategy (10 selectors)",
+      "🎯 Trying generic strategy (7 selectors)",
+      "❌ No suitable forms found or submission failed"
+    ],
+    "debugInfo": {
+      "pageAnalysis": {
+        "totalForms": 0,
+        "emailInputs": 0,
+        "formsByStrategy": {
+          "popup": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "newsletter": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "footer": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "header": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "sidebar": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "contact": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "generic": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          }
+        },
+        "detectedPlatforms": [],
+        "possibleCaptcha": false,
+        "errors": []
+      },
+      "screenshots": [
+        "logs/screenshots/https___shoplimoni_com_initial_2025-06-09T21-24-53-899Z.png",
+        "logs/screenshots/https___shoplimoni_com_failed_2025-06-09T21-25-07-762Z.png"
+      ],
+      "pageSource": "logs/https___shoplimoni_com_failed_2025-06-09T21-25-08-642Z.html",
+      "errorType": "navigation_error"
+    },
+    "timestamp": "2025-06-09T21:25:08.725Z"
+  },
+  {
+    "domain": "https://cutnpeelknives.com",
+    "email": "rohan.s@openripplestudio.info",
+    "error": "page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://cutnpeelknives.com/\nCall log:\n\u001b[2m  - navigating to \"https://cutnpeelknives.com/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+    "attempts": [
+      "Created session: bf3a98b8-3130-4f5b-9419-e17164fdff27 (proxy: [{\"type\":\"browserbase\",\"geolocation\":{\"country\":\"US\",\"state\":\"NY\",\"city\":\"NEW_YORK\"}}])",
+      "Connected to browser session",
+      "UTM navigation error: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://cutnpeelknives.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\nCall log:\n\u001b[2m  - navigating to \"https://cutnpeelknives.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\", waiting until \"domcontentloaded\"\u001b[22m\n, trying without UTM...",
+      "Fallback navigation also failed: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://cutnpeelknives.com/\nCall log:\n\u001b[2m  - navigating to \"https://cutnpeelknives.com/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+      "Error: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://cutnpeelknives.com/\nCall log:\n\u001b[2m  - navigating to \"https://cutnpeelknives.com/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    ],
+    "debugInfo": {
+      "pageAnalysis": null,
+      "screenshots": [],
+      "pageSource": null,
+      "errorType": "navigation_timeout"
+    },
+    "timestamp": "2025-06-09T21:24:32.837Z"
+  },
+  {
+    "domain": "https://mktours.com",
+    "email": "rohan.seth@trygetripplemedia.com",
+    "error": "Unknown error",
+    "attempts": [
+      "Created session: 7645cc7f-e8b0-4589-a620-064a9ccae101 (proxy: [{\"type\":\"browserbase\",\"geolocation\":{\"country\":\"US\",\"state\":\"NY\",\"city\":\"NEW_YORK\"}}])",
+      "Connected to browser session",
+      "Navigated to https://mktours.com?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup (Status: 200)",
+      "Attempting to reveal hidden forms...",
+      "Page analysis: 0 forms, 0 email inputs",
+      "⚠️ Possible CAPTCHA detected",
+      "🎯 Trying popup strategy (11 selectors)",
+      "🎯 Trying newsletter strategy (15 selectors)",
+      "🎯 Trying footer strategy (5 selectors)",
+      "Scrolled to footer",
+      "🎯 Trying header strategy (5 selectors)",
+      "🎯 Trying sidebar strategy (4 selectors)",
+      "🎯 Trying contact strategy (10 selectors)",
+      "🎯 Trying generic strategy (7 selectors)",
+      "❌ No suitable forms found or submission failed"
+    ],
+    "debugInfo": {
+      "pageAnalysis": {
+        "totalForms": 0,
+        "emailInputs": 0,
+        "formsByStrategy": {
+          "popup": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "newsletter": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "footer": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "header": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "sidebar": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "contact": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "generic": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          }
+        },
+        "detectedPlatforms": [],
+        "possibleCaptcha": true,
+        "errors": []
+      },
+      "screenshots": [
+        "logs/screenshots/https___mktours_com_initial_2025-06-09T21-24-34-547Z.png",
+        "logs/screenshots/https___mktours_com_failed_2025-06-09T21-24-52-544Z.png"
+      ],
+      "pageSource": "logs/https___mktours_com_failed_2025-06-09T21-24-54-089Z.html",
+      "errorType": "no_forms_found"
+    },
+    "timestamp": "2025-06-09T21:24:54.187Z"
+  },
+  {
+    "domain": "https://allstyleswigs.com",
+    "email": "rohan.s@trygetripplemedia.com",
+    "error": "page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://allstyleswigs.com/\nCall log:\n\u001b[2m  - navigating to \"https://allstyleswigs.com/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+    "attempts": [
+      "Created session: 81df8066-7ab2-46d6-b000-ba00d9673fb4 (proxy: [{\"type\":\"browserbase\",\"geolocation\":{\"country\":\"US\",\"state\":\"NY\",\"city\":\"NEW_YORK\"}}])",
+      "Connected to browser session",
+      "UTM navigation error: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://allstyleswigs.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\nCall log:\n\u001b[2m  - navigating to \"https://allstyleswigs.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\", waiting until \"domcontentloaded\"\u001b[22m\n, trying without UTM...",
+      "Fallback navigation also failed: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://allstyleswigs.com/\nCall log:\n\u001b[2m  - navigating to \"https://allstyleswigs.com/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+      "Error: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://allstyleswigs.com/\nCall log:\n\u001b[2m  - navigating to \"https://allstyleswigs.com/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    ],
+    "debugInfo": {
+      "pageAnalysis": null,
+      "screenshots": [],
+      "pageSource": null,
+      "errorType": "navigation_timeout"
+    },
+    "timestamp": "2025-06-09T21:24:42.647Z"
+  },
+  {
+    "domain": "https://sweetpeaskids.com",
+    "email": "rohan.s@trygetripplestudio.com",
+    "error": "page.goto: Navigation to \"https://sweetpeaskids.com/\" is interrupted by another navigation to \"chrome-error://chromewebdata/\"\nCall log:\n\u001b[2m  - navigating to \"https://sweetpeaskids.com/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+    "attempts": [
+      "Created session: 3d8cda2f-afac-441f-8cf7-5a9014720259 (proxy: [{\"type\":\"browserbase\",\"geolocation\":{\"country\":\"US\",\"state\":\"NY\",\"city\":\"NEW_YORK\"}}])",
+      "Connected to browser session",
+      "UTM navigation error: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://sweetpeaskids.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\nCall log:\n\u001b[2m  - navigating to \"https://sweetpeaskids.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\", waiting until \"domcontentloaded\"\u001b[22m\n, trying without UTM...",
+      "Fallback navigation also failed: page.goto: Navigation to \"https://sweetpeaskids.com/\" is interrupted by another navigation to \"chrome-error://chromewebdata/\"\nCall log:\n\u001b[2m  - navigating to \"https://sweetpeaskids.com/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+      "Error: page.goto: Navigation to \"https://sweetpeaskids.com/\" is interrupted by another navigation to \"chrome-error://chromewebdata/\"\nCall log:\n\u001b[2m  - navigating to \"https://sweetpeaskids.com/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    ],
+    "debugInfo": {
+      "pageAnalysis": null,
+      "screenshots": [],
+      "pageSource": null,
+      "errorType": "navigation_timeout"
+    },
+    "timestamp": "2025-06-09T21:24:46.248Z"
+  },
+  {
+    "domain": "https://roseandpearl.com",
+    "email": "rohan.seth@gogetrippleonline.com",
+    "error": "page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://roseandpearl.com/\nCall log:\n\u001b[2m  - navigating to \"https://roseandpearl.com/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+    "attempts": [
+      "Created session: 70117a0e-08cc-441e-8bc2-6fe9e76dd5d2 (proxy: [{\"type\":\"browserbase\",\"geolocation\":{\"country\":\"US\",\"state\":\"NY\",\"city\":\"NEW_YORK\"}}])",
+      "Connected to browser session",
+      "UTM navigation error: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://roseandpearl.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\nCall log:\n\u001b[2m  - navigating to \"https://roseandpearl.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\", waiting until \"domcontentloaded\"\u001b[22m\n, trying without UTM...",
+      "Fallback navigation also failed: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://roseandpearl.com/\nCall log:\n\u001b[2m  - navigating to \"https://roseandpearl.com/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+      "Error: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://roseandpearl.com/\nCall log:\n\u001b[2m  - navigating to \"https://roseandpearl.com/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    ],
+    "debugInfo": {
+      "pageAnalysis": null,
+      "screenshots": [],
+      "pageSource": null,
+      "errorType": "navigation_timeout"
+    },
+    "timestamp": "2025-06-09T21:24:40.738Z"
+  },
+  {
+    "domain": "https://fancytreasures.com",
+    "email": "rohan.seth@meetgetrippledigital.com",
+    "error": "Unknown error",
+    "attempts": [
+      "Created session: c422630e-e4b3-4803-a090-967132452206 (proxy: [{\"type\":\"browserbase\",\"geolocation\":{\"country\":\"US\",\"state\":\"NY\",\"city\":\"NEW_YORK\"}}])",
+      "Connected to browser session",
+      "Navigated to https://fancytreasures.com?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup (Status: 200)",
+      "Attempting to reveal hidden forms...",
+      "Page analysis: 0 forms, 0 email inputs",
+      "🎯 Trying popup strategy (11 selectors)",
+      "🎯 Trying newsletter strategy (15 selectors)",
+      "🎯 Trying footer strategy (5 selectors)",
+      "Scrolled to footer",
+      "🎯 Trying header strategy (5 selectors)",
+      "🎯 Trying sidebar strategy (4 selectors)",
+      "🎯 Trying contact strategy (10 selectors)",
+      "🎯 Trying generic strategy (7 selectors)",
+      "❌ No suitable forms found or submission failed"
+    ],
+    "debugInfo": {
+      "pageAnalysis": {
+        "totalForms": 0,
+        "emailInputs": 0,
+        "formsByStrategy": {
+          "popup": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "newsletter": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "footer": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "header": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "sidebar": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "contact": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "generic": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          }
+        },
+        "detectedPlatforms": [],
+        "possibleCaptcha": false,
+        "errors": []
+      },
+      "screenshots": [
+        "logs/screenshots/https___fancytreasures_com_initial_2025-06-09T21-24-42-421Z.png",
+        "logs/screenshots/https___fancytreasures_com_failed_2025-06-09T21-24-56-699Z.png"
+      ],
+      "pageSource": "logs/https___fancytreasures_com_failed_2025-06-09T21-24-57-820Z.html",
+      "errorType": "no_forms_found"
+    },
+    "timestamp": "2025-06-09T21:24:57.907Z"
+  },
+  {
+    "domain": "https://gigiandmaxpets.com",
+    "email": "rohan.s@meetgetrippledigital.com",
+    "error": "page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://gigiandmaxpets.com/\nCall log:\n\u001b[2m  - navigating to \"https://gigiandmaxpets.com/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+    "attempts": [
+      "Created session: 0e16af54-322b-4da1-9ad1-ff9864f5286c (proxy: [{\"type\":\"browserbase\",\"geolocation\":{\"country\":\"US\",\"state\":\"NY\",\"city\":\"NEW_YORK\"}}])",
+      "Connected to browser session",
+      "UTM navigation error: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://gigiandmaxpets.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\nCall log:\n\u001b[2m  - navigating to \"https://gigiandmaxpets.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\", waiting until \"domcontentloaded\"\u001b[22m\n, trying without UTM...",
+      "Fallback navigation also failed: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://gigiandmaxpets.com/\nCall log:\n\u001b[2m  - navigating to \"https://gigiandmaxpets.com/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+      "Error: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://gigiandmaxpets.com/\nCall log:\n\u001b[2m  - navigating to \"https://gigiandmaxpets.com/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    ],
+    "debugInfo": {
+      "pageAnalysis": null,
+      "screenshots": [],
+      "pageSource": null,
+      "errorType": "navigation_timeout"
+    },
+    "timestamp": "2025-06-09T21:24:37.971Z"
+  },
+  {
+    "domain": "https://luxuryskincarebykate.com",
+    "email": "rohan.seth@meetgetripplelabs.com",
+    "error": "page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://luxuryskincarebykate.com/\nCall log:\n\u001b[2m  - navigating to \"https://luxuryskincarebykate.com/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+    "attempts": [
+      "Created session: afae3b1b-5c28-48c9-aa3d-c401117ad2ee (proxy: [{\"type\":\"browserbase\",\"geolocation\":{\"country\":\"US\",\"state\":\"NY\",\"city\":\"NEW_YORK\"}}])",
+      "Connected to browser session",
+      "UTM navigation error: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://luxuryskincarebykate.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\nCall log:\n\u001b[2m  - navigating to \"https://luxuryskincarebykate.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\", waiting until \"domcontentloaded\"\u001b[22m\n, trying without UTM...",
+      "Fallback navigation also failed: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://luxuryskincarebykate.com/\nCall log:\n\u001b[2m  - navigating to \"https://luxuryskincarebykate.com/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+      "Error: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://luxuryskincarebykate.com/\nCall log:\n\u001b[2m  - navigating to \"https://luxuryskincarebykate.com/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    ],
+    "debugInfo": {
+      "pageAnalysis": null,
+      "screenshots": [],
+      "pageSource": null,
+      "errorType": "navigation_timeout"
+    },
+    "timestamp": "2025-06-09T21:24:33.519Z"
+  },
+  {
+    "domain": "https://daysigma.com",
+    "email": "rohan.seth@thegetrippleagency.com",
+    "error": "Unknown error",
+    "attempts": [
+      "Created session: d06e03b7-2339-4b6d-be72-752739756224 (proxy: [{\"type\":\"browserbase\",\"geolocation\":{\"country\":\"US\",\"state\":\"NY\",\"city\":\"NEW_YORK\"}}])",
+      "Connected to browser session",
+      "Navigated to https://daysigma.com?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup (Status: 200)",
+      "Attempting to reveal hidden forms...",
+      "Found and clicking trigger: a:has-text(\"Contact\")",
+      "Found and clicking trigger: a:has-text(\"Book\")",
+      "Page analysis: 0 forms, 0 email inputs",
+      "⚠️ Possible CAPTCHA detected",
+      "🎯 Trying popup strategy (11 selectors)",
+      "🎯 Trying newsletter strategy (15 selectors)",
+      "🎯 Trying footer strategy (5 selectors)",
+      "Scrolled to footer",
+      "🎯 Trying header strategy (5 selectors)",
+      "🎯 Trying sidebar strategy (4 selectors)",
+      "🎯 Trying contact strategy (10 selectors)",
+      "🎯 Trying generic strategy (7 selectors)",
+      "❌ No suitable forms found or submission failed"
+    ],
+    "debugInfo": {
+      "pageAnalysis": {
+        "totalForms": 0,
+        "emailInputs": 0,
+        "formsByStrategy": {
+          "popup": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "newsletter": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "footer": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "header": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "sidebar": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "contact": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "generic": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          }
+        },
+        "detectedPlatforms": [],
+        "possibleCaptcha": true,
+        "errors": []
+      },
+      "screenshots": [
+        "logs/screenshots/https___daysigma_com_initial_2025-06-09T21-24-46-417Z.png",
+        "logs/screenshots/https___daysigma_com_failed_2025-06-09T21-30-09-515Z.png"
+      ],
+      "pageSource": "logs/https___daysigma_com_failed_2025-06-09T21-30-12-806Z.html",
+      "errorType": "no_forms_found"
+    },
+    "timestamp": "2025-06-09T21:30:12.972Z"
+  },
+  {
+    "domain": "https://graceandlaceboutique.com",
+    "email": "rohan.s@thegetrippleagency.com",
+    "error": "Unknown error",
+    "attempts": [
+      "Created session: b87585cf-1086-4ff7-bf17-b9effd168233 (proxy: [{\"type\":\"browserbase\",\"geolocation\":{\"country\":\"US\",\"state\":\"NY\",\"city\":\"NEW_YORK\"}}])",
+      "Connected to browser session",
+      "UTM navigation failed (Status: 404), trying without UTM...",
+      "Navigated to https://graceandlaceboutique.com (Status: 404) - No UTM",
+      "Attempting to reveal hidden forms...",
+      "Page analysis: 0 forms, 0 email inputs",
+      "🎯 Trying popup strategy (11 selectors)",
+      "🎯 Trying newsletter strategy (15 selectors)",
+      "🎯 Trying footer strategy (5 selectors)",
+      "Scrolled to footer",
+      "🎯 Trying header strategy (5 selectors)",
+      "🎯 Trying sidebar strategy (4 selectors)",
+      "🎯 Trying contact strategy (10 selectors)",
+      "🎯 Trying generic strategy (7 selectors)",
+      "❌ No suitable forms found or submission failed"
+    ],
+    "debugInfo": {
+      "pageAnalysis": {
+        "totalForms": 0,
+        "emailInputs": 0,
+        "formsByStrategy": {
+          "popup": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "newsletter": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "footer": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "header": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "sidebar": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "contact": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "generic": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          }
+        },
+        "detectedPlatforms": [
+          "Shopify"
+        ],
+        "possibleCaptcha": false,
+        "errors": []
+      },
+      "screenshots": [
+        "logs/screenshots/https___graceandlaceboutique_com_initial_2025-06-09T21-24-37-126Z.png",
+        "logs/screenshots/https___graceandlaceboutique_com_failed_2025-06-09T21-24-52-909Z.png"
+      ],
+      "pageSource": "logs/https___graceandlaceboutique_com_failed_2025-06-09T21-24-53-893Z.html",
+      "errorType": "navigation_error"
+    },
+    "timestamp": "2025-06-09T21:24:53.978Z"
+  },
+  {
+    "domain": "https://blinktoys.com",
+    "email": "rohan.seth@thegetripplestudio.com",
+    "error": "page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://blinktoys.com/\nCall log:\n\u001b[2m  - navigating to \"https://blinktoys.com/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+    "attempts": [
+      "Created session: c4d20f3d-b261-40ea-8ac7-d2b569da3c4b (proxy: [{\"type\":\"browserbase\",\"geolocation\":{\"country\":\"US\",\"state\":\"NY\",\"city\":\"NEW_YORK\"}}])",
+      "Connected to browser session",
+      "UTM navigation error: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://blinktoys.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\nCall log:\n\u001b[2m  - navigating to \"https://blinktoys.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\", waiting until \"domcontentloaded\"\u001b[22m\n, trying without UTM...",
+      "Fallback navigation also failed: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://blinktoys.com/\nCall log:\n\u001b[2m  - navigating to \"https://blinktoys.com/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+      "Error: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://blinktoys.com/\nCall log:\n\u001b[2m  - navigating to \"https://blinktoys.com/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    ],
+    "debugInfo": {
+      "pageAnalysis": null,
+      "screenshots": [],
+      "pageSource": null,
+      "errorType": "navigation_timeout"
+    },
+    "timestamp": "2025-06-09T21:24:38.207Z"
+  },
+  {
+    "domain": "https://shopbrightlingerie.com",
+    "email": "rohan.s@thegetripplestudio.com",
+    "error": "page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://shopbrightlingerie.com/\nCall log:\n\u001b[2m  - navigating to \"https://shopbrightlingerie.com/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+    "attempts": [
+      "Created session: 51f45071-7c86-4a94-977e-9beaf930f0ec (proxy: [{\"type\":\"browserbase\",\"geolocation\":{\"country\":\"US\",\"state\":\"NY\",\"city\":\"NEW_YORK\"}}])",
+      "Connected to browser session",
+      "UTM navigation error: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://shopbrightlingerie.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\nCall log:\n\u001b[2m  - navigating to \"https://shopbrightlingerie.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\", waiting until \"domcontentloaded\"\u001b[22m\n, trying without UTM...",
+      "Fallback navigation also failed: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://shopbrightlingerie.com/\nCall log:\n\u001b[2m  - navigating to \"https://shopbrightlingerie.com/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+      "Error: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://shopbrightlingerie.com/\nCall log:\n\u001b[2m  - navigating to \"https://shopbrightlingerie.com/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    ],
+    "debugInfo": {
+      "pageAnalysis": null,
+      "screenshots": [],
+      "pageSource": null,
+      "errorType": "navigation_timeout"
+    },
+    "timestamp": "2025-06-09T21:24:40.849Z"
+  },
+  {
+    "domain": "https://chicbirdie.com",
+    "email": "rohan.seth@trygetripplehq.com",
+    "error": "Unknown error",
+    "attempts": [
+      "Created session: 015c8268-4475-472c-8d48-913bf366dec3 (proxy: [{\"type\":\"browserbase\",\"geolocation\":{\"country\":\"US\",\"state\":\"NY\",\"city\":\"NEW_YORK\"}}])",
+      "Connected to browser session",
+      "Navigated to https://chicbirdie.com?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup (Status: 200)",
+      "Attempting to reveal hidden forms...",
+      "Page analysis: 1 forms, 0 email inputs",
+      "⚠️ Possible CAPTCHA detected",
+      "🎯 Trying popup strategy (11 selectors)",
+      "🎯 Trying newsletter strategy (15 selectors)",
+      "🎯 Trying footer strategy (5 selectors)",
+      "Scrolled to footer",
+      "🎯 Trying header strategy (5 selectors)",
+      "🎯 Trying sidebar strategy (4 selectors)",
+      "🎯 Trying contact strategy (10 selectors)",
+      "🎯 Trying generic strategy (7 selectors)",
+      "❌ No suitable forms found or submission failed"
+    ],
+    "debugInfo": {
+      "pageAnalysis": {
+        "totalForms": 1,
+        "emailInputs": 0,
+        "formsByStrategy": {
+          "popup": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "newsletter": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "footer": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "header": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "sidebar": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "contact": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "generic": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          }
+        },
+        "detectedPlatforms": [],
+        "possibleCaptcha": true,
+        "errors": []
+      },
+      "screenshots": [
+        "logs/screenshots/https___chicbirdie_com_initial_2025-06-09T21-24-36-268Z.png",
+        "logs/screenshots/https___chicbirdie_com_failed_2025-06-09T21-24-51-711Z.png"
+      ],
+      "pageSource": "logs/https___chicbirdie_com_failed_2025-06-09T21-24-53-455Z.html",
+      "errorType": "no_forms_found"
+    },
+    "timestamp": "2025-06-09T21:24:53.547Z"
+  },
+  {
+    "domain": "https://chicsafetyshop.com",
+    "email": "rohan.s@trygetripplehq.com",
+    "error": "page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://chicsafetyshop.com/\nCall log:\n\u001b[2m  - navigating to \"https://chicsafetyshop.com/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+    "attempts": [
+      "Created session: 39d17006-b216-4686-8be2-4bc127db797d (proxy: [{\"type\":\"browserbase\",\"geolocation\":{\"country\":\"US\",\"state\":\"NY\",\"city\":\"NEW_YORK\"}}])",
+      "Connected to browser session",
+      "UTM navigation error: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://chicsafetyshop.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\nCall log:\n\u001b[2m  - navigating to \"https://chicsafetyshop.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\", waiting until \"domcontentloaded\"\u001b[22m\n, trying without UTM...",
+      "Fallback navigation also failed: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://chicsafetyshop.com/\nCall log:\n\u001b[2m  - navigating to \"https://chicsafetyshop.com/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+      "Error: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://chicsafetyshop.com/\nCall log:\n\u001b[2m  - navigating to \"https://chicsafetyshop.com/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    ],
+    "debugInfo": {
+      "pageAnalysis": null,
+      "screenshots": [],
+      "pageSource": null,
+      "errorType": "navigation_timeout"
+    },
+    "timestamp": "2025-06-09T21:24:40.525Z"
+  },
+  {
+    "domain": "https://crystalintuition.com",
+    "email": "rohan.seth@opengetripplemedia.com",
+    "error": "Unknown error",
+    "attempts": [
+      "Created session: 20cb524d-c79a-428f-b241-ac7484fc19fd (proxy: [{\"type\":\"browserbase\",\"geolocation\":{\"country\":\"US\",\"state\":\"NY\",\"city\":\"NEW_YORK\"}}])",
+      "Connected to browser session",
+      "Navigated to https://crystalintuition.com?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup (Status: 200)",
+      "Attempting to reveal hidden forms...",
+      "Found and clicking trigger: a:has-text(\"Contact\")",
+      "Page analysis: 2 forms, 0 email inputs",
+      "⚠️ Possible CAPTCHA detected",
+      "🎯 Trying popup strategy (11 selectors)",
+      "🎯 Trying newsletter strategy (15 selectors)",
+      "🎯 Trying footer strategy (5 selectors)",
+      "Scrolled to footer",
+      "🎯 Trying header strategy (5 selectors)",
+      "🎯 Trying sidebar strategy (4 selectors)",
+      "🎯 Trying contact strategy (10 selectors)",
+      "🎯 Trying generic strategy (7 selectors)",
+      "Found 1 elements for selector: input[name*=\"email\" i]:not([class*=\"login\"]):not([class*=\"signin\"]):not([class*=\"search\"])",
+      "Element 1 not visible, trying to make it visible",
+      "Scroll failed: locator.scrollIntoViewIfNeeded: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    2 × waiting for element to be stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying scroll into view action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying scroll into view action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    8 × waiting for element to be stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying scroll into view action\u001b[22m\n\u001b[2m      - waiting 500ms\u001b[22m\n",
+      "Reveal attempt failed: locator.count: Target page, context or browser has been closed",
+      "JavaScript force failed: locator.evaluate: Target page, context or browser has been closed",
+      "Element 1 still not visible after all attempts",
+      "Selector error: locator.count: Target page, context or browser has been closed",
+      "Selector error: locator.count: Target page, context or browser has been closed",
+      "Selector error: locator.count: Target page, context or browser has been closed",
+      "Selector error: locator.count: Target page, context or browser has been closed",
+      "Selector error: locator.count: Target page, context or browser has been closed",
+      "❌ No suitable forms found or submission failed"
+    ],
+    "debugInfo": {
+      "pageAnalysis": {
+        "totalForms": 2,
+        "emailInputs": 0,
+        "formsByStrategy": {
+          "popup": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "newsletter": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "footer": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "header": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "sidebar": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "contact": {
+            "found": 0,
+            "visible": 0,
+            "selectors": []
+          },
+          "generic": {
+            "found": 1,
+            "visible": 0,
+            "selectors": [
+              "input[name*=\"email\" i]:not([class*=\"login\"]):not([class*=\"signin\"]):not([class*=\"search\"])"
+            ]
+          }
+        },
+        "detectedPlatforms": [],
+        "possibleCaptcha": true,
+        "errors": []
+      },
+      "screenshots": [
+        "logs/screenshots/https___crystalintuition_com_initial_2025-06-09T21-24-44-298Z.png"
+      ],
+      "pageSource": null,
+      "errorType": "no_forms_found"
+    },
+    "timestamp": "2025-06-09T21:30:15.261Z"
+  },
+  {
+    "domain": "https://lorikennedystudio.com",
+    "email": "rohan.s@opengetripplemedia.com",
+    "error": "page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://lorikennedystudio.com/\nCall log:\n\u001b[2m  - navigating to \"https://lorikennedystudio.com/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+    "attempts": [
+      "Created session: e4a863ad-84bd-4cf0-8f2a-d2135f2fa9a5 (proxy: [{\"type\":\"browserbase\",\"geolocation\":{\"country\":\"US\",\"state\":\"NY\",\"city\":\"NEW_YORK\"}}])",
+      "Connected to browser session",
+      "UTM navigation error: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://lorikennedystudio.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\nCall log:\n\u001b[2m  - navigating to \"https://lorikennedystudio.com/?utm_source=automation&utm_medium=signup&utm_campaign=bulk-signup\", waiting until \"domcontentloaded\"\u001b[22m\n, trying without UTM...",
+      "Fallback navigation also failed: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://lorikennedystudio.com/\nCall log:\n\u001b[2m  - navigating to \"https://lorikennedystudio.com/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+      "Error: page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://lorikennedystudio.com/\nCall log:\n\u001b[2m  - navigating to \"https://lorikennedystudio.com/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    ],
+    "debugInfo": {
+      "pageAnalysis": null,
+      "screenshots": [],
+      "pageSource": null,
+      "errorType": "navigation_timeout"
+    },
+    "timestamp": "2025-06-09T21:24:32.814Z"
+  }
+]

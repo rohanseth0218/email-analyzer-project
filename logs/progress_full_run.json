@@ -1,0 +1,350 @@
+{
+  "timestamp": "2025-06-10T00:59:52.234Z",
+  "totalProcessed": 4200,
+  "totalSuccessful": 1521,
+  "totalFailed": 2679,
+  "successRate": "36.2",
+  "runtime": 27,
+  "currentBatch": 42,
+  "failureReasons": {
+    "unknown_error": 1200
+  },
+  "batchStats": [
+    {
+      "batchNumber": 1,
+      "processed": 100,
+      "successful": 48,
+      "failed": 52,
+      "successRate": "48.0",
+      "duration": 168
+    },
+    {
+      "batchNumber": 2,
+      "processed": 100,
+      "successful": 51,
+      "failed": 49,
+      "successRate": "51.0",
+      "duration": 126
+    },
+    {
+      "batchNumber": 3,
+      "processed": 100,
+      "successful": 52,
+      "failed": 48,
+      "successRate": "52.0",
+      "duration": 145
+    },
+    {
+      "batchNumber": 4,
+      "processed": 100,
+      "successful": 55,
+      "failed": 45,
+      "successRate": "55.0",
+      "duration": 108
+    },
+    {
+      "batchNumber": 5,
+      "processed": 100,
+      "successful": 44,
+      "failed": 56,
+      "successRate": "44.0",
+      "duration": 265
+    },
+    {
+      "batchNumber": 6,
+      "processed": 100,
+      "successful": 59,
+      "failed": 41,
+      "successRate": "59.0",
+      "duration": 149
+    },
+    {
+      "batchNumber": 7,
+      "processed": 100,
+      "successful": 49,
+      "failed": 51,
+      "successRate": "49.0",
+      "duration": 139
+    },
+    {
+      "batchNumber": 8,
+      "processed": 100,
+      "successful": 55,
+      "failed": 45,
+      "successRate": "55.0",
+      "duration": 132
+    },
+    {
+      "batchNumber": 9,
+      "processed": 100,
+      "successful": 58,
+      "failed": 42,
+      "successRate": "58.0",
+      "duration": 137
+    },
+    {
+      "batchNumber": 10,
+      "processed": 100,
+      "successful": 51,
+      "failed": 49,
+      "successRate": "51.0",
+      "duration": 182
+    },
+    {
+      "batchNumber": 11,
+      "processed": 100,
+      "successful": 53,
+      "failed": 47,
+      "successRate": "53.0",
+      "duration": 146
+    },
+    {
+      "batchNumber": 12,
+      "processed": 100,
+      "successful": 53,
+      "failed": 47,
+      "successRate": "53.0",
+      "duration": 220
+    },
+    {
+      "batchNumber": 13,
+      "processed": 100,
+      "successful": 58,
+      "failed": 42,
+      "successRate": "58.0",
+      "duration": 206
+    },
+    {
+      "batchNumber": 14,
+      "processed": 100,
+      "successful": 54,
+      "failed": 46,
+      "successRate": "54.0",
+      "duration": 171
+    },
+    {
+      "batchNumber": 15,
+      "processed": 100,
+      "successful": 52,
+      "failed": 48,
+      "successRate": "52.0",
+      "duration": 108
+    },
+    {
+      "batchNumber": 16,
+      "processed": 100,
+      "successful": 48,
+      "failed": 52,
+      "successRate": "48.0",
+      "duration": 135
+    },
+    {
+      "batchNumber": 17,
+      "processed": 100,
+      "successful": 52,
+      "failed": 48,
+      "successRate": "52.0",
+      "duration": 91
+    },
+    {
+      "batchNumber": 18,
+      "processed": 100,
+      "successful": 50,
+      "failed": 50,
+      "successRate": "50.0",
+      "duration": 243
+    },
+    {
+      "batchNumber": 19,
+      "processed": 100,
+      "successful": 28,
+      "failed": 72,
+      "successRate": "28.0",
+      "duration": 257
+    },
+    {
+      "batchNumber": 20,
+      "processed": 100,
+      "successful": 37,
+      "failed": 63,
+      "successRate": "37.0",
+      "duration": 201
+    },
+    {
+      "batchNumber": 21,
+      "processed": 100,
+      "successful": 40,
+      "failed": 60,
+      "successRate": "40.0",
+      "duration": 237
+    },
+    {
+      "batchNumber": 22,
+      "processed": 100,
+      "successful": 45,
+      "failed": 55,
+      "successRate": "45.0",
+      "duration": 119
+    },
+    {
+      "batchNumber": 23,
+      "processed": 100,
+      "successful": 54,
+      "failed": 46,
+      "successRate": "54.0",
+      "duration": 142
+    },
+    {
+      "batchNumber": 24,
+      "processed": 100,
+      "successful": 45,
+      "failed": 55,
+      "successRate": "45.0",
+      "duration": 145
+    },
+    {
+      "batchNumber": 25,
+      "processed": 100,
+      "successful": 54,
+      "failed": 46,
+      "successRate": "54.0",
+      "duration": 133
+    },
+    {
+      "batchNumber": 26,
+      "processed": 100,
+      "successful": 59,
+      "failed": 41,
+      "successRate": "59.0",
+      "duration": 100
+    },
+    {
+      "batchNumber": 27,
+      "processed": 100,
+      "successful": 59,
+      "failed": 41,
+      "successRate": "59.0",
+      "duration": 129
+    },
+    {
+      "batchNumber": 28,
+      "processed": 100,
+      "successful": 49,
+      "failed": 51,
+      "successRate": "49.0",
+      "duration": 137
+    },
+    {
+      "batchNumber": 29,
+      "processed": 100,
+      "successful": 58,
+      "failed": 42,
+      "successRate": "58.0",
+      "duration": 142
+    },
+    {
+      "batchNumber": 30,
+      "processed": 100,
+      "successful": 51,
+      "failed": 49,
+      "successRate": "51.0",
+      "duration": 136
+    },
+    {
+      "batchNumber": 31,
+      "processed": 100,
+      "successful": 0,
+      "failed": 100,
+      "successRate": "0.0",
+      "duration": 1
+    },
+    {
+      "batchNumber": 32,
+      "processed": 100,
+      "successful": 0,
+      "failed": 100,
+      "successRate": "0.0",
+      "duration": 0
+    },
+    {
+      "batchNumber": 33,
+      "processed": 100,
+      "successful": 0,
+      "failed": 100,
+      "successRate": "0.0",
+      "duration": 0
+    },
+    {
+      "batchNumber": 34,
+      "processed": 100,
+      "successful": 0,
+      "failed": 100,
+      "successRate": "0.0",
+      "duration": 0
+    },
+    {
+      "batchNumber": 35,
+      "processed": 100,
+      "successful": 0,
+      "failed": 100,
+      "successRate": "0.0",
+      "duration": 0
+    },
+    {
+      "batchNumber": 36,
+      "processed": 100,
+      "successful": 0,
+      "failed": 100,
+      "successRate": "0.0",
+      "duration": 0
+    },
+    {
+      "batchNumber": 37,
+      "processed": 100,
+      "successful": 0,
+      "failed": 100,
+      "successRate": "0.0",
+      "duration": 0
+    },
+    {
+      "batchNumber": 38,
+      "processed": 100,
+      "successful": 0,
+      "failed": 100,
+      "successRate": "0.0",
+      "duration": 0
+    },
+    {
+      "batchNumber": 39,
+      "processed": 100,
+      "successful": 0,
+      "failed": 100,
+      "successRate": "0.0",
+      "duration": 0
+    },
+    {
+      "batchNumber": 40,
+      "processed": 100,
+      "successful": 0,
+      "failed": 100,
+      "successRate": "0.0",
+      "duration": 0
+    },
+    {
+      "batchNumber": 41,
+      "processed": 100,
+      "successful": 0,
+      "failed": 100,
+      "successRate": "0.0",
+      "duration": 0
+    },
+    {
+      "batchNumber": 42,
+      "processed": 100,
+      "successful": 0,
+      "failed": 100,
+      "successRate": "0.0",
+      "duration": 0
+    }
+  ]
+}

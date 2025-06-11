@@ -1,0 +1,327 @@
+{
+  "email_info": {
+    "sender": "peter@getripple.ai",
+    "subject": "Hey! Welcome to Ripple",
+    "date": "Tue, 03 Jun 2025 21:04:35 +0000"
+  },
+  "engagement_timestamp": "2025-06-03T17:08:33.975399",
+  "total_links_clicked": 10,
+  "successful_clicks": 10,
+  "failed_clicks": 0,
+  "click_results": [
+    {
+      "url": "https://ctrk.klclick.com/l/01JWVSRE2RKMB5XY4K02A4FHX6_0",
+      "link_text": "Unknown",
+      "click_timestamp": "2025-06-03T17:08:33.975422",
+      "success": true,
+      "status_code": 200,
+      "final_url": "https://getripple.ai?_kx=_3EqiNLJXgBo8yiCrqOb3GHWUbSHzJRYf8USK2VoyD7iS16mKclWm6hNncAi01zA.SYGDzQ",
+      "redirects": [
+        "https://ctrk.klclick.com/l/01JWVSRE2RKMB5XY4K02A4FHX6_0"
+      ],
+      "response_headers": {
+        "Alt-Svc": "h3=\":443\"; ma=2592000",
+        "Cache-Control": "public, max-age=0, must-revalidate",
+        "Content-Encoding": "br",
+        "Content-Length": "7684",
+        "Content-Type": "text/html",
+        "Date": "Tue, 03 Jun 2025 21:08:33 GMT",
+        "Etag": "\"64c25ca24d3ffe57bf5502ac82dbdc3b\"",
+        "Last-Modified": "Fri, 23 May 2025 11:09:00 GMT",
+        "Link": "<https://framerusercontent.com>; rel=\"preconnect\", <https://framerusercontent.com>; rel=\"preconnect\"; crossorigin=\"\"",
+        "Server": "Framer/4b66923",
+        "Server-Timing": "region;desc=\"us-east-1\", cache;desc=\"cached\", ssg-status;desc=\"optimized\", version;desc=\"4b66923\"",
+        "Strict-Transport-Security": "max-age=31536000",
+        "Vary": "Accept-Encoding",
+        "X-Content-Type-Options": "nosniff"
+      },
+      "error": null
+    },
+    {
+      "url": "https://ctrk.klclick.com/l/01JWVSRE2RKMB5XY4K02A4FHX6_1",
+      "link_text": "Unknown",
+      "click_timestamp": "2025-06-03T17:08:36.192127",
+      "success": true,
+      "status_code": 200,
+      "final_url": "https://getripple.ai?_kx=_3EqiNLJXgBo8yiCrqOb3GHWUbSHzJRYf8USK2VoyD7iS16mKclWm6hNncAi01zA.SYGDzQ",
+      "redirects": [
+        "https://ctrk.klclick.com/l/01JWVSRE2RKMB5XY4K02A4FHX6_1"
+      ],
+      "response_headers": {
+        "Alt-Svc": "h3=\":443\"; ma=2592000",
+        "Cache-Control": "public, max-age=0, must-revalidate",
+        "Content-Encoding": "br",
+        "Content-Length": "7684",
+        "Content-Type": "text/html",
+        "Date": "Tue, 03 Jun 2025 21:08:35 GMT",
+        "Etag": "\"64c25ca24d3ffe57bf5502ac82dbdc3b\"",
+        "Last-Modified": "Fri, 23 May 2025 11:09:00 GMT",
+        "Link": "<https://framerusercontent.com>; rel=\"preconnect\", <https://framerusercontent.com>; rel=\"preconnect\"; crossorigin=\"\"",
+        "Server": "Framer/4b66923",
+        "Server-Timing": "region;desc=\"us-east-1\", cache;desc=\"cached\", ssg-status;desc=\"optimized\", version;desc=\"4b66923\"",
+        "Strict-Transport-Security": "max-age=31536000",
+        "Vary": "Accept-Encoding",
+        "X-Content-Type-Options": "nosniff"
+      },
+      "error": null
+    },
+    {
+      "url": "https://ctrk.klclick.com/l/01JWVSRE2RKMB5XY4K02A4FHX6_2",
+      "link_text": "Unknown",
+      "click_timestamp": "2025-06-03T17:08:38.352744",
+      "success": true,
+      "status_code": 404,
+      "final_url": "https://www.loom.com/share/b7f0a3df0d694db19b9ae6001bf91e23?_kx=_3EqiNLJXgBo8yiCrqOb3GHWUbSHzJRYf8USK2VoyD7iS16mKclWm6hNncAi01zA.SYGDzQ",
+      "redirects": [
+        "https://ctrk.klclick.com/l/01JWVSRE2RKMB5XY4K02A4FHX6_2"
+      ],
+      "response_headers": {
+        "Content-Type": "text/html; charset=utf-8",
+        "Transfer-Encoding": "chunked",
+        "Connection": "keep-alive",
+        "Date": "Tue, 03 Jun 2025 21:08:38 GMT",
+        "vary": "Accept-Encoding, Origin",
+        "content-encoding": "gzip",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY",
+        "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+        "content-security-policy": "default-src 'self' blob: ; script-src 'nonce-JDcc/CcLUPvT1C7CRMIZSs22jRBBTraspJw6jq0lj5MP8yMh' 'self' 'unsafe-eval' 'unsafe-inline' 'strict-dynamic' blob: https: ; style-src 'unsafe-inline' https://cdn.loom.com https://releases.transloadit.com/uppy/ https://accounts.google.com/gsi/style https://ds-cdn.prod-east.frontend.public.atl-paas.net/assets/; img-src 'self' blob: data: chrome-extension: https:; font-src 'self' data: chrome-extension: https://cdn.loom.com https://fonts.gstatic.com https://use.typekit.net https://ds-cdn.prod-east.frontend.public.atl-paas.net/assets/ https://js.intercomcdn.com https://fonts.intercomcdn.com https://jcs-chat-widget.atlassian.com/assets/; base-uri 'self'; connect-src 'self' data: https://bat.bing.com https://*.clarity.ms https://*.mutinyhq.com https://*.mutinyhq.io https://*.mutinycdn.com https://*.google.com https://accounts.google.com/gsi/ https://*.analytics.google.com https://*.google-analytics.com https://*.googletagmanager.com https://*.g.doubleclick.net https://connect.facebook.net https://px.ads.linkedin.com https://pixel-config.reddit.com https://q.quora.com https://analytics.tiktok.com/ https://www.redditstatic.com/ads/ https://api.segment.io https://cdn.segment.com https://intercom.help https://api-iam.intercom.io https://api-iam.eu.intercom.io https://api-iam.au.intercom.io https://api.hubapi.com https://cta-service-cms2.hubspot.com https://js.hs-banner.com https://js.hubspot.com/web-interactives-embed.js https://browser-http-intake.logs.datadoghq.com/ https://logs.browser-intake-datadoghq.com/api/ https://rum.browser-intake-datadoghq.com/api/ https://m.stripe.com https://o398470.ingest.sentry.io https://loom-media-production.s3.us-west-2.amazonaws.com/uploads/ https://loom-media-production.s3.us-west-2.amazonaws.com/sessions/ https://s3.us-west-2.amazonaws.com/loom-media-production/sessions/ https://s3.us-west-2.amazonaws.com/loom-media-production/images/ https://s3.us-west-2.amazonaws.com/loom-screenshots-production/images/ https://loom-prd-usw2-media.s3.us-west-2.amazonaws.com/uploads/ https://s3.us-west-2.amazonaws.com/loom-prd-usw2-media/sessions/ https://s3.us-west-2.amazonaws.com/loom-prd-usw2-media/images/ https://s3.us-west-2.amazonaws.com/loom-prd-usw2-media/images/ https://*.loom.com wss://www.loom.com https://*.atlassian.com https://cdn.cookielaw.org https://geolocation.onetrust.com https://privacyportal.onetrust.com https://cookie-cdn.cookiepro.com https://*.atl-paas.net https://calendly.com; media-src 'self' blob:  data: https://*.loom.com/ https://cdn.sanity.io  https://js.intercomcdn.com https://downloads.intercomcdn.com https://downloads.intercomcdn.eu https://downloads.au.intercomcdn.com; object-src 'none'; frame-src 'self' https://js.stripe.com https://www.loom.com https://accounts.google.com/gsi/ https://www.google.com/ https://*.doubleclick.net https://calendly.com https://useloom.atlassian.net; report-uri https://browser-intake-datadoghq.com/api/v2/logs?dd-api-key=pub18c86b072f3b6cefdae2b56c8b60db94&dd-evp-origin=content-security-policy&ddsource=csp-report&ddtags=service%3Acsp%2Cenv%3Aproduction",
+        "set-cookie": "loom_anon_comment=8fe6f19f348546a583b89e5296bf3e60; Max-Age=31536000000; Domain=loom.com; Path=/; Secure; Partitioned; SameSite=None, ajs_anonymous_id=%22d09fa6e6-aafa-4d5b-a624-e3e60a7472d1%22; Max-Age=31536000000; Domain=loom.com; Path=/; Secure; Partitioned; SameSite=None, loom_referral_video=b7f0a3df0d694db19b9ae6001bf91e23; Domain=www.loom.com; Path=/; Secure; Partitioned; SameSite=None",
+        "etag": "W/\"22c7-sB7k3kBOVqamTzVKDifu83JLMDk\"",
+        "X-Cache": "Error from cloudfront",
+        "Via": "1.1 284ac69616559909913fa0f0502158ea.cloudfront.net (CloudFront)",
+        "X-Amz-Cf-Pop": "JFK52-P8",
+        "Alt-Svc": "h3=\":443\"; ma=86400",
+        "X-Amz-Cf-Id": "HahLaRXz-doTsvqavz5W2CP_KEIV05PTfnKff9HP1A4L_d9IRtfEVw==",
+        "X-CDN": "cloudfront"
+      },
+      "error": null
+    },
+    {
+      "url": "https://ctrk.klclick.com/l/01JWVSRE2RKMB5XY4K02A4FHX6_3",
+      "link_text": "Unknown",
+      "click_timestamp": "2025-06-03T17:08:41.663871",
+      "success": true,
+      "status_code": 404,
+      "final_url": "https://www.loom.com/share/b7f0a3df0d694db19b9ae6001bf91e23?_kx=_3EqiNLJXgBo8yiCrqOb3GHWUbSHzJRYf8USK2VoyD7iS16mKclWm6hNncAi01zA.SYGDzQ",
+      "redirects": [
+        "https://ctrk.klclick.com/l/01JWVSRE2RKMB5XY4K02A4FHX6_3"
+      ],
+      "response_headers": {
+        "Content-Type": "text/html; charset=utf-8",
+        "Transfer-Encoding": "chunked",
+        "Connection": "keep-alive",
+        "Date": "Tue, 03 Jun 2025 21:08:41 GMT",
+        "vary": "Accept-Encoding, Origin",
+        "content-encoding": "gzip",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY",
+        "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+        "content-security-policy": "default-src 'self' blob: ; script-src 'nonce-Cd8uNd+8uHUxvfdjUsuLoheCv5bdxw75QdTv/DcokZJpnz9Z' 'self' 'unsafe-eval' 'unsafe-inline' 'strict-dynamic' blob: https: ; style-src 'unsafe-inline' https://cdn.loom.com https://releases.transloadit.com/uppy/ https://accounts.google.com/gsi/style https://ds-cdn.prod-east.frontend.public.atl-paas.net/assets/; img-src 'self' blob: data: chrome-extension: https:; font-src 'self' data: chrome-extension: https://cdn.loom.com https://fonts.gstatic.com https://use.typekit.net https://ds-cdn.prod-east.frontend.public.atl-paas.net/assets/ https://js.intercomcdn.com https://fonts.intercomcdn.com https://jcs-chat-widget.atlassian.com/assets/; base-uri 'self'; connect-src 'self' data: https://bat.bing.com https://*.clarity.ms https://*.mutinyhq.com https://*.mutinyhq.io https://*.mutinycdn.com https://*.google.com https://accounts.google.com/gsi/ https://*.analytics.google.com https://*.google-analytics.com https://*.googletagmanager.com https://*.g.doubleclick.net https://connect.facebook.net https://px.ads.linkedin.com https://pixel-config.reddit.com https://q.quora.com https://analytics.tiktok.com/ https://www.redditstatic.com/ads/ https://api.segment.io https://cdn.segment.com https://intercom.help https://api-iam.intercom.io https://api-iam.eu.intercom.io https://api-iam.au.intercom.io https://api.hubapi.com https://cta-service-cms2.hubspot.com https://js.hs-banner.com https://js.hubspot.com/web-interactives-embed.js https://browser-http-intake.logs.datadoghq.com/ https://logs.browser-intake-datadoghq.com/api/ https://rum.browser-intake-datadoghq.com/api/ https://m.stripe.com https://o398470.ingest.sentry.io https://loom-media-production.s3.us-west-2.amazonaws.com/uploads/ https://loom-media-production.s3.us-west-2.amazonaws.com/sessions/ https://s3.us-west-2.amazonaws.com/loom-media-production/sessions/ https://s3.us-west-2.amazonaws.com/loom-media-production/images/ https://s3.us-west-2.amazonaws.com/loom-screenshots-production/images/ https://loom-prd-usw2-media.s3.us-west-2.amazonaws.com/uploads/ https://s3.us-west-2.amazonaws.com/loom-prd-usw2-media/sessions/ https://s3.us-west-2.amazonaws.com/loom-prd-usw2-media/images/ https://s3.us-west-2.amazonaws.com/loom-prd-usw2-media/images/ https://*.loom.com wss://www.loom.com https://*.atlassian.com https://cdn.cookielaw.org https://geolocation.onetrust.com https://privacyportal.onetrust.com https://cookie-cdn.cookiepro.com https://*.atl-paas.net https://calendly.com; media-src 'self' blob:  data: https://*.loom.com/ https://cdn.sanity.io  https://js.intercomcdn.com https://downloads.intercomcdn.com https://downloads.intercomcdn.eu https://downloads.au.intercomcdn.com; object-src 'none'; frame-src 'self' https://js.stripe.com https://www.loom.com https://accounts.google.com/gsi/ https://www.google.com/ https://*.doubleclick.net https://calendly.com https://useloom.atlassian.net; report-uri https://browser-intake-datadoghq.com/api/v2/logs?dd-api-key=pub18c86b072f3b6cefdae2b56c8b60db94&dd-evp-origin=content-security-policy&ddsource=csp-report&ddtags=service%3Acsp%2Cenv%3Aproduction",
+        "set-cookie": "loom_anon_comment=4e99d65ac9154339a8effd10a7ce5b34; Max-Age=31536000000; Domain=loom.com; Path=/; Secure; Partitioned; SameSite=None, ajs_anonymous_id=%2204d0bf8d-d2f6-4597-b829-98f3935fa90b%22; Max-Age=31536000000; Domain=loom.com; Path=/; Secure; Partitioned; SameSite=None, loom_referral_video=b7f0a3df0d694db19b9ae6001bf91e23; Domain=www.loom.com; Path=/; Secure; Partitioned; SameSite=None",
+        "etag": "W/\"22c7-kmVOamOxvvC8OP5FNpsJ5cRCeEs\"",
+        "X-Cache": "Error from cloudfront",
+        "Via": "1.1 11913fe47164f540bffea3dbbb63de92.cloudfront.net (CloudFront)",
+        "X-Amz-Cf-Pop": "JFK52-P8",
+        "Alt-Svc": "h3=\":443\"; ma=86400",
+        "X-Amz-Cf-Id": "OzY_0cchRXAHlgl2dmDNVauprcApweNdgje5BHWAEsqteKLfrGxLJw==",
+        "X-CDN": "cloudfront"
+      },
+      "error": null
+    },
+    {
+      "url": "https://ctrk.klclick.com/l/01JWVSRE2RKMB5XY4K02A4FHX6_4",
+      "link_text": "Unknown",
+      "click_timestamp": "2025-06-03T17:08:44.901684",
+      "success": true,
+      "status_code": 200,
+      "final_url": "https://www.loom.com/share/2d72931190cc49108f511859b1e94ff7?sid=dfed4fd4-75e5-4052-9fbd-a0498bff103a&_kx=_3EqiNLJXgBo8yiCrqOb3GHWUbSHzJRYf8USK2VoyD7iS16mKclWm6hNncAi01zA.SYGDzQ",
+      "redirects": [
+        "https://ctrk.klclick.com/l/01JWVSRE2RKMB5XY4K02A4FHX6_4"
+      ],
+      "response_headers": {
+        "Content-Type": "text/html; charset=utf-8",
+        "Transfer-Encoding": "chunked",
+        "Connection": "keep-alive",
+        "Date": "Tue, 03 Jun 2025 21:08:45 GMT",
+        "vary": "Accept-Encoding, Origin",
+        "content-encoding": "gzip",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY",
+        "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+        "content-security-policy": "default-src 'self' blob: ; script-src 'nonce-s905xQCxs2kY5wSQG2CUfoU9gAkb6g5cKB8gGBWoDvQLL1au' 'self' 'unsafe-eval' 'unsafe-inline' 'strict-dynamic' blob: https: ; style-src 'unsafe-inline' https://cdn.loom.com https://releases.transloadit.com/uppy/ https://accounts.google.com/gsi/style https://ds-cdn.prod-east.frontend.public.atl-paas.net/assets/; img-src 'self' blob: data: chrome-extension: https:; font-src 'self' data: chrome-extension: https://cdn.loom.com https://fonts.gstatic.com https://use.typekit.net https://ds-cdn.prod-east.frontend.public.atl-paas.net/assets/ https://js.intercomcdn.com https://fonts.intercomcdn.com https://jcs-chat-widget.atlassian.com/assets/; base-uri 'self'; connect-src 'self' data: https://bat.bing.com https://*.clarity.ms https://*.mutinyhq.com https://*.mutinyhq.io https://*.mutinycdn.com https://*.google.com https://accounts.google.com/gsi/ https://*.analytics.google.com https://*.google-analytics.com https://*.googletagmanager.com https://*.g.doubleclick.net https://connect.facebook.net https://px.ads.linkedin.com https://pixel-config.reddit.com https://q.quora.com https://analytics.tiktok.com/ https://www.redditstatic.com/ads/ https://api.segment.io https://cdn.segment.com https://intercom.help https://api-iam.intercom.io https://api-iam.eu.intercom.io https://api-iam.au.intercom.io https://api.hubapi.com https://cta-service-cms2.hubspot.com https://js.hs-banner.com https://js.hubspot.com/web-interactives-embed.js https://browser-http-intake.logs.datadoghq.com/ https://logs.browser-intake-datadoghq.com/api/ https://rum.browser-intake-datadoghq.com/api/ https://m.stripe.com https://o398470.ingest.sentry.io https://loom-media-production.s3.us-west-2.amazonaws.com/uploads/ https://loom-media-production.s3.us-west-2.amazonaws.com/sessions/ https://s3.us-west-2.amazonaws.com/loom-media-production/sessions/ https://s3.us-west-2.amazonaws.com/loom-media-production/images/ https://s3.us-west-2.amazonaws.com/loom-screenshots-production/images/ https://loom-prd-usw2-media.s3.us-west-2.amazonaws.com/uploads/ https://s3.us-west-2.amazonaws.com/loom-prd-usw2-media/sessions/ https://s3.us-west-2.amazonaws.com/loom-prd-usw2-media/images/ https://s3.us-west-2.amazonaws.com/loom-prd-usw2-media/images/ https://*.loom.com wss://www.loom.com https://*.atlassian.com https://cdn.cookielaw.org https://geolocation.onetrust.com https://privacyportal.onetrust.com https://cookie-cdn.cookiepro.com https://*.atl-paas.net https://calendly.com; media-src 'self' blob:  data: https://*.loom.com/ https://cdn.sanity.io  https://js.intercomcdn.com https://downloads.intercomcdn.com https://downloads.intercomcdn.eu https://downloads.au.intercomcdn.com; object-src 'none'; frame-src 'self' https://js.stripe.com https://www.loom.com https://accounts.google.com/gsi/ https://www.google.com/ https://*.doubleclick.net https://calendly.com https://useloom.atlassian.net; report-uri https://browser-intake-datadoghq.com/api/v2/logs?dd-api-key=pub18c86b072f3b6cefdae2b56c8b60db94&dd-evp-origin=content-security-policy&ddsource=csp-report&ddtags=service%3Acsp%2Cenv%3Aproduction",
+        "set-cookie": "loom_anon_comment=86145d3ffb96427c8a9c532f406886b5; Max-Age=31536000000; Domain=loom.com; Path=/; Secure; Partitioned; SameSite=None, ajs_anonymous_id=%22a7dabaca-7132-4706-829a-deef7237d798%22; Max-Age=31536000000; Domain=loom.com; Path=/; Secure; Partitioned; SameSite=None, loom_referral_video=2d72931190cc49108f511859b1e94ff7; Domain=www.loom.com; Path=/; Secure; Partitioned; SameSite=None, __Host-psifi.analyticsTrace=c6c82e84510e17bd132f921cd4e7d2f1ab7c689460798b4557691f2b83074ebe; Max-Age=21600; Path=/; Expires=Wed, 04 Jun 2025 03:08:45 GMT; HttpOnly; Secure; SameSite=Strict, __Host-psifi.analyticsTraceV2=9dc256d31b4fe5c745701feb61dcf1051350be327bb2f4f30f696699b749367a8804b461bdeba90ce53b7e5451224b44f701e3097943b8bd803cff089139b0b7; Max-Age=21600; Path=/; Expires=Wed, 04 Jun 2025 03:08:45 GMT; HttpOnly; Secure; SameSite=Strict",
+        "etag": "W/\"65c3-UDDtHhNMKD0QG/L4jGzLBOx91G4\"",
+        "X-Cache": "Miss from cloudfront",
+        "Via": "1.1 bebfdaf3481b8e276dc3fc8a17fefd66.cloudfront.net (CloudFront)",
+        "X-Amz-Cf-Pop": "JFK52-P8",
+        "Alt-Svc": "h3=\":443\"; ma=86400",
+        "X-Amz-Cf-Id": "ZKrkPAr9h8CboX6h80AMQHveq9uTWNU39MambRSmRg5hyBoAtKZqhg==",
+        "X-CDN": "cloudfront",
+        "Server-Timing": "cdn-upstream-layer;desc=\"EDGE\",cdn-upstream-dns;dur=0,cdn-upstream-connect;dur=0,cdn-upstream-fbl;dur=232,cdn-cache-miss,cdn-pop;desc=\"JFK52-P8\",cdn-rid;desc=\"ZKrkPAr9h8CboX6h80AMQHveq9uTWNU39MambRSmRg5hyBoAtKZqhg==\",cdn-downstream-fbl;dur=236"
+      },
+      "error": null
+    },
+    {
+      "url": "https://ctrk.klclick.com/l/01JWVSRE2RKMB5XY4K02A4FHX6_5",
+      "link_text": "Unknown",
+      "click_timestamp": "2025-06-03T17:08:46.430712",
+      "success": true,
+      "status_code": 200,
+      "final_url": "https://www.loom.com/share/1dfd58dc22cd497090d4d1792e8fb277?sid=d83b5919-eb0d-4d07-a63a-3041597cb625&_kx=_3EqiNLJXgBo8yiCrqOb3GHWUbSHzJRYf8USK2VoyD7iS16mKclWm6hNncAi01zA.SYGDzQ",
+      "redirects": [
+        "https://ctrk.klclick.com/l/01JWVSRE2RKMB5XY4K02A4FHX6_5"
+      ],
+      "response_headers": {
+        "Content-Type": "text/html; charset=utf-8",
+        "Transfer-Encoding": "chunked",
+        "Connection": "keep-alive",
+        "Date": "Tue, 03 Jun 2025 21:08:46 GMT",
+        "vary": "Accept-Encoding, Origin",
+        "content-encoding": "gzip",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY",
+        "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+        "content-security-policy": "default-src 'self' blob: ; script-src 'nonce-m06JRrFha0/MJe8Z0Fzk5XyC89wgeqtg4krgD8ayn0ze52ZV' 'self' 'unsafe-eval' 'unsafe-inline' 'strict-dynamic' blob: https: ; style-src 'unsafe-inline' https://cdn.loom.com https://releases.transloadit.com/uppy/ https://accounts.google.com/gsi/style https://ds-cdn.prod-east.frontend.public.atl-paas.net/assets/; img-src 'self' blob: data: chrome-extension: https:; font-src 'self' data: chrome-extension: https://cdn.loom.com https://fonts.gstatic.com https://use.typekit.net https://ds-cdn.prod-east.frontend.public.atl-paas.net/assets/ https://js.intercomcdn.com https://fonts.intercomcdn.com https://jcs-chat-widget.atlassian.com/assets/; base-uri 'self'; connect-src 'self' data: https://bat.bing.com https://*.clarity.ms https://*.mutinyhq.com https://*.mutinyhq.io https://*.mutinycdn.com https://*.google.com https://accounts.google.com/gsi/ https://*.analytics.google.com https://*.google-analytics.com https://*.googletagmanager.com https://*.g.doubleclick.net https://connect.facebook.net https://px.ads.linkedin.com https://pixel-config.reddit.com https://q.quora.com https://analytics.tiktok.com/ https://www.redditstatic.com/ads/ https://api.segment.io https://cdn.segment.com https://intercom.help https://api-iam.intercom.io https://api-iam.eu.intercom.io https://api-iam.au.intercom.io https://api.hubapi.com https://cta-service-cms2.hubspot.com https://js.hs-banner.com https://js.hubspot.com/web-interactives-embed.js https://browser-http-intake.logs.datadoghq.com/ https://logs.browser-intake-datadoghq.com/api/ https://rum.browser-intake-datadoghq.com/api/ https://m.stripe.com https://o398470.ingest.sentry.io https://loom-media-production.s3.us-west-2.amazonaws.com/uploads/ https://loom-media-production.s3.us-west-2.amazonaws.com/sessions/ https://s3.us-west-2.amazonaws.com/loom-media-production/sessions/ https://s3.us-west-2.amazonaws.com/loom-media-production/images/ https://s3.us-west-2.amazonaws.com/loom-screenshots-production/images/ https://loom-prd-usw2-media.s3.us-west-2.amazonaws.com/uploads/ https://s3.us-west-2.amazonaws.com/loom-prd-usw2-media/sessions/ https://s3.us-west-2.amazonaws.com/loom-prd-usw2-media/images/ https://s3.us-west-2.amazonaws.com/loom-prd-usw2-media/images/ https://*.loom.com wss://www.loom.com https://*.atlassian.com https://cdn.cookielaw.org https://geolocation.onetrust.com https://privacyportal.onetrust.com https://cookie-cdn.cookiepro.com https://*.atl-paas.net https://calendly.com; media-src 'self' blob:  data: https://*.loom.com/ https://cdn.sanity.io  https://js.intercomcdn.com https://downloads.intercomcdn.com https://downloads.intercomcdn.eu https://downloads.au.intercomcdn.com; object-src 'none'; frame-src 'self' https://js.stripe.com https://www.loom.com https://accounts.google.com/gsi/ https://www.google.com/ https://*.doubleclick.net https://calendly.com https://useloom.atlassian.net; report-uri https://browser-intake-datadoghq.com/api/v2/logs?dd-api-key=pub18c86b072f3b6cefdae2b56c8b60db94&dd-evp-origin=content-security-policy&ddsource=csp-report&ddtags=service%3Acsp%2Cenv%3Aproduction",
+        "set-cookie": "loom_anon_comment=601d0adf4c104bc296d19b36ef4a8030; Max-Age=31536000000; Domain=loom.com; Path=/; Secure; Partitioned; SameSite=None, ajs_anonymous_id=%22621c42f4-71a5-4db2-b7bc-fe66ff2151b5%22; Max-Age=31536000000; Domain=loom.com; Path=/; Secure; Partitioned; SameSite=None, loom_referral_video=1dfd58dc22cd497090d4d1792e8fb277; Domain=www.loom.com; Path=/; Secure; Partitioned; SameSite=None, __Host-psifi.analyticsTrace=2f6728c471584f89bae5fcb7e86f0a8385dd277d68f0b2d7c0e2134b13df4ede; Max-Age=21600; Path=/; Expires=Wed, 04 Jun 2025 03:08:46 GMT; HttpOnly; Secure; SameSite=Strict, __Host-psifi.analyticsTraceV2=bf5f71938b6236ef9136810f37f1d0bcc5155bc42ab6e34259bcde5321f5a0f575955b24fce693bf71ec94dbaa190952f73829cd3e2f2e3cb9fcbce5fb63d584; Max-Age=21600; Path=/; Expires=Wed, 04 Jun 2025 03:08:46 GMT; HttpOnly; Secure; SameSite=Strict",
+        "etag": "W/\"64f5-cyoZSj0KuWJTVCiowX7F2xmPdVI\"",
+        "X-Cache": "Miss from cloudfront",
+        "Via": "1.1 d0868637a3730c2afc20b3628b047a9a.cloudfront.net (CloudFront)",
+        "X-Amz-Cf-Pop": "JFK52-P8",
+        "Alt-Svc": "h3=\":443\"; ma=86400",
+        "X-Amz-Cf-Id": "g6-69PAOj3uiYZ-JLqmyZeFXo46HalBkNOKH10bH2quk8b3IeIgcaA==",
+        "X-CDN": "cloudfront",
+        "Server-Timing": "cdn-upstream-layer;desc=\"EDGE\",cdn-upstream-dns;dur=0,cdn-upstream-connect;dur=56,cdn-upstream-fbl;dur=297,cdn-cache-miss,cdn-pop;desc=\"JFK52-P8\",cdn-rid;desc=\"g6-69PAOj3uiYZ-JLqmyZeFXo46HalBkNOKH10bH2quk8b3IeIgcaA==\",cdn-downstream-fbl;dur=301"
+      },
+      "error": null
+    },
+    {
+      "url": "https://ctrk.klclick.com/l/01JWVSRE2RKMB5XY4K02A4FHX6_6",
+      "link_text": "Unknown",
+      "click_timestamp": "2025-06-03T17:08:49.887066",
+      "success": true,
+      "status_code": 200,
+      "final_url": "https://www.loom.com/share/07b3e650f98a49f4921f481aa966464c?sid=ecd9629b-d375-4202-b035-0272d02bb084&_kx=_3EqiNLJXgBo8yiCrqOb3GHWUbSHzJRYf8USK2VoyD7iS16mKclWm6hNncAi01zA.SYGDzQ",
+      "redirects": [
+        "https://ctrk.klclick.com/l/01JWVSRE2RKMB5XY4K02A4FHX6_6"
+      ],
+      "response_headers": {
+        "Content-Type": "text/html; charset=utf-8",
+        "Transfer-Encoding": "chunked",
+        "Connection": "keep-alive",
+        "Date": "Tue, 03 Jun 2025 21:08:50 GMT",
+        "vary": "Accept-Encoding, Origin",
+        "content-encoding": "gzip",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY",
+        "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+        "content-security-policy": "default-src 'self' blob: ; script-src 'nonce-AMK7yhWRtsTIKNAPtmh4fix8SZycircdkGTW+iUYy+0l9J1E' 'self' 'unsafe-eval' 'unsafe-inline' 'strict-dynamic' blob: https: ; style-src 'unsafe-inline' https://cdn.loom.com https://releases.transloadit.com/uppy/ https://accounts.google.com/gsi/style https://ds-cdn.prod-east.frontend.public.atl-paas.net/assets/; img-src 'self' blob: data: chrome-extension: https:; font-src 'self' data: chrome-extension: https://cdn.loom.com https://fonts.gstatic.com https://use.typekit.net https://ds-cdn.prod-east.frontend.public.atl-paas.net/assets/ https://js.intercomcdn.com https://fonts.intercomcdn.com https://jcs-chat-widget.atlassian.com/assets/; base-uri 'self'; connect-src 'self' data: https://bat.bing.com https://*.clarity.ms https://*.mutinyhq.com https://*.mutinyhq.io https://*.mutinycdn.com https://*.google.com https://accounts.google.com/gsi/ https://*.analytics.google.com https://*.google-analytics.com https://*.googletagmanager.com https://*.g.doubleclick.net https://connect.facebook.net https://px.ads.linkedin.com https://pixel-config.reddit.com https://q.quora.com https://analytics.tiktok.com/ https://www.redditstatic.com/ads/ https://api.segment.io https://cdn.segment.com https://intercom.help https://api-iam.intercom.io https://api-iam.eu.intercom.io https://api-iam.au.intercom.io https://api.hubapi.com https://cta-service-cms2.hubspot.com https://js.hs-banner.com https://js.hubspot.com/web-interactives-embed.js https://browser-http-intake.logs.datadoghq.com/ https://logs.browser-intake-datadoghq.com/api/ https://rum.browser-intake-datadoghq.com/api/ https://m.stripe.com https://o398470.ingest.sentry.io https://loom-media-production.s3.us-west-2.amazonaws.com/uploads/ https://loom-media-production.s3.us-west-2.amazonaws.com/sessions/ https://s3.us-west-2.amazonaws.com/loom-media-production/sessions/ https://s3.us-west-2.amazonaws.com/loom-media-production/images/ https://s3.us-west-2.amazonaws.com/loom-screenshots-production/images/ https://loom-prd-usw2-media.s3.us-west-2.amazonaws.com/uploads/ https://s3.us-west-2.amazonaws.com/loom-prd-usw2-media/sessions/ https://s3.us-west-2.amazonaws.com/loom-prd-usw2-media/images/ https://s3.us-west-2.amazonaws.com/loom-prd-usw2-media/images/ https://*.loom.com wss://www.loom.com https://*.atlassian.com https://cdn.cookielaw.org https://geolocation.onetrust.com https://privacyportal.onetrust.com https://cookie-cdn.cookiepro.com https://*.atl-paas.net https://calendly.com; media-src 'self' blob:  data: https://*.loom.com/ https://cdn.sanity.io  https://js.intercomcdn.com https://downloads.intercomcdn.com https://downloads.intercomcdn.eu https://downloads.au.intercomcdn.com; object-src 'none'; frame-src 'self' https://js.stripe.com https://www.loom.com https://accounts.google.com/gsi/ https://www.google.com/ https://*.doubleclick.net https://calendly.com https://useloom.atlassian.net; report-uri https://browser-intake-datadoghq.com/api/v2/logs?dd-api-key=pub18c86b072f3b6cefdae2b56c8b60db94&dd-evp-origin=content-security-policy&ddsource=csp-report&ddtags=service%3Acsp%2Cenv%3Aproduction",
+        "set-cookie": "loom_anon_comment=4233591d9f8246fe99250fb080a1f935; Max-Age=31536000000; Domain=loom.com; Path=/; Secure; Partitioned; SameSite=None, ajs_anonymous_id=%22e3f42938-cfa4-43f9-ab66-7964bc1b855a%22; Max-Age=31536000000; Domain=loom.com; Path=/; Secure; Partitioned; SameSite=None, loom_referral_video=07b3e650f98a49f4921f481aa966464c; Domain=www.loom.com; Path=/; Secure; Partitioned; SameSite=None, __Host-psifi.analyticsTrace=9501ffbc35bf245b55b69fd1b5b441d295a47ba1c8d4f611f7f7888cc4f0a977; Max-Age=21600; Path=/; Expires=Wed, 04 Jun 2025 03:08:50 GMT; HttpOnly; Secure; SameSite=Strict, __Host-psifi.analyticsTraceV2=c40156fa04a1a520560a420c0175ae0f8436566a54df8bc1f5334089851b80577afa99a3ed70ebf72c7d9e95ba4fe0411ada6fd94b739d9911311bca913960a4; Max-Age=21600; Path=/; Expires=Wed, 04 Jun 2025 03:08:50 GMT; HttpOnly; Secure; SameSite=Strict",
+        "etag": "W/\"65a8-jQ2sIdlVuwj6muUWYd01kWeh9jQ\"",
+        "X-Cache": "Miss from cloudfront",
+        "Via": "1.1 bebfdaf3481b8e276dc3fc8a17fefd66.cloudfront.net (CloudFront)",
+        "X-Amz-Cf-Pop": "JFK52-P8",
+        "Alt-Svc": "h3=\":443\"; ma=86400",
+        "X-Amz-Cf-Id": "xg3qToro4DDcK2k0Zi47f22UbmjPBp4IaRi3ZNQHqg9C6nnP0kmVqw==",
+        "X-CDN": "cloudfront",
+        "Server-Timing": "cdn-upstream-layer;desc=\"EDGE\",cdn-upstream-dns;dur=0,cdn-upstream-connect;dur=0,cdn-upstream-fbl;dur=173,cdn-cache-miss,cdn-pop;desc=\"JFK52-P8\",cdn-rid;desc=\"xg3qToro4DDcK2k0Zi47f22UbmjPBp4IaRi3ZNQHqg9C6nnP0kmVqw==\",cdn-downstream-fbl;dur=177"
+      },
+      "error": null
+    },
+    {
+      "url": "https://ctrk.klclick.com/l/01JWVSRE2RKMB5XY4K02A4FHX6_7",
+      "link_text": "Unknown",
+      "click_timestamp": "2025-06-03T17:08:52.239733",
+      "success": true,
+      "status_code": 200,
+      "final_url": "https://www.loom.com/share/6d271a28e9374b119e50d9113a02c910?sid=b54f4baa-2da3-48ba-927d-9684a48900e4&_kx=_3EqiNLJXgBo8yiCrqOb3GHWUbSHzJRYf8USK2VoyD7iS16mKclWm6hNncAi01zA.SYGDzQ",
+      "redirects": [
+        "https://ctrk.klclick.com/l/01JWVSRE2RKMB5XY4K02A4FHX6_7"
+      ],
+      "response_headers": {
+        "Content-Type": "text/html; charset=utf-8",
+        "Transfer-Encoding": "chunked",
+        "Connection": "keep-alive",
+        "Date": "Tue, 03 Jun 2025 21:08:52 GMT",
+        "vary": "Accept-Encoding, Origin",
+        "content-encoding": "gzip",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY",
+        "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+        "content-security-policy": "default-src 'self' blob: ; script-src 'nonce-xMAzprtg9yd4rBlP/22pfLpyOoTAweiHjw9FaQli6PoE/LBG' 'self' 'unsafe-eval' 'unsafe-inline' 'strict-dynamic' blob: https: ; style-src 'unsafe-inline' https://cdn.loom.com https://releases.transloadit.com/uppy/ https://accounts.google.com/gsi/style https://ds-cdn.prod-east.frontend.public.atl-paas.net/assets/; img-src 'self' blob: data: chrome-extension: https:; font-src 'self' data: chrome-extension: https://cdn.loom.com https://fonts.gstatic.com https://use.typekit.net https://ds-cdn.prod-east.frontend.public.atl-paas.net/assets/ https://js.intercomcdn.com https://fonts.intercomcdn.com https://jcs-chat-widget.atlassian.com/assets/; base-uri 'self'; connect-src 'self' data: https://bat.bing.com https://*.clarity.ms https://*.mutinyhq.com https://*.mutinyhq.io https://*.mutinycdn.com https://*.google.com https://accounts.google.com/gsi/ https://*.analytics.google.com https://*.google-analytics.com https://*.googletagmanager.com https://*.g.doubleclick.net https://connect.facebook.net https://px.ads.linkedin.com https://pixel-config.reddit.com https://q.quora.com https://analytics.tiktok.com/ https://www.redditstatic.com/ads/ https://api.segment.io https://cdn.segment.com https://intercom.help https://api-iam.intercom.io https://api-iam.eu.intercom.io https://api-iam.au.intercom.io https://api.hubapi.com https://cta-service-cms2.hubspot.com https://js.hs-banner.com https://js.hubspot.com/web-interactives-embed.js https://browser-http-intake.logs.datadoghq.com/ https://logs.browser-intake-datadoghq.com/api/ https://rum.browser-intake-datadoghq.com/api/ https://m.stripe.com https://o398470.ingest.sentry.io https://loom-media-production.s3.us-west-2.amazonaws.com/uploads/ https://loom-media-production.s3.us-west-2.amazonaws.com/sessions/ https://s3.us-west-2.amazonaws.com/loom-media-production/sessions/ https://s3.us-west-2.amazonaws.com/loom-media-production/images/ https://s3.us-west-2.amazonaws.com/loom-screenshots-production/images/ https://loom-prd-usw2-media.s3.us-west-2.amazonaws.com/uploads/ https://s3.us-west-2.amazonaws.com/loom-prd-usw2-media/sessions/ https://s3.us-west-2.amazonaws.com/loom-prd-usw2-media/images/ https://s3.us-west-2.amazonaws.com/loom-prd-usw2-media/images/ https://*.loom.com wss://www.loom.com https://*.atlassian.com https://cdn.cookielaw.org https://geolocation.onetrust.com https://privacyportal.onetrust.com https://cookie-cdn.cookiepro.com https://*.atl-paas.net https://calendly.com; media-src 'self' blob:  data: https://*.loom.com/ https://cdn.sanity.io  https://js.intercomcdn.com https://downloads.intercomcdn.com https://downloads.intercomcdn.eu https://downloads.au.intercomcdn.com; object-src 'none'; frame-src 'self' https://js.stripe.com https://www.loom.com https://accounts.google.com/gsi/ https://www.google.com/ https://*.doubleclick.net https://calendly.com https://useloom.atlassian.net; report-uri https://browser-intake-datadoghq.com/api/v2/logs?dd-api-key=pub18c86b072f3b6cefdae2b56c8b60db94&dd-evp-origin=content-security-policy&ddsource=csp-report&ddtags=service%3Acsp%2Cenv%3Aproduction",
+        "set-cookie": "loom_anon_comment=bdbf0ec56d2647d5999a2b3b77a34d8f; Max-Age=31536000000; Domain=loom.com; Path=/; Secure; Partitioned; SameSite=None, ajs_anonymous_id=%22d6f43b19-3899-4130-b07a-7a785581732f%22; Max-Age=31536000000; Domain=loom.com; Path=/; Secure; Partitioned; SameSite=None, loom_referral_video=6d271a28e9374b119e50d9113a02c910; Domain=www.loom.com; Path=/; Secure; Partitioned; SameSite=None, __Host-psifi.analyticsTrace=738f5bb4cb703da8ed46c2616fdbd971e68c3598393c368970d2d60a99fe23ef; Max-Age=21600; Path=/; Expires=Wed, 04 Jun 2025 03:08:52 GMT; HttpOnly; Secure; SameSite=Strict, __Host-psifi.analyticsTraceV2=ab6b31800eff6dec159afc91ca4b93f21dd500c85296cc640c857c5e9099251fe7522afbc49e471234eda680533d3af9cf3c4e7fe5d5762da72910a28e09e136; Max-Age=21600; Path=/; Expires=Wed, 04 Jun 2025 03:08:52 GMT; HttpOnly; Secure; SameSite=Strict",
+        "etag": "W/\"66af-EHQNR5BKscCWtakKrHlOXfBcxnM\"",
+        "X-Cache": "Miss from cloudfront",
+        "Via": "1.1 0f73566e099d1b7819d92fde74c3925e.cloudfront.net (CloudFront)",
+        "X-Amz-Cf-Pop": "JFK52-P8",
+        "Alt-Svc": "h3=\":443\"; ma=86400",
+        "X-Amz-Cf-Id": "xp8gS1gsN5yv5s7jVUayrzjEwrT-Rs_AXAePmsKlYTiBhD83U2aA-A==",
+        "X-CDN": "cloudfront",
+        "Server-Timing": "cdn-upstream-layer;desc=\"EDGE\",cdn-upstream-dns;dur=0,cdn-upstream-connect;dur=0,cdn-upstream-fbl;dur=188,cdn-cache-miss,cdn-pop;desc=\"JFK52-P8\",cdn-rid;desc=\"xp8gS1gsN5yv5s7jVUayrzjEwrT-Rs_AXAePmsKlYTiBhD83U2aA-A==\",cdn-downstream-fbl;dur=192"
+      },
+      "error": null
+    },
+    {
+      "url": "https://ctrk.klclick.com/l/01JWVSRE2RKMB5XY4K02A4FHX6_8",
+      "link_text": "Unknown",
+      "click_timestamp": "2025-06-03T17:08:53.569637",
+      "success": true,
+      "status_code": 200,
+      "final_url": "https://getripple.ai?_kx=_3EqiNLJXgBo8yiCrqOb3GHWUbSHzJRYf8USK2VoyD7iS16mKclWm6hNncAi01zA.SYGDzQ",
+      "redirects": [
+        "https://ctrk.klclick.com/l/01JWVSRE2RKMB5XY4K02A4FHX6_8"
+      ],
+      "response_headers": {
+        "Alt-Svc": "h3=\":443\"; ma=2592000",
+        "Cache-Control": "public, max-age=0, must-revalidate",
+        "Content-Encoding": "br",
+        "Content-Length": "7684",
+        "Content-Type": "text/html",
+        "Date": "Tue, 03 Jun 2025 21:08:52 GMT",
+        "Etag": "\"64c25ca24d3ffe57bf5502ac82dbdc3b\"",
+        "Last-Modified": "Fri, 23 May 2025 11:09:00 GMT",
+        "Link": "<https://framerusercontent.com>; rel=\"preconnect\", <https://framerusercontent.com>; rel=\"preconnect\"; crossorigin=\"\"",
+        "Server": "Framer/4b66923",
+        "Server-Timing": "region;desc=\"us-east-1\", cache;desc=\"not-cached\", ssg-status;desc=\"optimized\", version;desc=\"4b66923\"",
+        "Strict-Transport-Security": "max-age=31536000",
+        "Vary": "Accept-Encoding",
+        "X-Content-Type-Options": "nosniff"
+      },
+      "error": null
+    },
+    {
+      "url": "https://ctrk.klclick.com/l/01JWVSRE2RKMB5XY4K02A4FHX6_9",
+      "link_text": "Unknown",
+      "click_timestamp": "2025-06-03T17:08:55.788324",
+      "success": true,
+      "status_code": 200,
+      "final_url": "https://getripple.ai?_kx=_3EqiNLJXgBo8yiCrqOb3GHWUbSHzJRYf8USK2VoyD7iS16mKclWm6hNncAi01zA.SYGDzQ",
+      "redirects": [
+        "https://ctrk.klclick.com/l/01JWVSRE2RKMB5XY4K02A4FHX6_9"
+      ],
+      "response_headers": {
+        "Alt-Svc": "h3=\":443\"; ma=2592000",
+        "Cache-Control": "public, max-age=0, must-revalidate",
+        "Content-Encoding": "br",
+        "Content-Length": "7684",
+        "Content-Type": "text/html",
+        "Date": "Tue, 03 Jun 2025 21:08:55 GMT",
+        "Etag": "\"64c25ca24d3ffe57bf5502ac82dbdc3b\"",
+        "Last-Modified": "Fri, 23 May 2025 11:09:00 GMT",
+        "Link": "<https://framerusercontent.com>; rel=\"preconnect\", <https://framerusercontent.com>; rel=\"preconnect\"; crossorigin=\"\"",
+        "Server": "Framer/4b66923",
+        "Server-Timing": "region;desc=\"us-east-1\", cache;desc=\"cached\", ssg-status;desc=\"optimized\", version;desc=\"4b66923\"",
+        "Strict-Transport-Security": "max-age=31536000",
+        "Vary": "Accept-Encoding",
+        "X-Content-Type-Options": "nosniff"
+      },
+      "error": null
+    }
+  ]
+}
