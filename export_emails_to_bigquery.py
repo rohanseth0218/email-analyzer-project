@@ -21,7 +21,7 @@ import hashlib
 BIGQUERY_CONFIG = {
     'project_id': 'instant-ground-394115',
     'dataset': 'email_analytics', 
-    'table': 'marketing_emails_clean'
+    'table': 'marketing_emails_clean_20250612_082945'
 }
 
 # Set up Google Cloud credentials
