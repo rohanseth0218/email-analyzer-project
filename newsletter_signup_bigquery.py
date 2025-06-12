@@ -275,6 +275,7 @@ class NewsletterSignupOrchestrator:
         Read the JavaScript automation log files and return results for BigQuery upload
         """
         results = []
+        seen_domains = set()  # Track domains to avoid duplicates
         
         # Read successful submissions
         success_log = './logs/successful_submissions_production.jsonl'
@@ -292,12 +293,24 @@ class NewsletterSignupOrchestrator:
                                 data = json.loads(line.strip())
                                 logger.info(f"📋 Success line {line_num}: {data}")
                                 
+                                # Skip entries without email or timestamp (incomplete data)
+                                if not data.get('email') or not data.get('timestamp'):
+                                    logger.warning(f"⚠️ Skipping incomplete success entry: {data}")
+                                    continue
+                                
+                                # Skip duplicates (keep first complete entry per domain)
+                                domain = data.get('domain', '')
+                                if domain in seen_domains:
+                                    logger.info(f"🔄 Skipping duplicate domain: {domain}")
+                                    continue
+                                seen_domains.add(domain)
+                                
                                 # Validate data before processing
                                 if 'method' in data:
                                     logger.warning(f"⚠️ Found method field in success data: {data}")
                                 
                                 result = {
-                                    'domain': data.get('domain', ''),
+                                    'domain': domain,
                                     'success': True,
                                     'email_used': data.get('email', ''),
                                     'signup_timestamp': data.get('timestamp', ''),
@@ -308,11 +321,13 @@ class NewsletterSignupOrchestrator:
                                     'employee_count': None
                                 }
                                 
-                                # Check for empty timestamp
-                                if not result['signup_timestamp']:
-                                    logger.warning(f"⚠️ Empty timestamp in success data: {data}")
-                                
-                                results.append(result)
+                                # Final check for completeness
+                                if result['email_used'] and result['signup_timestamp']:
+                                    results.append(result)
+                                    logger.info(f"✅ Added complete success entry for {domain}")
+                                else:
+                                    logger.warning(f"⚠️ Skipping incomplete result: {result}")
+                                    
                             except json.JSONDecodeError as e:
                                 logger.error(f"❌ Invalid JSON on line {line_num}: {line.strip()}")
             except Exception as e:
@@ -328,12 +343,25 @@ class NewsletterSignupOrchestrator:
                                 data = json.loads(line.strip())
                                 logger.info(f"📋 Failed line {line_num}: {data}")
                                 
+                                # Skip entries without email or timestamp (incomplete data)
+                                if not data.get('email') or not data.get('timestamp'):
+                                    logger.warning(f"⚠️ Skipping incomplete failed entry: {data}")
+                                    continue
+                                
+                                # Skip duplicates for failed entries too
+                                domain = data.get('domain', '')
+                                domain_key = f"{domain}_failed"  # Different key for failed vs success
+                                if domain_key in seen_domains:
+                                    logger.info(f"🔄 Skipping duplicate failed domain: {domain}")
+                                    continue
+                                seen_domains.add(domain_key)
+                                
                                 # Validate data before processing
                                 if 'method' in data:
                                     logger.warning(f"⚠️ Found method field in failed data: {data}")
                                 
                                 result = {
-                                    'domain': data.get('domain', ''),
+                                    'domain': domain,
                                     'success': False,
                                     'email_used': data.get('email', ''),
                                     'signup_timestamp': data.get('timestamp', ''),
@@ -344,17 +372,19 @@ class NewsletterSignupOrchestrator:
                                     'employee_count': None
                                 }
                                 
-                                # Check for empty timestamp
-                                if not result['signup_timestamp']:
-                                    logger.warning(f"⚠️ Empty timestamp in failed data: {data}")
-                                
-                                results.append(result)
+                                # Final check for completeness
+                                if result['email_used'] and result['signup_timestamp']:
+                                    results.append(result)
+                                    logger.info(f"✅ Added complete failed entry for {domain}")
+                                else:
+                                    logger.warning(f"⚠️ Skipping incomplete failed result: {result}")
+                                    
                             except json.JSONDecodeError as e:
                                 logger.error(f"❌ Invalid JSON on line {line_num}: {line.strip()}")
             except Exception as e:
                 logger.error(f"❌ Error reading failed log: {e}")
         
-        logger.info(f"📋 Found {len(results)} total results from logs")
+        logger.info(f"📋 Found {len(results)} complete, unique results from logs")
         return results
 
     def upload_log_results_to_bigquery(self):
