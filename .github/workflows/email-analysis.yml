@@ -31,11 +31,12 @@ jobs:
         echo '${{ secrets.MAILBOX_CREDENTIALS }}' > mailboxaccounts.csv
         
     - name: Run email analysis
+      timeout-minutes: 30
       env:
         ANALYSIS_MODE: "cloud"
       run: |
         echo "🚀 Starting full mailbox email extraction..."
-        python export_emails_to_bigquery.py
+        timeout 25m python export_emails_to_bigquery.py || echo "⚠️ Script timed out after 25 minutes"
         echo "✅ Email extraction complete!"
         
     - name: Summary

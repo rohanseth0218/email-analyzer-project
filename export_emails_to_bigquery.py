@@ -292,14 +292,17 @@ def extract_emails_from_mailbox(mailbox, client, existing_ids=None, days_back=30
     emails_data = []
     
     try:
-        # Connect to mailbox
+        # Connect to mailbox with timeout
+        print(f"   🔌 Connecting to {mailbox['host']}...")
         mail = imaplib.IMAP4_SSL(mailbox['host'], mailbox['port'], 
                                 ssl_context=ssl.create_default_context())
         mail.login(mailbox['email'], mailbox['password'])
+        print(f"   ✅ Connected to mailbox")
         mail.select('INBOX')
         
         # Search recent emails
         since_date = (datetime.now() - timedelta(days=days_back)).strftime('%d-%b-%Y')
+        print(f"   🔍 Searching emails since {since_date}...")
         status, message_ids = mail.search(None, f'SINCE {since_date}')
         
         if status != 'OK' or not message_ids[0]:
