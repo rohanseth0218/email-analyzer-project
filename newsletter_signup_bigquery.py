@@ -286,22 +286,35 @@ class NewsletterSignupOrchestrator:
         if Path(success_log).exists():
             try:
                 with open(success_log, 'r') as f:
-                    for line in f:
+                    for line_num, line in enumerate(f, 1):
                         if line.strip():
-                            data = json.loads(line.strip())
-                            result = {
-                                'domain': data.get('domain', ''),
-                                'success': True,
-                                'email_used': data.get('email', ''),
-                                'signup_timestamp': data.get('timestamp', ''),
-                                'error_message': None,
-                                'batch_id': str(data.get('batch', '')),
-                                'method': data.get('method', ''),
-                                'industry': None,
-                                'country': None,
-                                'employee_count': None
-                            }
-                            results.append(result)
+                            try:
+                                data = json.loads(line.strip())
+                                logger.info(f"📋 Success line {line_num}: {data}")
+                                
+                                # Validate data before processing
+                                if 'method' in data:
+                                    logger.warning(f"⚠️ Found method field in success data: {data}")
+                                
+                                result = {
+                                    'domain': data.get('domain', ''),
+                                    'success': True,
+                                    'email_used': data.get('email', ''),
+                                    'signup_timestamp': data.get('timestamp', ''),
+                                    'error_message': None,
+                                    'batch_id': str(data.get('batch', '')),
+                                    'industry': None,
+                                    'country': None,
+                                    'employee_count': None
+                                }
+                                
+                                # Check for empty timestamp
+                                if not result['signup_timestamp']:
+                                    logger.warning(f"⚠️ Empty timestamp in success data: {data}")
+                                
+                                results.append(result)
+                            except json.JSONDecodeError as e:
+                                logger.error(f"❌ Invalid JSON on line {line_num}: {line.strip()}")
             except Exception as e:
                 logger.error(f"❌ Error reading success log: {e}")
         
@@ -309,22 +322,35 @@ class NewsletterSignupOrchestrator:
         if Path(failed_log).exists():
             try:
                 with open(failed_log, 'r') as f:
-                    for line in f:
+                    for line_num, line in enumerate(f, 1):
                         if line.strip():
-                            data = json.loads(line.strip())
-                            result = {
-                                'domain': data.get('domain', ''),
-                                'success': False,
-                                'email_used': data.get('email', ''),
-                                'signup_timestamp': data.get('timestamp', ''),
-                                'error_message': data.get('reason', ''),
-                                'batch_id': str(data.get('batch', '')),
-                                'method': None,
-                                'industry': None,
-                                'country': None,
-                                'employee_count': None
-                            }
-                            results.append(result)
+                            try:
+                                data = json.loads(line.strip())
+                                logger.info(f"📋 Failed line {line_num}: {data}")
+                                
+                                # Validate data before processing
+                                if 'method' in data:
+                                    logger.warning(f"⚠️ Found method field in failed data: {data}")
+                                
+                                result = {
+                                    'domain': data.get('domain', ''),
+                                    'success': False,
+                                    'email_used': data.get('email', ''),
+                                    'signup_timestamp': data.get('timestamp', ''),
+                                    'error_message': data.get('reason', ''),
+                                    'batch_id': str(data.get('batch', '')),
+                                    'industry': None,
+                                    'country': None,
+                                    'employee_count': None
+                                }
+                                
+                                # Check for empty timestamp
+                                if not result['signup_timestamp']:
+                                    logger.warning(f"⚠️ Empty timestamp in failed data: {data}")
+                                
+                                results.append(result)
+                            except json.JSONDecodeError as e:
+                                logger.error(f"❌ Invalid JSON on line {line_num}: {line.strip()}")
             except Exception as e:
                 logger.error(f"❌ Error reading failed log: {e}")
         
@@ -356,31 +382,86 @@ class NewsletterSignupOrchestrator:
         Log automation results back to BigQuery for tracking
         """
         try:
+            from datetime import datetime
             table_id = f"{self.project_id}.email_analytics.newsletter_signup_results_v2"
             
             # Prepare rows for insertion
             rows_to_insert = []
+            skipped_rows = 0
             
-            for result in results:
+            for i, result in enumerate(results):
+                logger.info(f"🔍 Processing result {i}: {result}")
+                
+                # Validate result doesn't have method field
+                if 'method' in result:
+                    logger.error(f"❌ Skipping result with method field: {result}")
+                    skipped_rows += 1
+                    continue
+                
+                # Handle empty or invalid timestamps - convert to BigQuery format
+                signup_timestamp = result.get('signup_timestamp', '')
+                logger.info(f"📅 Original timestamp: '{signup_timestamp}'")
+                
+                if not signup_timestamp or signup_timestamp == '':
+                    # Use current time in BigQuery format
+                    signup_timestamp = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+                    logger.warning(f"⚠️ Empty timestamp, using current: '{signup_timestamp}'")
+                else:
+                    # Convert ISO timestamp to BigQuery format
+                    try:
+                        dt = datetime.fromisoformat(signup_timestamp.replace('Z', '+00:00'))
+                        signup_timestamp = dt.strftime('%Y-%m-%d %H:%M:%S')
+                        logger.info(f"✅ Converted timestamp: '{signup_timestamp}'")
+                    except Exception as e:
+                        logger.warning(f"⚠️ Timestamp conversion failed: {e}")
+                        # Fallback to current time if parsing fails
+                        signup_timestamp = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+                        logger.warning(f"⚠️ Using fallback timestamp: '{signup_timestamp}'")
+                
                 row = {
                     'domain': result.get('domain', ''),
                     'success': result.get('success', False),
                     'email_used': result.get('email_used', ''),
-                    'signup_timestamp': result.get('signup_timestamp', ''),
+                    'signup_timestamp': signup_timestamp,
                     'error_message': result.get('error_message', ''),
                     'batch_id': result.get('batch_id', ''),
-                    'method': result.get('method', ''),
                     'industry': result.get('industry'),
                     'country': result.get('country'),  
                     'employee_count': result.get('employee_count')
                 }
+                
+                # Final validation
+                for key, value in row.items():
+                    if value == '':
+                        logger.warning(f"⚠️ Empty string in field '{key}' for domain {row['domain']}")
+                    elif key == 'signup_timestamp' and not value:
+                        logger.error(f"❌ Still empty timestamp after processing: {row}")
+                        skipped_rows += 1
+                        continue
+                
+                logger.info(f"✅ Final row: {row}")
                 rows_to_insert.append(row)
+            
+            if skipped_rows > 0:
+                logger.warning(f"⚠️ Skipped {skipped_rows} problematic rows")
+            
+            if not rows_to_insert:
+                logger.warning("⚠️ No valid rows to insert after validation")
+                return
+            
+            # Debug: Log first few rows to see what we're sending
+            if rows_to_insert:
+                logger.info(f"📋 Sample row being sent to BigQuery: {rows_to_insert[0]}")
             
             # Insert rows
             errors = self.client.insert_rows_json(table_id, rows_to_insert)
             
             if errors:
                 logger.error(f"❌ Errors inserting to BigQuery: {errors}")
+                # Log the problematic rows for debugging
+                for i, error in enumerate(errors[:3]):  # Show first 3 errors
+                    if i < len(rows_to_insert):
+                        logger.error(f"❌ Problematic row {i}: {rows_to_insert[i]}")
             else:
                 logger.info(f"✅ Logged {len(rows_to_insert)} results to BigQuery")
                 

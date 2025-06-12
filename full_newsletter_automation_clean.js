@@ -35,6 +35,7 @@ const CONFIG = {
     MAX_CONCURRENT_SESSIONS: 15,  // Increased from 10 based on success
     BATCH_SIZE: 100,
     SESSION_CREATION_DELAY: 2500,  // 2.5 seconds between sessions
+    SESSION_RECYCLE_AFTER: 50,  // Recycle sessions after N domains to prevent timeouts
     
     // Timeouts
     NAVIGATION_TIMEOUT: 45000,
@@ -760,7 +761,6 @@ async function logSuccess(domain, email, result) {
         domain,
         email,
         success: true,
-        method: result.method,
         batch: STATS.currentBatch
     };
     
