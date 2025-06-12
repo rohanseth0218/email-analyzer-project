@@ -20,11 +20,14 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install python-dateutil
+        pip install -r requirements.txt
+        
+    - name: Set up BigQuery credentials
+      run: |
+        echo '${{ secrets.BIGQUERY_CREDENTIALS }}' > bigquery_credentials.json
         
     - name: Run email analysis
       env:
-        # We'll add secrets later for sensitive data
         ANALYSIS_MODE: "cloud"
       run: |
         echo "🚀 Starting full mailbox email extraction..."

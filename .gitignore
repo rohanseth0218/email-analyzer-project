@@ -35,4 +35,4 @@ Thumbs.db
 
 # Large data files
 Storedomains.csv
-Storedomains_unprocessed.csv 
+Storedomains_unprocessed.csv bigquery_credentials.json
