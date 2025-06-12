@@ -30,6 +30,12 @@ jobs:
       run: |
         echo '${{ secrets.MAILBOX_CREDENTIALS }}' > mailboxaccounts.csv
         
+    - name: Run diagnostic first
+      timeout-minutes: 5
+      run: |
+        echo "🔍 Running diagnostics to identify issues..."
+        python quick_diagnostic.py
+        
     - name: Run email analysis
       timeout-minutes: 30
       env:
