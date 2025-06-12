@@ -48,14 +48,14 @@ class NewsletterSignupOrchestrator:
             logger.error(f"❌ Failed to initialize BigQuery client: {e}")
             raise
     
-    def fetch_domains_from_bigquery(self, limit=None, filters=None):
+    def fetch_domains_from_bigquery(self, limit=None, filters=None, exclude_successful=True):
         """
-        Fetch domains from BigQuery based on your criteria
-        Gets domains from storeleads table that aren't already sending emails
+        Fetch domains from BigQuery that need newsletter signups
         
         Args:
             limit: Maximum number of domains to fetch
             filters: Dictionary of filters to apply
+            exclude_successful: If True, exclude domains with successful signups (default: True)
         """
         try:
             # Your specific query - domains from storeleads that we haven't signed up for yet
@@ -76,6 +76,18 @@ class NewsletterSignupOrchestrator:
                     AND sender_domain IS NOT NULL
                 )
             """
+            
+            # Optionally exclude domains we've already successfully signed up for
+            if exclude_successful:
+                base_query += """
+                -- Exclude domains we've already successfully signed up for (but allow retrying failed attempts)
+                AND sl.store_id NOT IN (
+                    SELECT DISTINCT REPLACE(REPLACE(domain, 'https://', ''), 'http://', '')
+                    FROM `instant-ground-394115.email_analytics.newsletter_signup_results_v2`
+                    WHERE domain IS NOT NULL
+                    AND success = true
+                )
+                """
             
             # Add exclude domains filter if provided
             if filters and 'exclude_domains' in filters:
@@ -387,6 +399,7 @@ def main():
         parser.add_argument('--max-concurrent', type=int, default=15, help='Max concurrent sessions')
         parser.add_argument('--dry-run', action='store_true', help='Fetch domains but dont run automation')
         parser.add_argument('--preview', action='store_true', help='Show sample domains that would be processed')
+        parser.add_argument('--include-successful', action='store_true', help='Include domains with previous successful signups (allows re-subscribing)')
         
         args = parser.parse_args()
         
@@ -400,7 +413,8 @@ def main():
         logger.info("🔍 Fetching domains from BigQuery...")
         domains = orchestrator.fetch_domains_from_bigquery(
             limit=args.limit,
-            filters=filters
+            filters=filters,
+            exclude_successful=not args.include_successful
         )
         
         if not domains:

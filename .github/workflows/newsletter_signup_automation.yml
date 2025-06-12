@@ -38,6 +38,11 @@ on:
         required: false
         default: false
         type: boolean
+      include_successful:
+        description: 'Include domains with previous successful signups (allows re-subscribing)'
+        required: false
+        default: false
+        type: boolean
 
 env:
   NODE_VERSION: '18'
@@ -113,6 +118,7 @@ jobs:
         BATCH_SIZE="${{ github.event.inputs.batch_size || '100' }}"
         MAX_CONCURRENT="${{ github.event.inputs.max_concurrent || '15' }}"
         DRY_RUN="${{ github.event.inputs.dry_run || 'false' }}"
+        INCLUDE_SUCCESSFUL="${{ github.event.inputs.include_successful || 'false' }}"
         
         echo "AUTOMATION_LIMIT=$LIMIT" >> $GITHUB_ENV
         echo "AUTOMATION_INDUSTRY=$INDUSTRY" >> $GITHUB_ENV
@@ -121,6 +127,7 @@ jobs:
         echo "AUTOMATION_BATCH_SIZE=$BATCH_SIZE" >> $GITHUB_ENV
         echo "AUTOMATION_MAX_CONCURRENT=$MAX_CONCURRENT" >> $GITHUB_ENV
         echo "AUTOMATION_DRY_RUN=$DRY_RUN" >> $GITHUB_ENV
+        echo "AUTOMATION_INCLUDE_SUCCESSFUL=$INCLUDE_SUCCESSFUL" >> $GITHUB_ENV
         
         echo "🚀 Newsletter Signup Automation Parameters:"
         echo "   Domain limit: $LIMIT"
@@ -130,6 +137,7 @@ jobs:
         echo "   Batch size: $BATCH_SIZE"
         echo "   Max concurrent: $MAX_CONCURRENT"
         echo "   Dry run: $DRY_RUN"
+        echo "   Include successful: $INCLUDE_SUCCESSFUL"
     
     - name: Create logs directory
       run: |
@@ -162,6 +170,10 @@ jobs:
         
         if [ "$AUTOMATION_DRY_RUN" = "true" ]; then
           CMD="$CMD --dry-run"
+        fi
+        
+        if [ "$AUTOMATION_INCLUDE_SUCCESSFUL" = "true" ]; then
+          CMD="$CMD --include-successful"
         fi
         
         echo "🎯 Executing: $CMD"
