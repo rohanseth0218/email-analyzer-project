@@ -21,8 +21,29 @@ import hashlib
 BIGQUERY_CONFIG = {
     'project_id': 'instant-ground-394115',
     'dataset': 'email_analytics', 
-    'table': 'all_marketing_emails'
+    'table': 'marketing_emails_clean'
 }
+
+# Set up Google Cloud credentials
+def setup_credentials():
+    """Setup Google Cloud credentials"""
+    # Check if credentials file exists
+    creds_file = 'bigquery_credentials.json'
+    if os.path.exists(creds_file):
+        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = creds_file
+        print("✅ Using local BigQuery credentials")
+        return True
+    
+    # Check for environment variable
+    if 'GOOGLE_APPLICATION_CREDENTIALS' in os.environ:
+        print("✅ Using environment BigQuery credentials")
+        return True
+    
+    print("❌ No BigQuery credentials found!")
+    print("Please either:")
+    print("1. Place your service account JSON file as 'bigquery_credentials.json'")
+    print("2. Set GOOGLE_APPLICATION_CREDENTIALS environment variable")
+    return False
 
 def decode_mime_header(header):
     """Decode MIME header"""
@@ -113,6 +134,18 @@ def is_marketing_email(sender, subject, text_content):
     sender_lower = sender.lower()
     subject_lower = subject.lower()
     content_lower = text_content.lower()
+    
+    # Skip warmup emails - these have codes like W51Q0NG, 2MAX439, etc.
+    warmup_patterns = [
+        r'[A-Z0-9]{7,8}$',  # Codes like W51Q0NG at end of subject
+        r'[0-9][A-Z]{3}[0-9]{3}',  # Codes like 2MAX439
+        'warmup', 'warm up', 'warm-up'
+    ]
+    
+    import re
+    for pattern in warmup_patterns:
+        if re.search(pattern, subject_lower) or re.search(pattern, content_lower):
+            return False
     
     # Skip personal/spam emails
     spam_patterns = [
@@ -252,7 +285,7 @@ def parse_date_header(date_header):
         except:
             return None
 
-def extract_emails_from_mailbox(mailbox, client, days_back=30):
+def extract_emails_from_mailbox(mailbox, client, existing_ids=None, days_back=30):
     """Extract all marketing emails from a single mailbox"""
     print(f"📧 Processing: {mailbox['email']}")
     
@@ -342,7 +375,7 @@ def extract_emails_from_mailbox(mailbox, client, days_back=30):
                     
                     # Insert in batches to avoid memory issues
                     if len(emails_data) >= batch_size:
-                        insert_to_bigquery(client, emails_data)
+                        insert_to_bigquery(client, emails_data, existing_ids)
                         emails_data = []  # Clear batch
                         
             except Exception as e:
@@ -351,7 +384,7 @@ def extract_emails_from_mailbox(mailbox, client, days_back=30):
         
         # Insert remaining emails
         if emails_data:
-            insert_to_bigquery(client, emails_data)
+            insert_to_bigquery(client, emails_data, existing_ids)
         
         mail.logout()
         print(f"   ✅ Found {total_marketing} marketing emails")
@@ -361,9 +394,35 @@ def extract_emails_from_mailbox(mailbox, client, days_back=30):
     
     return total_marketing
 
-def insert_to_bigquery(client, emails_data):
-    """Insert email data to BigQuery"""
+def get_existing_email_ids(client):
+    """Get set of existing email IDs from BigQuery to avoid duplicates"""
+    table_id = f"{BIGQUERY_CONFIG['project_id']}.{BIGQUERY_CONFIG['dataset']}.{BIGQUERY_CONFIG['table']}"
+    
+    try:
+        query = f"SELECT DISTINCT email_id FROM `{table_id}`"
+        results = client.query(query)
+        existing_ids = {row.email_id for row in results}
+        print(f"📋 Found {len(existing_ids)} existing emails in BigQuery")
+        return existing_ids
+    except Exception as e:
+        print(f"⚠️ Could not fetch existing IDs (table might not exist yet): {e}")
+        return set()
+
+def insert_to_bigquery(client, emails_data, existing_ids=None):
+    """Insert email data to BigQuery, avoiding duplicates"""
     if not emails_data:
+        return
+    
+    # Filter out duplicates if we have existing IDs
+    if existing_ids:
+        new_emails = [email for email in emails_data if email['email_id'] not in existing_ids]
+        duplicates_skipped = len(emails_data) - len(new_emails)
+        if duplicates_skipped > 0:
+            print(f"      🔄 Skipping {duplicates_skipped} duplicate emails")
+        emails_data = new_emails
+    
+    if not emails_data:
+        print(f"      ⏭️ No new emails to insert")
         return
     
     table_id = f"{BIGQUERY_CONFIG['project_id']}.{BIGQUERY_CONFIG['dataset']}.{BIGQUERY_CONFIG['table']}"
@@ -373,7 +432,10 @@ def insert_to_bigquery(client, emails_data):
         if errors:
             print(f"      ❌ BigQuery insert errors: {errors}")
         else:
-            print(f"      ✅ Inserted {len(emails_data)} emails to BigQuery")
+            print(f"      ✅ Inserted {len(emails_data)} NEW emails to BigQuery")
+            # Add new IDs to existing set
+            if existing_ids is not None:
+                existing_ids.update(email['email_id'] for email in emails_data)
     except Exception as e:
         print(f"      ❌ BigQuery insert failed: {e}")
 
@@ -383,11 +445,19 @@ def main():
     print("Creating detailed email records with HTML content, metadata, etc.")
     print("=" * 60)
     
+    # Setup credentials first
+    if not setup_credentials():
+        print("❌ Credentials setup failed. Exiting.")
+        return
+    
     # Setup BigQuery
     client = setup_bigquery()
     if not client:
         print("❌ BigQuery setup failed. Exiting.")
         return
+    
+    # Get existing email IDs to avoid duplicates
+    existing_ids = get_existing_email_ids(client)
     
     # Load mailboxes
     mailboxes = load_mailboxes()
@@ -407,7 +477,7 @@ def main():
     for i, mailbox in enumerate(mailboxes, 1):
         print(f"\n📋 MAILBOX {i}/{len(mailboxes)}")
         
-        marketing_count = extract_emails_from_mailbox(mailbox, client, days_back)
+        marketing_count = extract_emails_from_mailbox(mailbox, client, existing_ids, days_back)
         total_emails += marketing_count
         
         print(f"📊 Running total: {total_emails} marketing emails")
