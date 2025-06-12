@@ -133,7 +133,7 @@ class NewsletterSignupOrchestrator:
             for item in formatted_domains:
                 csv_content += f"{item['domain']}\n"
             
-            with open('Storedomains_bigquery.csv', 'w') as f:
+            with open('Storedomains.csv', 'w') as f:
                 f.write(csv_content)
             
             # Also save metadata for tracking
@@ -169,7 +169,7 @@ class NewsletterSignupOrchestrator:
                 'MAX_CONCURRENT_SESSIONS': max_concurrent,
                 'MODE': 'BATCH',
                 'START_FROM_BATCH': 1,
-                'CSV_FILE': 'Storedomains_bigquery.csv'
+                'CSV_FILE': 'Storedomains.csv'
             }
             
             # Update the JavaScript file with our configuration
