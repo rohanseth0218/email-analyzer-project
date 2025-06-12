@@ -472,6 +472,13 @@ def main():
         print("❌ No mailboxes loaded. Exiting.")
         return
     
+    # Check for start mailbox parameter
+    import os
+    start_mailbox = int(os.getenv('START_MAILBOX', '1'))
+    if start_mailbox > 1:
+        print(f"🔄 RESUMING FROM MAILBOX {start_mailbox}")
+        print(f"⏭️ Skipping first {start_mailbox-1} mailboxes")
+    
     # Process each mailbox
     days_back = 30
     total_emails = 0
@@ -480,6 +487,11 @@ def main():
     print("=" * 60)
     
     for i, mailbox in enumerate(mailboxes, 1):
+        # Skip mailboxes before start_mailbox
+        if i < start_mailbox:
+            print(f"\n📋 MAILBOX {i}/{len(mailboxes)} - ⏭️ SKIPPING (resuming from {start_mailbox})")
+            continue
+            
         print(f"\n📋 MAILBOX {i}/{len(mailboxes)}")
         
         marketing_count = extract_emails_from_mailbox(mailbox, client, existing_ids, days_back)
