@@ -480,7 +480,7 @@ def main():
         print(f"⏭️ Skipping first {start_mailbox-1} mailboxes")
     
     # Process each mailbox
-    days_back = 30
+    days_back = 7  # Changed from 30 to 7 days for faster processing
     total_emails = 0
     
     print(f"📅 Processing emails from last {days_back} days")

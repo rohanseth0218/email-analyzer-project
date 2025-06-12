@@ -37,14 +37,14 @@ jobs:
         python quick_diagnostic.py
         
     - name: Run email analysis
-      timeout-minutes: 30
+      timeout-minutes: 60  # Increased to 60 minutes
       env:
         ANALYSIS_MODE: "cloud"
         PYTHONUNBUFFERED: "1"
         START_MAILBOX: "14"  # Resume from mailbox 14
       run: |
-        echo "🚀 Starting email extraction from mailbox $START_MAILBOX..."
-        timeout 25m python -u export_emails_to_bigquery.py || echo "⚠️ Script timed out after 25 minutes"
+        echo "🚀 Starting email extraction from mailbox $START_MAILBOX (last 7 days)..."
+        python -u export_emails_to_bigquery.py
         echo "✅ Email extraction complete!"
         
     - name: Summary
