@@ -135,19 +135,22 @@ def is_marketing_email(sender, subject, text_content):
     subject_lower = subject.lower()
     content_lower = text_content.lower()
     
-    # Skip warmup emails - these have codes like W51Q0NG, 2MAX439, etc.
+    # Skip warmup emails - these have codes like BJRZPZ0, W51Q0NG at end of subject
     warmup_patterns = [
-        r'[A-Z0-9]{7,8}$',  # Codes like W51Q0NG at end of subject (case insensitive)
-        r'[0-9][A-Z]{3}[0-9]{3}',  # Codes like 2MAX439 (case insensitive)
-        r'warmup', r'warm up', r'warm-up'  # Direct warmup terms
+        r'[A-Z0-9]{7,8}$',  # Codes like BJRZPZ0, W51Q0NG at END of subject line only
     ]
     
     import re
-    # Check against original subject (not lowercase) for case-sensitive patterns
+    # Check if subject ends with warmup code pattern
     for pattern in warmup_patterns:
-        if re.search(pattern, subject, re.IGNORECASE) or re.search(pattern, text_content, re.IGNORECASE):
+        if re.search(pattern, subject):
             print(f"      🚫 SKIPPING warmup email: {subject[:50]}...")
             return False
+    
+    # Skip emails containing "Ripple" (company name)
+    if 'ripple' in subject_lower or 'ripple' in sender_lower:
+        print(f"      🚫 SKIPPING Ripple email: {subject[:50]}...")
+        return False
     
     # Skip personal/spam emails
     spam_patterns = [
