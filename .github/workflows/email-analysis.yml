@@ -26,6 +26,10 @@ jobs:
       run: |
         echo '${{ secrets.BIGQUERY_CREDENTIALS }}' > bigquery_credentials.json
         
+    - name: Set up mailbox credentials
+      run: |
+        echo '${{ secrets.MAILBOX_CREDENTIALS }}' > mailboxaccounts.csv
+        
     - name: Run email analysis
       env:
         ANALYSIS_MODE: "cloud"
