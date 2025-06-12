@@ -40,9 +40,10 @@ jobs:
       timeout-minutes: 30
       env:
         ANALYSIS_MODE: "cloud"
+        PYTHONUNBUFFERED: "1"
       run: |
         echo "🚀 Starting full mailbox email extraction..."
-        timeout 25m python export_emails_to_bigquery.py || echo "⚠️ Script timed out after 25 minutes"
+        timeout 25m python -u export_emails_to_bigquery.py || echo "⚠️ Script timed out after 25 minutes"
         echo "✅ Email extraction complete!"
         
     - name: Summary
