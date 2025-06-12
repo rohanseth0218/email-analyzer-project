@@ -827,7 +827,7 @@ async function runFullAutomation() {
             // BATCH mode
             const allDomains = await loadDomains();
             startBatch = CONFIG.START_FROM_BATCH;
-            const startIndex = startBatch * CONFIG.BATCH_SIZE;
+            const startIndex = (startBatch - 1) * CONFIG.BATCH_SIZE;
             domains = allDomains.slice(startIndex);
             console.log(`📦 Starting from batch ${startBatch} (${domains.length} domains remaining)`);
         }
