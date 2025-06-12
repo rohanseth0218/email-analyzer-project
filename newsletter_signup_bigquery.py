@@ -12,6 +12,8 @@ from datetime import datetime, timedelta
 from google.cloud import bigquery
 from google.oauth2 import service_account
 import logging
+from pathlib import Path
+import pandas as pd
 
 # Configure logging
 logging.basicConfig(
@@ -205,6 +207,8 @@ class NewsletterSignupOrchestrator:
             
             if process.returncode == 0:
                 logger.info("✅ Newsletter automation completed successfully")
+                # Upload results to BigQuery
+                self.upload_log_results_to_bigquery()
                 return True
             else:
                 logger.error(f"❌ Newsletter automation failed with return code {process.returncode}")
@@ -254,12 +258,93 @@ class NewsletterSignupOrchestrator:
             logger.error(f"❌ Error updating automation config: {e}")
             raise
     
+    def read_automation_logs(self):
+        """
+        Read the JavaScript automation log files and return results for BigQuery upload
+        """
+        results = []
+        
+        # Read successful submissions
+        success_log = './logs/successful_submissions_production.jsonl'
+        failed_log = './logs/failed_submissions_production.jsonl'
+        
+        logger.info("📤 Reading automation log files...")
+        
+        # Read successful submissions
+        if Path(success_log).exists():
+            try:
+                with open(success_log, 'r') as f:
+                    for line in f:
+                        if line.strip():
+                            data = json.loads(line.strip())
+                            result = {
+                                'domain': data.get('domain', ''),
+                                'success': True,
+                                'email_used': data.get('email', ''),
+                                'signup_timestamp': data.get('timestamp', ''),
+                                'error_message': None,
+                                'batch_id': str(data.get('batch', '')),
+                                'method': data.get('method', ''),
+                                'industry': None,
+                                'country': None,
+                                'employee_count': None
+                            }
+                            results.append(result)
+            except Exception as e:
+                logger.error(f"❌ Error reading success log: {e}")
+        
+        # Read failed submissions  
+        if Path(failed_log).exists():
+            try:
+                with open(failed_log, 'r') as f:
+                    for line in f:
+                        if line.strip():
+                            data = json.loads(line.strip())
+                            result = {
+                                'domain': data.get('domain', ''),
+                                'success': False,
+                                'email_used': data.get('email', ''),
+                                'signup_timestamp': data.get('timestamp', ''),
+                                'error_message': data.get('reason', ''),
+                                'batch_id': str(data.get('batch', '')),
+                                'method': None,
+                                'industry': None,
+                                'country': None,
+                                'employee_count': None
+                            }
+                            results.append(result)
+            except Exception as e:
+                logger.error(f"❌ Error reading failed log: {e}")
+        
+        logger.info(f"📋 Found {len(results)} total results from logs")
+        return results
+
+    def upload_log_results_to_bigquery(self):
+        """
+        Read JavaScript logs and upload results to BigQuery
+        """
+        try:
+            logger.info("📤 Uploading results to BigQuery...")
+            
+            # Read results from log files
+            results = self.read_automation_logs()
+            
+            if not results:
+                logger.warning("⚠️ No results found in log files")
+                return
+            
+            # Upload to BigQuery
+            self.log_results_to_bigquery(results)
+            
+        except Exception as e:
+            logger.error(f"❌ Error uploading results to BigQuery: {e}")
+
     def log_results_to_bigquery(self, results):
         """
         Log automation results back to BigQuery for tracking
         """
         try:
-            table_id = f"{self.project_id}.email_analytics.newsletter_signup_results"
+            table_id = f"{self.project_id}.email_analytics.newsletter_signup_results_v2"
             
             # Prepare rows for insertion
             rows_to_insert = []
@@ -269,12 +354,13 @@ class NewsletterSignupOrchestrator:
                     'domain': result.get('domain', ''),
                     'success': result.get('success', False),
                     'email_used': result.get('email_used', ''),
-                    'signup_timestamp': datetime.utcnow().isoformat(),
+                    'signup_timestamp': result.get('signup_timestamp', ''),
                     'error_message': result.get('error_message', ''),
                     'batch_id': result.get('batch_id', ''),
-                    'industry': None,  # Will be filled from storeleads later if needed
-                    'country': None,   # Will be filled from storeleads later if needed
-                    'employee_count': None  # Will be filled from storeleads later if needed
+                    'method': result.get('method', ''),
+                    'industry': result.get('industry'),
+                    'country': result.get('country'),  
+                    'employee_count': result.get('employee_count')
                 }
                 rows_to_insert.append(row)
             

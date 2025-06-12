@@ -20,6 +20,7 @@ const { chromium } = require('playwright');
 const fs = require('fs').promises;
 const { parse } = require('csv-parse/sync');
 const axios = require('axios');
+const { spawn } = require('child_process');
 
 // Configuration
 const CONFIG = {
@@ -808,6 +809,42 @@ async function updateProgress() {
     }
 }
 
+async function triggerBigQueryUpload() {
+    console.log(`📤 Triggering BigQuery upload (${STATS.totalSuccessful} total signups)...`);
+    
+    try {
+        // Create a Python process to upload current results
+        const uploadProcess = spawn('python', ['-c', `
+import sys
+sys.path.append('.')
+from newsletter_signup_bigquery import NewsletterSignupOrchestrator
+orchestrator = NewsletterSignupOrchestrator()
+orchestrator.upload_log_results_to_bigquery()
+        `], {
+            stdio: 'pipe'
+        });
+        
+        uploadProcess.stdout.on('data', (data) => {
+            console.log(`📤 Upload: ${data.toString().trim()}`);
+        });
+        
+        uploadProcess.stderr.on('data', (data) => {
+            console.error(`❌ Upload Error: ${data.toString().trim()}`);
+        });
+        
+        uploadProcess.on('close', (code) => {
+            if (code === 0) {
+                console.log(`✅ BigQuery upload completed successfully`);
+            } else {
+                console.error(`❌ BigQuery upload failed with code ${code}`);
+            }
+        });
+        
+    } catch (error) {
+        console.error(`❌ Failed to trigger BigQuery upload: ${error.message}`);
+    }
+}
+
 async function runFullAutomation() {
     console.log('🚀 Starting Full Newsletter Automation...');
     console.log(`📋 Mode: ${CONFIG.MODE}`);
@@ -874,6 +911,11 @@ async function runFullAutomation() {
             
             // Update progress
             await updateProgress();
+            
+            // Upload to BigQuery every 100 signups
+            if (STATS.totalSuccessful > 0 && STATS.totalSuccessful % 100 === 0) {
+                await triggerBigQueryUpload();
+            }
             
             // Print batch statistics
             const successRate = STATS.totalProcessed > 0 ? ((STATS.totalSuccessful / STATS.totalProcessed) * 100).toFixed(1) : '0.0';
