@@ -35,7 +35,7 @@ jobs:
         echo "✅ Email extraction complete!"
         
     - name: Upload results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: email-analysis-results
         path: |
