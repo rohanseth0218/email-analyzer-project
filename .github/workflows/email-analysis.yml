@@ -3,6 +3,17 @@ on:
   schedule:
     - cron: '0 6 * * *'  # Run daily at 6 AM UTC
   workflow_dispatch:  # Allow manual triggering
+    inputs:
+      days_back:
+        description: 'Number of days to analyze'
+        required: false
+        default: '1'
+        type: string
+      start_mailbox:
+        description: 'Mailbox to start from (for resuming)'
+        required: false
+        default: '1'
+        type: string
   
 jobs:
   analyze-emails:
@@ -37,13 +48,18 @@ jobs:
         python quick_diagnostic.py
         
     - name: Run email analysis
-      timeout-minutes: 60  # Increased to 60 minutes
+      timeout-minutes: 30  # Reduced to 30 minutes for 24-hour processing
       env:
         ANALYSIS_MODE: "cloud"
         PYTHONUNBUFFERED: "1"
-        START_MAILBOX: "14"  # Resume from mailbox 14
+        START_MAILBOX: ${{ github.event.inputs.start_mailbox || '1' }}
+        DAYS_BACK: ${{ github.event.inputs.days_back || '1' }}
       run: |
-        echo "🚀 Starting email extraction from mailbox $START_MAILBOX (last 7 days)..."
+        DAYS_TEXT="day"
+        if [ "$DAYS_BACK" != "1" ]; then
+          DAYS_TEXT="days"
+        fi
+        echo "🚀 Starting email extraction from mailbox $START_MAILBOX (last $DAYS_BACK $DAYS_TEXT)..."
         python -u export_emails_to_bigquery.py
         echo "✅ Email extraction complete!"
         
