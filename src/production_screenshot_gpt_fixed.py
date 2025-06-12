@@ -76,7 +76,7 @@ def load_mailboxes_from_csv() -> List[Dict[str, str]]:
 # Configuration - NOW LOADS ALL MAILBOXES!
 CONFIG = {
     # OpenAI API Key
-    'openai_api_key': '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',
+    'openai_api_key': os.getenv('OPENAI_API_KEY', 'your-openai-api-key-here'),
     
     # Load ALL mailboxes from CSV
     'mailboxes': load_mailboxes_from_csv(),

@@ -19,7 +19,7 @@ IMAP_SERVER = "imapn2.mymailsystem.com"
 IMAP_PORT = 993
 EMAIL_ADDRESS = "rohan.s@openripplestudio.info"
 EMAIL_PASSWORD = "hQ&#vvN2R%&J"
-OPENAI_API_KEY = "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"
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', 'your-openai-api-key-here')
 
 def connect_to_email():
     """Connect to IMAP server"""
