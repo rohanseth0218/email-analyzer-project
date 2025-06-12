@@ -1,14 +1,32 @@
 {
-  "name": "newsletter-signup-automation",
+  "name": "email-signup-automation",
   "version": "1.0.0",
-  "description": "Automated newsletter signup tool using Browserbase",
-  "main": "full_newsletter_automation_clean.js",
+  "description": "Automated email signup system using Browserbase MCP and Zapier MCP",
+  "main": "src/mcp_email_automation.js",
   "scripts": {
-    "start": "node full_newsletter_automation_clean.js"
+    "start": "node src/mcp_email_automation.js",
+    "test": "node scripts/run_automation.js --test",
+    "test-mcp": "node scripts/test_mcp.js",
+    "dev": "NODE_ENV=development node src/mcp_email_automation.js"
   },
+  "keywords": [
+    "automation",
+    "email",
+    "signup",
+    "browserbase",
+    "mcp",
+    "zapier"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
   "dependencies": {
-    "playwright": "^1.40.0",
-    "csv-parse": "^5.5.0",
-    "axios": "^1.6.0"
+    "axios": "^1.7.7",
+    "csv-parse": "^5.6.0",
+    "csv-parser": "^3.0.0",
+    "dotenv": "^16.3.1",
+    "playwright": "^1.49.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   }
 }

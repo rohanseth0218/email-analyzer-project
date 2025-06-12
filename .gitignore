@@ -36,3 +36,86 @@ Thumbs.db
 # Large data files
 Storedomains.csv
 Storedomains_unprocessed.csv bigquery_credentials.json
+
+# Credentials
+*.json
+bigquery_credentials.json
+
+# Environment files
+.env
+.env.local
+
+# Node modules and Python env
+node_modules/
+venv/
+__pycache__/
+
+# Email data
+mailboxaccounts.csv
+
+# Local work files - keep local but don't track in git
+*_analysis*.py
+*_analysis*.json
+*_analysis*.csv
+brand_*.py
+brand_*.txt
+count_*.py
+deep_*.py
+find_*.py
+fix_*.py
+quick_*.py
+comprehensive_*.py
+enhance_*.py
+export_*.py
+save_*.py
+upload_*.py
+test_*.py
+test_*.js
+diagnostic_*.py
+diagnostic_*.js
+diagnostic_*.log
+automation_*.log
+email_debug*.log
+playground_*.log
+debug_*.js
+monitor_*.js
+improved_*.js
+start_automation*.js
+run_*.js
+clear_*.py
+create_fresh_*.py
+create_new_*.py
+deploy_*.py
+email_link_*.py
+convert_*.py
+check_*.py
+simple_*.py
+legitimate_*.py
+run_signup_*.py
+create_unprocessed_*.js
+extract_*.js
+
+# Data files
+actual_email_domains.txt
+brands_*.txt
+email_senders_found.txt
+full_signup_list.txt
+unprocessed_summary.json
+*.csv
+*.log
+
+# Archive and backup directories
+archive_old_files/
+logs/
+scripts/
+docs/
+config/
+data/
+src/
+tests/
+
+# Generated files
+*.zip
+*.png
+Dockerfile
+*.md
