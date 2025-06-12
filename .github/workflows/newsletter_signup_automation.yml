@@ -84,14 +84,20 @@ jobs:
     
     - name: Create mailbox accounts file
       run: |
-        # Create a basic mailbox accounts CSV if it doesn't exist
-        if [ ! -f "mailboxaccounts.csv" ]; then
-          echo "Creating default mailbox accounts..."
+        # Create mailboxaccounts.csv from the MAILBOX_ACCOUNTS secret
+        echo "Creating mailboxaccounts.csv from secret..."
+        echo '${{ secrets.MAILBOX_ACCOUNTS }}' > mailboxaccounts.csv
+        
+        # Verify the file was created and has content
+        if [ -f "mailboxaccounts.csv" ] && [ -s "mailboxaccounts.csv" ]; then
+          ACCOUNT_COUNT=$(tail -n +2 mailboxaccounts.csv | wc -l | tr -d ' ')
+          echo "✅ Created mailboxaccounts.csv with $ACCOUNT_COUNT email accounts"
+        else
+          echo "❌ Failed to create mailboxaccounts.csv or file is empty"
+          echo "Creating fallback with single test account..."
           cat > mailboxaccounts.csv << 'EOF'
         ﻿Email
-        ${{ secrets.EMAIL_ACCOUNT_1 || 'test@example.com' }}
-        ${{ secrets.EMAIL_ACCOUNT_2 || 'test2@example.com' }}
-        ${{ secrets.EMAIL_ACCOUNT_3 || 'test3@example.com' }}
+        test@example.com
         EOF
         fi
     

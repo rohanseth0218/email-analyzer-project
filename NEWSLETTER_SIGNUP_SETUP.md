@@ -43,9 +43,21 @@ Add these secrets to your GitHub repository:
 
 #### Required Secrets:
 - `BIGQUERY_CREDENTIALS` - Your service account JSON (already configured)
-- `EMAIL_ACCOUNT_1` - First email for signups (e.g., your main mailbox)
-- `EMAIL_ACCOUNT_2` - Second email for signups (optional)
-- `EMAIL_ACCOUNT_3` - Third email for signups (optional)
+- `MAILBOX_ACCOUNTS` - Your complete mailboxaccounts.csv content
+
+#### Setting up MAILBOX_ACCOUNTS Secret:
+1. Copy the entire content of your `mailboxaccounts.csv` file
+2. Go to GitHub repository → Settings → Secrets and variables → Actions
+3. Click "New repository secret"
+4. Name: `MAILBOX_ACCOUNTS`
+5. Value: Paste the complete CSV content (including headers)
+
+Example format:
+```csv
+Email,First Name,Last Name,IMAP Username,IMAP Password,IMAP Host,IMAP Port
+your.email1@domain.com,First,Last,username1,password1,imap.host.com,993
+your.email2@domain.com,First,Last,username2,password2,imap.host.com,993
+```
 
 #### Optional Secrets:
 - `SLACK_WEBHOOK_URL` - For notifications (uncomment in workflow)
