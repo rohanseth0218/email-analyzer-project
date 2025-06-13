@@ -73,16 +73,17 @@ def process_newsletter_signup_data(data):
         if col not in df.columns:
             df[col] = None
         
-        # Convert data types
+        # Convert data types more robustly
         if dtype == str:
-            df[col] = df[col].astype(str).replace('nan', None)
+            df[col] = df[col].fillna('').astype(str)
+            df[col] = df[col].replace({'nan': None, 'None': None, '': None})
         elif dtype == bool:
-            df[col] = df[col].astype(bool)
+            df[col] = df[col].fillna(False).astype(bool)
         elif dtype == 'Int64':
             df[col] = pd.to_numeric(df[col], errors='coerce').astype('Int64')
     
     # Clean up data
-    df = df.replace({pd.NaType: None, 'None': None, '': None})
+    df = df.replace({pd.NA: None, 'None': None, '': None, 'nan': None})
     
     print(f"✅ Processed {len(df)} newsletter signup records")
     print(f"📊 Success rate: {df['success'].sum()}/{len(df)} ({df['success'].mean()*100:.1f}%)")
