@@ -703,22 +703,42 @@ async function processDomain(domain, retryCount = 0) {
         
         page = await context.newPage();
         
-        // Handle JavaScript dialogs (alerts, confirms, prompts) to prevent crashes
+        // Simple dialog handling - just dismiss everything
         page.on('dialog', async dialog => {
-            console.log(`⚠️ Dialog detected: ${dialog.type()} - ${dialog.message()}`);
-            try {
-                await dialog.dismiss();
-            } catch (error) {
-                console.log(`⚠️ Dialog already handled: ${error.message}`);
-            }
+            console.log(`⚠️ Dialog: ${dialog.type()} - ${dialog.message()}`);
+            setTimeout(async () => {
+                try {
+                    await dialog.dismiss();
+                } catch (e) {
+                    // Ignore errors - dialog might already be handled
+                }
+            }, 100);
         });
         
         // Set longer timeouts
         page.setDefaultTimeout(CONFIG.FORM_INTERACTION_TIMEOUT);
         page.setDefaultNavigationTimeout(CONFIG.NAVIGATION_TIMEOUT);
         
-        // Try form submission
-        const result = await tryFormSubmission(page, email, domain);
+        // Try form submission with defensive error handling for dialog crashes
+        let result;
+        try {
+            result = await tryFormSubmission(page, email, domain);
+        } catch (formError) {
+            // Check if it's a dialog-related error
+            if (formError.message.includes('handleJavaScriptDialog') || 
+                formError.message.includes('No dialog is showing') ||
+                formError.message.includes('ProtocolError')) {
+                console.log(`⚠️ Dialog-related error for ${domain}, treating as form submission failure: ${formError.message}`);
+                result = { 
+                    success: false, 
+                    reason: 'dialog_error', 
+                    error: formError.message 
+                };
+            } else {
+                // Re-throw other errors
+                throw formError;
+            }
+        }
         
         STATS.totalProcessed++;
         
