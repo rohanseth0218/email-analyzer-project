@@ -80,19 +80,64 @@ def process_newsletter_signup_data(data):
         elif dtype == bool:
             df[col] = df[col].fillna(False).astype(bool)
         elif dtype == 'Int64':
-            df[col] = pd.to_numeric(df[col], errors='coerce').astype('Int64')
+            # Handle employee_count conversion more carefully
+            df[col] = df[col].replace({'': None, 'None': None, 'nan': None})
+            df[col] = pd.to_numeric(df[col], errors='coerce')
     
-    # Clean up data
+    # Clean up data - handle various null representations
     df = df.replace({pd.NA: None, 'None': None, '': None, 'nan': None})
+    
+    # Remove any rows with missing required fields
+    df = df.dropna(subset=['domain'])
     
     print(f"✅ Processed {len(df)} newsletter signup records")
     print(f"📊 Success rate: {df['success'].sum()}/{len(df)} ({df['success'].mean()*100:.1f}%)")
     
     return df
 
+def check_existing_domains(client, table_id, domains):
+    """Check which domains already exist in BigQuery to prevent duplicates"""
+    print("🔍 Checking for existing domains in BigQuery...")
+    
+    try:
+        # Create a query to check existing domains
+        domains_list = "', '".join(domains)
+        query = f"""
+        SELECT DISTINCT domain
+        FROM `{table_id}`
+        WHERE domain IN ('{domains_list}')
+        """
+        
+        query_job = client.query(query)
+        existing_domains = set()
+        
+        for row in query_job:
+            existing_domains.add(row.domain)
+        
+        print(f"📋 Found {len(existing_domains)} existing domains in BigQuery")
+        return existing_domains
+        
+    except Exception as e:
+        print(f"⚠️ Could not check existing domains (table might not exist): {e}")
+        return set()
+
 def upload_to_bigquery(client, df, table_id):
-    """Upload DataFrame to BigQuery"""
+    """Upload DataFrame to BigQuery with duplicate prevention"""
     print(f"🚀 Uploading to BigQuery table: {table_id}")
+    
+    # Check for existing domains
+    existing_domains = check_existing_domains(client, table_id, df['domain'].tolist())
+    
+    # Filter out existing domains
+    if existing_domains:
+        original_count = len(df)
+        df = df[~df['domain'].isin(existing_domains)]
+        print(f"🔄 Filtered out {original_count - len(df)} duplicate domains")
+        print(f"📊 Uploading {len(df)} new records")
+        
+        if df.empty:
+            print("⚠️ No new records to upload (all domains already exist)")
+            return True
     
     try:
         # Configure load job
@@ -126,6 +171,15 @@ def upload_to_bigquery(client, df, table_id):
         
     except Exception as e:
         print(f"❌ BigQuery upload failed: {e}")
+        print(f"🔍 Error details: {type(e).__name__}")
+        
+        # Show sample data for debugging
+        print("\n🔍 DEBUGGING INFO:")
+        print("Sample data types:")
+        print(df.dtypes)
+        print("\nSample data:")
+        print(df.head(2))
+        
         return False
 
 def main():
