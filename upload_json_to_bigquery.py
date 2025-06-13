@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Upload JSON data to BigQuery
-Adapted from Colab script for GitHub Actions environment
+Handles both storeleads and newsletter signup data
 """
 
 import json
@@ -26,6 +26,57 @@ def setup_bigquery_client():
     except Exception as e:
         print(f"❌ BigQuery setup failed: {e}")
         return None
+
+def load_json_data(json_path):
+    """Load JSON data from file"""
+    print(f"📂 Loading JSON data from: {json_path}")
+    
+    if not os.path.exists(json_path):
+        print(f"❌ JSON file not found: {json_path}")
+        return []
+    
+    try:
+        # Try loading as a single JSON array first
+        with open(json_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            if isinstance(data, list):
+                print(f"✅ Loaded {len(data)} records from JSON array")
+                return data
+    except:
+        pass
+    
+    # Fall back to JSONL format (line-by-line JSON)
+    lines = []
+    with open(json_path, 'r', encoding='utf-8') as f:
+        for line_num, line in enumerate(f, 1):
+            try:
+                lines.append(json.loads(line))
+            except Exception as e:
+                print(f"⚠️ Skipping broken line {line_num}: {e}")
+                continue
+    
+    print(f"✅ Loaded {len(lines)} records from JSONL")
+    return lines
+
+def process_newsletter_signup_data(data):
+    """Process newsletter signup data"""
+    print("🔄 Processing newsletter signup records...")
+    
+    # Data is already in the correct format for BigQuery
+    df = pd.DataFrame(data)
+    
+    # Ensure all required columns exist
+    required_columns = [
+        'domain', 'success', 'email_used', 'signup_timestamp', 
+        'error_message', 'batch_id', 'industry', 'country', 'employee_count'
+    ]
+    
+    for col in required_columns:
+        if col not in df.columns:
+            df[col] = None
+    
+    print(f"✅ Processed {len(df)} newsletter signup records")
+    return df
 
 def extract_email(contact_info):
     """Extract email from contact info"""
@@ -54,29 +105,9 @@ def extract_klaviyo_info(apps, technologies):
     
     return klaviyo_installed_at, klaviyo_active
 
-def load_json_data(json_path):
-    """Load JSON data from file"""
-    print(f"📂 Loading JSON data from: {json_path}")
-    
-    if not os.path.exists(json_path):
-        print(f"❌ JSON file not found: {json_path}")
-        return []
-    
-    lines = []
-    with open(json_path, 'r', encoding='utf-8') as f:
-        for line_num, line in enumerate(f, 1):
-            try:
-                lines.append(json.loads(line))
-            except Exception as e:
-                print(f"⚠️ Skipping broken line {line_num}: {e}")
-                continue
-    
-    print(f"✅ Loaded {len(lines)} records from JSON")
-    return lines
-
-def process_records(lines):
-    """Process JSON records into structured data"""
-    print("🔄 Processing records...")
+def process_storeleads_data(lines):
+    """Process storeleads data into structured format"""
+    print("🔄 Processing storeleads records...")
     
     records = []
     for shop in tqdm(lines, desc="Processing stores"):
@@ -113,8 +144,25 @@ def process_records(lines):
         })
     
     df = pd.DataFrame(records)
-    print(f"✅ Processed {len(df)} records into DataFrame")
+    print(f"✅ Processed {len(df)} storeleads records into DataFrame")
     return df
+
+def detect_data_type(data):
+    """Detect whether data is newsletter signup or storeleads format"""
+    if not data:
+        return "unknown"
+    
+    sample = data[0] if isinstance(data, list) else data
+    
+    # Check for newsletter signup fields
+    if 'email_used' in sample and 'signup_timestamp' in sample:
+        return "newsletter_signup"
+    
+    # Check for storeleads fields
+    if 'platform_domain' in sample or 'merchant_name' in sample:
+        return "storeleads"
+    
+    return "unknown"
 
 def upload_to_bigquery(client, df, dataset_table):
     """Upload DataFrame to BigQuery"""
@@ -122,7 +170,12 @@ def upload_to_bigquery(client, df, dataset_table):
     
     try:
         # Create table reference
-        table_ref = client.dataset(dataset_table.split('.')[0]).table(dataset_table.split('.')[1])
+        table_parts = dataset_table.split('.')
+        if len(table_parts) != 2:
+            raise ValueError(f"Invalid table format: {dataset_table}. Expected format: dataset.table")
+        
+        dataset_id, table_id = table_parts
+        table_ref = client.dataset(dataset_id).table(table_id)
         
         # Configure load job
         job_config = bigquery.LoadJobConfig(
@@ -164,13 +217,23 @@ def main():
         sys.exit(1)
     
     # Load JSON data
-    lines = load_json_data(json_path)
-    if not lines:
+    data = load_json_data(json_path)
+    if not data:
         print("❌ No data loaded from JSON file")
         sys.exit(1)
     
-    # Process records
-    df = process_records(lines)
+    # Detect data type and process accordingly
+    data_type = detect_data_type(data)
+    print(f"🔍 Detected data type: {data_type}")
+    
+    if data_type == "newsletter_signup":
+        df = process_newsletter_signup_data(data)
+    elif data_type == "storeleads":
+        df = process_storeleads_data(data)
+    else:
+        print("❌ Unknown data format")
+        sys.exit(1)
+    
     if df.empty:
         print("❌ No records processed")
         sys.exit(1)
