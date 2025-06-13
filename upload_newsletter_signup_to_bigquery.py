@@ -75,6 +75,10 @@ def process_newsletter_signup_data(data):
     # Convert timestamp to proper datetime format for BigQuery
     df['signup_timestamp'] = pd.to_datetime(df['signup_timestamp'], errors='coerce', utc=True)
     
+    # Fill any null timestamps with current time since the existing table requires them
+    current_time = pd.Timestamp.now(tz='UTC')
+    df['signup_timestamp'] = df['signup_timestamp'].fillna(current_time)
+    
     # Clean up null representations
     df = df.replace({'None': None, '': None, 'nan': None})
     
@@ -131,16 +135,10 @@ def upload_to_bigquery(client, df, table_id):
             return True
     
     try:
-        # Configure load job
+        # Configure load job - use autodetect to match existing schema
         job_config = bigquery.LoadJobConfig(
             write_disposition=bigquery.WriteDisposition.WRITE_APPEND,  # Append to existing table
-            autodetect=False,  # Use explicit schema
-            schema=[
-                bigquery.SchemaField("domain", "STRING", mode="REQUIRED"),
-                bigquery.SchemaField("success", "BOOLEAN", mode="REQUIRED"),
-                bigquery.SchemaField("email_used", "STRING", mode="NULLABLE"),
-                bigquery.SchemaField("signup_timestamp", "TIMESTAMP", mode="NULLABLE"),
-            ]
+            autodetect=True,  # Let BigQuery auto-detect schema to match existing table
         )
         
         # Load data
