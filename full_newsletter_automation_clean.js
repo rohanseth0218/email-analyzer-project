@@ -703,6 +703,16 @@ async function processDomain(domain, retryCount = 0) {
         
         page = await context.newPage();
         
+        // Handle JavaScript dialogs (alerts, confirms, prompts) to prevent crashes
+        page.on('dialog', async dialog => {
+            console.log(`⚠️ Dialog detected: ${dialog.type()} - ${dialog.message()}`);
+            try {
+                await dialog.dismiss();
+            } catch (error) {
+                console.log(`⚠️ Dialog already handled: ${error.message}`);
+            }
+        });
+        
         // Set longer timeouts
         page.setDefaultTimeout(CONFIG.FORM_INTERACTION_TIMEOUT);
         page.setDefaultNavigationTimeout(CONFIG.NAVIGATION_TIMEOUT);
