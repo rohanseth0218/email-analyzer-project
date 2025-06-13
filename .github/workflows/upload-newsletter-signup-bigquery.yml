@@ -1,0 +1,65 @@
+name: Upload Newsletter Signup Data to BigQuery
+on:
+  workflow_dispatch:  # Manual trigger only
+    inputs:
+      json_file_path:
+        description: 'Path to newsletter signup JSON file in repo'
+        required: true
+        default: 'bigquery_upload_data.json'
+        type: string
+  
+jobs:
+  upload-newsletter-signup:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Set up BigQuery credentials
+      run: |
+        echo '${{ secrets.BIGQUERY_CREDENTIALS }}' > bigquery_credentials.json
+        
+    - name: Verify JSON file exists
+      run: |
+        if [ ! -f "${{ github.event.inputs.json_file_path }}" ]; then
+          echo "❌ JSON file not found: ${{ github.event.inputs.json_file_path }}"
+          echo "📂 Available JSON files:"
+          find . -name "*.json" -type f | head -10
+          exit 1
+        else
+          echo "✅ JSON file found: ${{ github.event.inputs.json_file_path }}"
+          echo "📊 File size: $(du -h '${{ github.event.inputs.json_file_path }}' | cut -f1)"
+          echo "📝 Checking file format..."
+          head -1 "${{ github.event.inputs.json_file_path }}" | jq -r 'if type == "array" then "JSON Array with \(length) records" else "Single JSON object" end' || echo "Not valid JSON"
+        fi
+        
+    - name: Upload Newsletter Signup Data to BigQuery
+      timeout-minutes: 30
+      env:
+        JSON_FILE_PATH: ${{ github.event.inputs.json_file_path }}
+        DATASET_TABLE: email_analytics.newsletter_signup_results_v2
+        PYTHONUNBUFFERED: "1"
+      run: |
+        echo "🚀 Starting newsletter signup data upload to BigQuery..."
+        echo "📂 File: $JSON_FILE_PATH"
+        echo "📊 Table: $DATASET_TABLE"
+        python -u upload_newsletter_signup_to_bigquery.py
+        echo "✅ Newsletter signup data upload complete!"
+        
+    - name: Summary
+      run: |
+        echo "✅ Newsletter signup data upload complete!"
+        echo "📊 Data uploaded to: email_analytics.newsletter_signup_results_v2"
+        echo "🔍 Check BigQuery console: https://console.cloud.google.com/bigquery?project=instant-ground-394115"
+        echo "💡 These domains will now be excluded from future newsletter signup attempts!" 
