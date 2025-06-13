@@ -56,38 +56,27 @@ def process_newsletter_signup_data(data):
     # Convert to DataFrame
     df = pd.DataFrame(data)
     
-    # Ensure all required columns exist with proper types
-    required_columns = {
-        'domain': str,
-        'success': bool,
-        'email_used': str,
-        'signup_timestamp': str,
-        'error_message': str,
-        'batch_id': str,
-        'industry': str,
-        'country': str,
-        'employee_count': 'Int64'  # Nullable integer
-    }
+    # Only keep the essential columns
+    essential_columns = ['domain', 'success', 'email_used', 'signup_timestamp']
     
-    for col, dtype in required_columns.items():
+    # Ensure all essential columns exist
+    for col in essential_columns:
         if col not in df.columns:
             df[col] = None
-        
-        # Convert data types more robustly
-        if dtype == str:
-            df[col] = df[col].fillna('').astype(str)
-            df[col] = df[col].replace({'nan': None, 'None': None, '': None})
-        elif dtype == bool:
-            df[col] = df[col].fillna(False).astype(bool)
-        elif dtype == 'Int64':
-            # Handle employee_count conversion more carefully
-            df[col] = df[col].replace({'': None, 'None': None, 'nan': None})
-            df[col] = pd.to_numeric(df[col], errors='coerce')
     
-    # Clean up data - handle various null representations
-    df = df.replace({pd.NA: None, 'None': None, '': None, 'nan': None})
+    # Keep only essential columns
+    df = df[essential_columns]
     
-    # Remove any rows with missing required fields
+    # Clean up data types
+    df['domain'] = df['domain'].astype(str)
+    df['success'] = df['success'].astype(bool)
+    df['email_used'] = df['email_used'].fillna('').astype(str)
+    df['signup_timestamp'] = df['signup_timestamp'].fillna('').astype(str)
+    
+    # Clean up null representations
+    df = df.replace({'None': None, '': None, 'nan': None})
+    
+    # Remove any rows with missing domain
     df = df.dropna(subset=['domain'])
     
     print(f"✅ Processed {len(df)} newsletter signup records")
@@ -149,11 +138,6 @@ def upload_to_bigquery(client, df, table_id):
                 bigquery.SchemaField("success", "BOOLEAN", mode="REQUIRED"),
                 bigquery.SchemaField("email_used", "STRING", mode="NULLABLE"),
                 bigquery.SchemaField("signup_timestamp", "TIMESTAMP", mode="NULLABLE"),
-                bigquery.SchemaField("error_message", "STRING", mode="NULLABLE"),
-                bigquery.SchemaField("batch_id", "STRING", mode="NULLABLE"),
-                bigquery.SchemaField("industry", "STRING", mode="NULLABLE"),
-                bigquery.SchemaField("country", "STRING", mode="NULLABLE"),
-                bigquery.SchemaField("employee_count", "INTEGER", mode="NULLABLE"),
             ]
         )
         
@@ -225,6 +209,7 @@ def main():
     print(f"Failed attempts: {(~df['success']).sum()}")
     print(f"Success rate: {df['success'].mean()*100:.1f}%")
     print(f"Unique domains: {df['domain'].nunique()}")
+    print(f"Columns: {list(df.columns)}")
     
     # Upload to BigQuery
     success = upload_to_bigquery(client, df, DATASET_TABLE)
