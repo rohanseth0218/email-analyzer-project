@@ -71,7 +71,9 @@ def process_newsletter_signup_data(data):
     df['domain'] = df['domain'].astype(str)
     df['success'] = df['success'].astype(bool)
     df['email_used'] = df['email_used'].fillna('').astype(str)
-    df['signup_timestamp'] = df['signup_timestamp'].fillna('').astype(str)
+    
+    # Convert timestamp to proper datetime format for BigQuery
+    df['signup_timestamp'] = pd.to_datetime(df['signup_timestamp'], errors='coerce')
     
     # Clean up null representations
     df = df.replace({'None': None, '': None, 'nan': None})
@@ -137,7 +139,7 @@ def upload_to_bigquery(client, df, table_id):
                 bigquery.SchemaField("domain", "STRING", mode="REQUIRED"),
                 bigquery.SchemaField("success", "BOOLEAN", mode="REQUIRED"),
                 bigquery.SchemaField("email_used", "STRING", mode="NULLABLE"),
-                bigquery.SchemaField("signup_timestamp", "TIMESTAMP", mode="NULLABLE"),
+                bigquery.SchemaField("signup_timestamp", "DATETIME", mode="NULLABLE"),
             ]
         )
         
