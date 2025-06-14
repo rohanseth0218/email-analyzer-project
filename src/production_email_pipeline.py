@@ -13,6 +13,8 @@ import sys
 import tempfile
 import shutil
 from datetime import datetime, timedelta
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from threading import Lock
 import openai
 from google.cloud import bigquery
 from google.oauth2 import service_account
@@ -34,7 +36,6 @@ CONFIG = {
         'api_key': os.getenv('AZURE_OPENAI_API_KEY', '13cee442c9ba4f5382ed2781af2be124'),
         'endpoint': os.getenv('AZURE_OPENAI_ENDPOINT', 'https://ripple-gpt.openai.azure.com/'),
         'deployment_name': os.getenv('AZURE_OPENAI_DEPLOYMENT_NAME', 'gpt-4o'),
-        
         'api_version': '2024-02-01'
     },
     'htmlcss_to_image': {
@@ -59,6 +60,11 @@ CONFIG = {
     'duplicate_prevention': {
         'enabled': True,
         'check_days_back': 30,
+    },
+    'parallel_processing': {
+        'enabled': True,
+        'max_workers': int(os.getenv('EMAIL_ANALYSIS_WORKERS', '3')),  # Default 3 workers
+        'batch_size': 10  # Process in batches to manage memory
     }
 }
 
@@ -68,6 +74,12 @@ class ProductionEmailAnalysisPipeline:
         self.setup_openai()
         self.setup_bigquery()
         self.setup_screenshot_storage()
+        
+        # Thread-safe counter for parallel processing
+        self._processing_lock = Lock()
+        self._processed_count = 0
+        self._failed_count = 0
+        
         self.marketing_keywords = [
             'unsubscribe', 'newsletter', 'promotion', 'discount', 'offer', 'sale', 'deal',
             'limited time', 'exclusive', 'free shipping', 'thank you for signing up',
@@ -1011,12 +1023,84 @@ REMEMBER: Only return JSON. No commentary. Fill in all fields with either a valu
             print(f"❌ Error fetching emails from BigQuery: {e}")
             return []
 
-    def process_all_emails(self, days_back: int = 7, limit: int = None):
-        """Main processing function with comprehensive error handling and resource management"""
+    def process_single_email(self, email_data: Dict[str, Any], email_index: int, total_emails: int) -> Optional[Dict[str, Any]]:
+        """Process a single email - designed for parallel execution"""
+        try:
+            with self._processing_lock:
+                current_count = self._processed_count + self._failed_count + 1
+            
+            print(f"\n📧 Processing email {current_count}/{total_emails}: {email_data['sender_email']}")
+            
+            # Create screenshot with upload
+            local_path, cloud_url = self.create_screenshot_with_upload(email_data)
+            
+            if not local_path and not cloud_url:
+                print(f"❌ Failed to create screenshot for {email_data['sender_email']}")
+                with self._processing_lock:
+                    self._failed_count += 1
+                return None
+            
+            # Use cloud URL if available, otherwise local path
+            screenshot_path = cloud_url if cloud_url else local_path
+            
+            # Analyze with GPT-4V
+            gpt_analysis = self.analyze_with_gpt4v(screenshot_path, email_data)
+            
+            if not gpt_analysis:
+                print(f"❌ Failed to analyze email from {email_data['sender_email']}")
+                with self._processing_lock:
+                    self._failed_count += 1
+                return None
+            
+            # Prepare data for BigQuery
+            processed_email = {
+                'email_id': email_data['email_id'],
+                'sender_email': email_data['sender_email'],
+                'subject': email_data.get('subject'),
+                'date_received': email_data.get('date_received'),
+                'sender_domain': email_data.get('sender_domain'),
+                'screenshot_path': local_path,
+                'screenshot_url': cloud_url,
+                'gpt_analysis': gpt_analysis,
+                'num_products_featured': gpt_analysis.get('num_products_featured'),
+                'processing_status': 'success',
+                'errors': None,
+                'raw_email_data': email_data,
+                'analysis_timestamp': datetime.now().isoformat()
+            }
+            
+            # Clean up local file if we have cloud URL
+            if local_path and cloud_url and os.path.exists(local_path):
+                try:
+                    os.remove(local_path)
+                    print(f"🗑️ Cleaned up local file: {local_path}")
+                except Exception as e:
+                    print(f"⚠️ Failed to clean up local file: {e}")
+            
+            with self._processing_lock:
+                self._processed_count += 1
+                if self._processed_count % 5 == 0:
+                    print(f"✅ Completed {self._processed_count} emails so far...")
+            
+            return processed_email
+            
+        except Exception as e:
+            print(f"❌ Error processing email {email_index + 1}: {e}")
+            with self._processing_lock:
+                self._failed_count += 1
+            return None
+
+    def process_all_emails(self, days_back: int = 7, limit: int = None, max_workers: int = 3):
+        """Main processing function with parallel processing and comprehensive error handling"""
         print(f"🚀 Starting email analysis pipeline (days_back={days_back}, limit={limit})")
+        print(f"⚡ Using parallel processing with {max_workers} workers")
         
         # Memory management
         import gc
+        
+        # Reset counters
+        self._processed_count = 0
+        self._failed_count = 0
         
         try:
             # Fetch emails from BigQuery
@@ -1033,70 +1117,33 @@ REMEMBER: Only return JSON. No commentary. Fill in all fields with either a valu
                 print("✅ All emails have already been processed")
                 return
             
-            print(f"📧 Processing {len(new_emails)} new emails...")
+            print(f"📧 Processing {len(new_emails)} new emails in parallel...")
             
             processed_emails = []
-            failed_count = 0
             
-            for i, email_data in enumerate(new_emails):
-                try:
-                    print(f"\n📧 Processing email {i+1}/{len(new_emails)}: {email_data['sender_email']}")
-                    
-                    # Create screenshot with upload
-                    local_path, cloud_url = self.create_screenshot_with_upload(email_data)
-                    
-                    if not local_path and not cloud_url:
-                        print(f"❌ Failed to create screenshot for {email_data['sender_email']}")
-                        failed_count += 1
-                        continue
-                    
-                    # Use cloud URL if available, otherwise local path
-                    screenshot_path = cloud_url if cloud_url else local_path
-                    
-                    # Analyze with GPT-4V
-                    gpt_analysis = self.analyze_with_gpt4v(screenshot_path, email_data)
-                    
-                    if not gpt_analysis:
-                        print(f"❌ Failed to analyze email from {email_data['sender_email']}")
-                        failed_count += 1
-                        continue
-                    
-                    # Prepare data for BigQuery
-                    processed_email = {
-                        'email_id': email_data['email_id'],
-                        'sender_email': email_data['sender_email'],
-                        'subject': email_data.get('subject'),
-                        'date_received': email_data.get('date_received'),
-                        'sender_domain': email_data.get('sender_domain'),
-                        'screenshot_path': local_path,
-                        'screenshot_url': cloud_url,
-                        'gpt_analysis': gpt_analysis,
-                        'num_products_featured': gpt_analysis.get('num_products_featured'),
-                        'processing_status': 'success',
-                        'errors': None,
-                        'raw_email_data': email_data,
-                        'analysis_timestamp': datetime.now().isoformat()
-                    }
-                    
-                    processed_emails.append(processed_email)
-                    
-                    # Clean up local file if we have cloud URL
-                    if local_path and cloud_url and os.path.exists(local_path):
-                        try:
-                            os.remove(local_path)
-                            print(f"🗑️ Cleaned up local file: {local_path}")
-                        except Exception as e:
-                            print(f"⚠️ Failed to clean up local file: {e}")
-                    
-                    # Force garbage collection every 5 emails to manage memory
-                    if (i + 1) % 5 == 0:
-                        gc.collect()
-                        print(f"🧹 Memory cleanup performed after {i+1} emails")
-                    
-                except Exception as e:
-                    print(f"❌ Error processing email {i+1}: {e}")
-                    failed_count += 1
-                    continue
+            # Process emails in parallel using ThreadPoolExecutor
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                # Submit all tasks
+                future_to_email = {
+                    executor.submit(self.process_single_email, email_data, i, len(new_emails)): (email_data, i)
+                    for i, email_data in enumerate(new_emails)
+                }
+                
+                # Collect results as they complete
+                for future in as_completed(future_to_email):
+                    email_data, email_index = future_to_email[future]
+                    try:
+                        result = future.result()
+                        if result:
+                            processed_emails.append(result)
+                    except Exception as e:
+                        print(f"❌ Exception in parallel processing for email {email_index + 1}: {e}")
+                        with self._processing_lock:
+                            self._failed_count += 1
+            
+            # Force garbage collection after parallel processing
+            gc.collect()
+            print("🧹 Memory cleanup performed after parallel processing")
             
             # Save all processed emails to BigQuery
             if processed_emails:
@@ -1104,8 +1151,19 @@ REMEMBER: Only return JSON. No commentary. Fill in all fields with either a valu
                 self.save_to_bigquery(processed_emails)
                 print(f"✅ Successfully processed {len(processed_emails)} emails")
             
-            if failed_count > 0:
-                print(f"⚠️ {failed_count} emails failed to process")
+            # Final summary
+            total_attempted = len(new_emails)
+            successful = len(processed_emails)
+            failed = self._failed_count
+            
+            print(f"\n📊 PROCESSING SUMMARY:")
+            print(f"   Total emails: {total_attempted}")
+            print(f"   ✅ Successful: {successful}")
+            print(f"   ❌ Failed: {failed}")
+            print(f"   ⚡ Parallel workers: {max_workers}")
+            
+            if failed > 0:
+                print(f"⚠️ {failed} emails failed to process")
             
             print("🎉 Email analysis pipeline completed!")
             
@@ -1121,8 +1179,19 @@ def main():
     import os
     limit_env = os.getenv("EMAIL_ANALYSIS_LIMIT")
     limit = int(limit_env) if limit_env and limit_env.isdigit() else None
+    
     pipeline = ProductionEmailAnalysisPipeline(CONFIG)
-    pipeline.process_all_emails(days_back=7, limit=limit)
+    
+    # Get parallel processing settings
+    max_workers = CONFIG['parallel_processing']['max_workers']
+    parallel_enabled = CONFIG['parallel_processing']['enabled']
+    
+    if not parallel_enabled:
+        max_workers = 1
+        print("⚠️ Parallel processing disabled, using sequential processing")
+    
+    print(f"🚀 Starting pipeline with {max_workers} worker(s)")
+    pipeline.process_all_emails(days_back=7, limit=limit, max_workers=max_workers)
 
 if __name__ == "__main__":
     main() 

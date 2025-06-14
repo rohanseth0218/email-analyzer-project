@@ -143,6 +143,7 @@ jobs:
       run: |
         echo "🚀 Starting email analysis pipeline..."
         echo "📊 Parameters: Limit=${{ env.EMAIL_ANALYSIS_LIMIT }}, Days Back=${{ env.EMAIL_ANALYSIS_DAYS_BACK }}"
+        echo "⚡ Parallel workers: ${{ env.EMAIL_ANALYSIS_WORKERS }}"
         
         # Run the pipeline with error handling
         if python3 src/production_email_pipeline.py; then
@@ -157,6 +158,7 @@ jobs:
         fi
       env:
         EMAIL_ANALYSIS_LIMIT: ${{ env.EMAIL_ANALYSIS_LIMIT }}
+        EMAIL_ANALYSIS_WORKERS: 4  # Use 4 parallel workers in GitHub Actions
         GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-service-account.json
         AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
         AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
