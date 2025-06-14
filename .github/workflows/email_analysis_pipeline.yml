@@ -40,6 +40,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    - name: Install Playwright browsers
+      run: |
+        playwright install chromium
+        playwright install-deps
+
     - name: Write GCP credentials to file
       run: echo '${{ secrets.BIGQUERY_CREDENTIALS }}' > gcp-service-account.json
 
@@ -76,7 +81,7 @@ jobs:
         echo ""
         echo "✅ Analysis pipeline completed"
         echo "💾 Results saved to BigQuery table: email_analysis_results"
-        echo "📸 Screenshots created via HTML/CSS to Image API"
+        echo "📸 Screenshots created via Playwright (free)"
         echo "🌐 Screenshots uploaded to GCS bucket: email-screenshots-bucket-394115"
 
     - name: Upload analysis logs

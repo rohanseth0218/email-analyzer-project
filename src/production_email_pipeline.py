@@ -447,18 +447,15 @@ class ProductionEmailAnalysisPipeline:
         return local_path, cloud_url
     
     def create_screenshot(self, email_data: Dict[str, Any]) -> Optional[str]:
-        """Create screenshot using HTML/CSS to Image API"""
-        print(f"📸 Creating screenshot via HTML/CSS to Image API for email from {email_data['sender_email']}")
-        
-        # Check if HTML/CSS to Image credentials are available
-        if not self.config['htmlcss_to_image']['api_key']:
-            print("❌ HTML/CSS to Image API key not found in environment variables")
-            return None
-        if not self.config['htmlcss_to_image']['user_id']:
-            print("❌ HTML/CSS to Image User ID not found in environment variables")
-            return None
+        """Create screenshot using Playwright (free alternative to HTML/CSS to Image API)"""
+        print(f"📸 Creating screenshot via Playwright for email from {email_data['sender_email']}")
         
         try:
+            from playwright.sync_api import sync_playwright
+            import os
+            from PIL import Image
+            import io
+            
             # Create HTML content for the email
             html_content = email_data.get('content_html', '')
             if not html_content:
@@ -506,64 +503,53 @@ class ProductionEmailAnalysisPipeline:
             </html>
             """
             
-            # Prepare the API request
-            api_data = {
-                'html': clean_html,
-                'viewport_width': 800,
-                'viewport_height': 1200,
-                'device_scale_factor': 2,
-                'format': 'png',
-                'ms_delay': 1000,  # Wait 1 second for images to load
-                'google_fonts': 'Roboto|Open Sans'  # Common email fonts
-            }
-            
-            # Make API request to HTML/CSS to Image
-            response = requests.post(
-                f"{self.config['htmlcss_to_image']['base_url']}/image",
-                json=api_data,
-                auth=(self.config['htmlcss_to_image']['user_id'], self.config['htmlcss_to_image']['api_key']),
-                timeout=30
-            )
-            
-            print(f"🔍 HTML/CSS to Image API response: {response.status_code}")
-            
-            if response.status_code != 200:
-                print(f"❌ Failed to create screenshot: {response.status_code}")
-                print(f"❌ Response text: {response.text}")
-                return None
-            
-            # Get the image URL from response
-            response_data = response.json()
-            image_url = response_data.get('url')
-            
-            if not image_url:
-                print("❌ No image URL returned from API")
-                return None
-            
-            print(f"✅ Screenshot created successfully: {image_url}")
-            
-            # Download the image
-            image_response = requests.get(image_url, timeout=30)
-            if image_response.status_code != 200:
-                print(f"❌ Failed to download screenshot: {image_response.status_code}")
-                return None
-            
-            # Save the image locally
+            # Generate filename
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             sender_clean = re.sub(r'[^a-zA-Z0-9]', '_', email_data['sender_email'])
             filename = f"email_screenshot_{sender_clean}_{timestamp}.png"
             
-            with open(filename, 'wb') as f:
-                f.write(image_response.content)
+            with sync_playwright() as p:
+                # Launch browser
+                browser = p.chromium.launch(headless=True)
+                page = browser.new_page()
+                
+                # Set viewport for consistent screenshots
+                page.set_viewport_size({"width": 800, "height": 1200})
+                
+                # Set content and wait for images to load
+                page.set_content(clean_html)
+                page.wait_for_timeout(2000)  # Wait 2 seconds for images to load
+                
+                # Take screenshot
+                page.screenshot(path=filename, full_page=True)
+                browser.close()
+            
+            # Compress image if it's too large for GPT-4V (>20MB)
+            file_size = os.path.getsize(filename)
+            if file_size > 15 * 1024 * 1024:  # If larger than 15MB, compress
+                print(f"🗜️ Compressing large screenshot ({file_size / 1024 / 1024:.1f}MB)")
+                
+                # Open and compress the image
+                with Image.open(filename) as img:
+                    # Convert to RGB if necessary
+                    if img.mode in ('RGBA', 'LA', 'P'):
+                        img = img.convert('RGB')
+                    
+                    # Reduce quality and save
+                    img.save(filename, 'PNG', optimize=True, quality=70)
+                    
+                new_size = os.path.getsize(filename)
+                print(f"✅ Compressed to {new_size / 1024 / 1024:.1f}MB")
             
             print(f"✅ Screenshot saved locally: {filename}")
             return filename
             
-        except json.JSONDecodeError as e:
-            print(f"❌ HTML/CSS to Image API returned invalid JSON: {e}")
+        except ImportError as e:
+            print(f"❌ Playwright not available: {e}")
+            print("💡 Install with: pip install playwright && playwright install chromium")
             return None
         except Exception as e:
-            print(f"❌ HTML/CSS to Image screenshot failed: {e}")
+            print(f"❌ Playwright screenshot failed: {e}")
             return None
     
     def analyze_with_gpt4v(self, screenshot_path: str, email_data: Dict[str, Any]) -> Optional[Dict]:
@@ -653,7 +639,7 @@ REMEMBER: Only return JSON. No commentary. Fill in all fields with either a valu
             
             analysis_text = response.choices[0].message.content.strip()
             
-            # Parse JSON response
+            # Parse JSON response with better error handling
             try:
                 # Remove potential code block markers
                 if analysis_text.startswith('```json'):
@@ -661,6 +647,18 @@ REMEMBER: Only return JSON. No commentary. Fill in all fields with either a valu
                 if analysis_text.endswith('```'):
                     analysis_text = analysis_text[:-3]
                 analysis_text = analysis_text.strip()
+                
+                # Try to fix common JSON issues
+                # Remove any trailing commas before closing braces/brackets
+                import re
+                analysis_text = re.sub(r',(\s*[}\]])', r'\1', analysis_text)
+                
+                # Try to find and fix unterminated strings
+                if 'Unterminated string' in str(analysis_text):
+                    print("⚠️ Attempting to fix unterminated string in JSON...")
+                    # Add closing quote if missing at end
+                    if analysis_text.count('"') % 2 != 0:
+                        analysis_text += '"'
                 
                 gpt_analysis = json.loads(analysis_text)
                 
