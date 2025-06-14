@@ -5,13 +5,11 @@ Production Email Analysis Pipeline - Fetch, Screenshot, Analyze, Store (No Engag
 
 import os
 import json
-import imaplib
-import email
 import re
 import base64
 import time
+import requests
 from datetime import datetime, timedelta
-from playwright.sync_api import sync_playwright
 import openai
 from google.cloud import bigquery
 from google.oauth2 import service_account
@@ -26,15 +24,11 @@ CONFIG = {
         'deployment_name': 'gpt-4o',
         'api_version': '2024-02-01'
     },
-    'mailboxes': [
-        {
-            'name': 'primary',
-            'imap_server': 'imapn2.mymailsystem.com',
-            'imap_port': 993,
-            'email': 'rohan.s@openripplestudio.info',
-            'password': 'hQ&#vvN2R%&J'
-        },
-    ],
+    'browserbase': {
+        'api_key': os.getenv('BROWSERBASE_API_KEY', ''),
+        'project_id': os.getenv('BROWSERBASE_PROJECT_ID', ''),
+        'base_url': 'https://www.browserbase.com/v1'
+    },
     'bigquery': {
         'project_id': 'instant-ground-394115',
         'dataset_id': 'email_analytics',
@@ -448,68 +442,70 @@ class ProductionEmailAnalysisPipeline:
         return local_path, cloud_url
     
     def create_screenshot(self, email_data: Dict[str, Any]) -> Optional[str]:
-        """Create clean screenshot from HTML content"""
-        print(f"📸 Creating screenshot for email from {email_data['sender_email']}")
-        
-        html_content = email_data.get('content_html', '')
-        if not html_content:
-            print("❌ No HTML content found")
-            return None
-        
-        # Create clean HTML template
-        clean_html = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Email Content</title>
-            <style>
-                body {{
-                    margin: 0;
-                    padding: 20px;
-                    font-family: Arial, sans-serif;
-                    background: white;
-                    max-width: 800px;
-                }}
-                img {{
-                    max-width: 100%;
-                    height: auto;
-                }}
-                table {{
-                    max-width: 100%;
-                }}
-            </style>
-        </head>
-        <body>
-            {html_content}
-        </body>
-        </html>
-        """
+        """Create screenshot using Browserbase API"""
+        print(f"📸 Creating screenshot via Browserbase for email from {email_data['sender_email']}")
         
         try:
-            with sync_playwright() as p:
-                browser = p.chromium.launch(headless=True)
-                page = browser.new_page(viewport={'width': 800, 'height': 1200})
+            # Create a session with Browserbase
+            session_response = requests.post(
+                f"{self.config['browserbase']['base_url']}/sessions",
+                headers={
+                    'Authorization': f"Bearer {self.config['browserbase']['api_key']}",
+                    'Content-Type': 'application/json'
+                },
+                json={
+                    'projectId': self.config['browserbase']['project_id']
+                }
+            )
+            
+            if session_response.status_code != 200:
+                print(f"❌ Failed to create Browserbase session: {session_response.status_code}")
+                return None
                 
-                # Load HTML content
-                page.set_content(clean_html)
-                page.wait_for_timeout(2000)  # Wait for images to load
-                
-                # Generate filename
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                sender_clean = re.sub(r'[^a-zA-Z0-9]', '_', email_data['sender_email'])
-                filename = f"email_screenshot_{sender_clean}_{timestamp}.png"
-                
-                # Take screenshot
-                page.screenshot(path=filename, full_page=True)
-                browser.close()
-                
-                print(f"✅ Screenshot saved: {filename}")
-                return filename
-                
+            session_data = session_response.json()
+            session_id = session_data['id']
+            
+            # Create HTML content for the email
+            html_content = email_data.get('content_html', '')
+            if not html_content:
+                print("❌ No HTML content available for screenshot")
+                return None
+            
+            # Create a data URL with the HTML content
+            html_b64 = base64.b64encode(html_content.encode('utf-8')).decode('utf-8')
+            data_url = f"data:text/html;base64,{html_b64}"
+            
+            # Take screenshot using Browserbase
+            screenshot_response = requests.post(
+                f"{self.config['browserbase']['base_url']}/sessions/{session_id}/screenshot",
+                headers={
+                    'Authorization': f"Bearer {self.config['browserbase']['api_key']}",
+                    'Content-Type': 'application/json'
+                },
+                json={
+                    'url': data_url,
+                    'fullPage': True,
+                    'format': 'png'
+                }
+            )
+            
+            if screenshot_response.status_code != 200:
+                print(f"❌ Failed to take screenshot: {screenshot_response.status_code}")
+                return None
+            
+            # Save screenshot locally
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            sender_clean = re.sub(r'[^a-zA-Z0-9]', '_', email_data['sender_email'])
+            filename = f"email_screenshot_{sender_clean}_{timestamp}.png"
+            
+            with open(filename, 'wb') as f:
+                f.write(screenshot_response.content)
+            
+            print(f"✅ Screenshot saved via Browserbase: {filename}")
+            return filename
+            
         except Exception as e:
-            print(f"❌ Screenshot failed: {e}")
+            print(f"❌ Browserbase screenshot failed: {e}")
             return None
     
     def analyze_with_gpt4v(self, screenshot_path: str, email_data: Dict[str, Any]) -> Optional[Dict]:

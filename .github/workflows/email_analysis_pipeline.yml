@@ -40,12 +40,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Setup Playwright
-      run: |
-        # Install Playwright browsers with system dependencies
-        python -m playwright install chromium
-        python -m playwright install-deps chromium
-
     - name: Write GCP credentials to file
       run: echo '${{ secrets.BIGQUERY_CREDENTIALS }}' > gcp-service-account.json
 
@@ -69,6 +63,8 @@ jobs:
         AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
         AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
         AZURE_OPENAI_DEPLOYMENT_NAME: ${{ secrets.AZURE_OPENAI_DEPLOYMENT_NAME }}
+        BROWSERBASE_API_KEY: ${{ secrets.BROWSERBASE_API_KEY }}
+        BROWSERBASE_PROJECT_ID: ${{ secrets.BROWSERBASE_PROJECT_ID }}
 
     - name: Generate analysis report
       if: always()
