@@ -34,6 +34,7 @@ CONFIG = {
         'api_key': os.getenv('AZURE_OPENAI_API_KEY', '13cee442c9ba4f5382ed2781af2be124'),
         'endpoint': os.getenv('AZURE_OPENAI_ENDPOINT', 'https://ripple-gpt.openai.azure.com/'),
         'deployment_name': os.getenv('AZURE_OPENAI_DEPLOYMENT_NAME', 'gpt-4o'),
+        
         'api_version': '2024-02-01'
     },
     'htmlcss_to_image': {
@@ -866,25 +867,53 @@ REMEMBER: Only return JSON. No commentary. Fill in all fields with either a valu
         """Save processed email analysis results to the new analysis table"""
         table_id = f"{self.config['bigquery']['project_id']}.{self.config['bigquery']['dataset_id']}.{self.config['bigquery']['table_id']}"
         rows_to_insert = []
+        
         for result in processed_emails:
-            email_data = result['email_data']
-            gpt_analysis = result.get('gpt_analysis') or {}
+            # Handle both old and new data structures
+            if 'email_data' in result:
+                # Old structure
+                email_data = result['email_data']
+                gpt_analysis = result.get('gpt_analysis') or {}
+                screenshot_path = result.get('screenshot_path')
+                screenshot_url = result.get('screenshot_url')
+                processing_status = result.get('processing_status')
+                errors = result.get('errors')
+                raw_email_data = email_data
+            else:
+                # New flattened structure
+                gpt_analysis = result.get('gpt_analysis') or {}
+                screenshot_path = result.get('screenshot_path')
+                screenshot_url = result.get('screenshot_url')
+                processing_status = result.get('processing_status')
+                errors = result.get('errors')
+                raw_email_data = result.get('raw_email_data', {})
+                
+                # Extract email data from flattened structure
+                email_data = {
+                    'email_id': result.get('email_id'),
+                    'sender_email': result.get('sender_email'),
+                    'subject': result.get('subject'),
+                    'date_received': result.get('date_received'),
+                    'sender_domain': result.get('sender_domain')
+                }
+            
             row = {
                 'email_id': email_data['email_id'],
                 'sender_email': email_data['sender_email'],
                 'subject': email_data['subject'],
                 'date_received': email_data['date_received'],
                 'sender_domain': email_data['sender_domain'],
-                'screenshot_path': result.get('screenshot_path'),
-                'screenshot_url': result.get('screenshot_url'),
+                'screenshot_path': screenshot_path,
+                'screenshot_url': screenshot_url,
                 'gpt_analysis': json.dumps(gpt_analysis) if gpt_analysis else None,
                 'num_products_featured': gpt_analysis.get('num_products_featured'),
-                'processing_status': result.get('processing_status'),
-                'errors': json.dumps(result.get('errors')) if result.get('errors') else None,
-                'raw_email_data': json.dumps(email_data),
+                'processing_status': processing_status,
+                'errors': json.dumps(errors) if errors else None,
+                'raw_email_data': json.dumps(raw_email_data),
                 'analysis_timestamp': datetime.utcnow().isoformat(),
             }
             rows_to_insert.append(row)
+            
         errors = self.bq_client.insert_rows_json(table_id, rows_to_insert)
         if errors:
             print(f"❌ Errors while inserting to BigQuery: {errors}")
