@@ -11,7 +11,6 @@ import time
 import requests
 from datetime import datetime, timedelta
 import openai
-from playwright.sync_api import sync_playwright
 from google.cloud import bigquery
 from google.oauth2 import service_account
 from typing import Dict, List, Optional, Any
@@ -25,10 +24,10 @@ CONFIG = {
         'deployment_name': os.getenv('AZURE_OPENAI_DEPLOYMENT_NAME', 'gpt-4o'),
         'api_version': '2024-02-01'
     },
-    'browserbase': {
-        'api_key': os.getenv('BROWSERBASE_API_KEY', ''),
-        'project_id': os.getenv('BROWSERBASE_PROJECT_ID', ''),
-        'base_url': 'https://api.browserbase.com/v1'
+    'htmlcss_to_image': {
+        'api_key': os.getenv('HTMLCSS_TO_IMAGE_API_KEY', ''),
+        'user_id': os.getenv('HTMLCSS_TO_IMAGE_USER_ID', ''),
+        'base_url': 'https://hcti.io/v1'
     },
     'bigquery': {
         'project_id': 'instant-ground-394115',
@@ -449,55 +448,25 @@ class ProductionEmailAnalysisPipeline:
         return local_path, cloud_url
     
     def create_screenshot(self, email_data: Dict[str, Any]) -> Optional[str]:
-        """Create screenshot using Browserbase + Playwright"""
-        print(f"📸 Creating screenshot via Browserbase + Playwright for email from {email_data['sender_email']}")
+        """Create screenshot using HTML/CSS to Image API"""
+        print(f"📸 Creating screenshot via HTML/CSS to Image API for email from {email_data['sender_email']}")
         
-        # Check if Browserbase credentials are available
-        if not self.config['browserbase']['api_key']:
-            print("❌ Browserbase API key not found in environment variables")
+        # Check if HTML/CSS to Image credentials are available
+        if not self.config['htmlcss_to_image']['api_key']:
+            print("❌ HTML/CSS to Image API key not found in environment variables")
             return None
-        if not self.config['browserbase']['project_id']:
-            print("❌ Browserbase project ID not found in environment variables")
+        if not self.config['htmlcss_to_image']['user_id']:
+            print("❌ HTML/CSS to Image User ID not found in environment variables")
             return None
         
         try:
-            # Create a session with Browserbase
-            session_response = requests.post(
-                f"{self.config['browserbase']['base_url']}/sessions",
-                headers={
-                    'X-BB-API-Key': self.config['browserbase']['api_key'],
-                    'Content-Type': 'application/json'
-                },
-                json={
-                    'projectId': self.config['browserbase']['project_id'],
-                    'browserSettings': {
-                        'viewport': {'width': 1920, 'height': 1080},
-                        'stealth': True,
-                        'geolocation': {'latitude': 40.7128, 'longitude': -74.0060},
-                        'locale': 'en-US',
-                        'permissions': ['geolocation']
-                    }
-                },
-                timeout=15
-            )
-            
-            print(f"🔍 Session creation response: {session_response.status_code}")
-            if session_response.status_code != 201:  # Browserbase returns 201 for created
-                print(f"❌ Failed to create Browserbase session: {session_response.status_code}")
-                print(f"❌ Response text: {session_response.text}")
-                return None
-                
-            session_data = session_response.json()
-            connect_url = session_data.get('connectUrl', '')
-            print(f"✅ Created Browserbase session with connect URL")
-            
             # Create HTML content for the email
             html_content = email_data.get('content_html', '')
             if not html_content:
                 print("❌ No HTML content available for screenshot")
                 return None
             
-            # Create clean HTML template
+            # Create clean HTML template optimized for email rendering
             clean_html = f"""
             <!DOCTYPE html>
             <html>
@@ -512,57 +481,90 @@ class ProductionEmailAnalysisPipeline:
                         font-family: Arial, sans-serif;
                         background: white;
                         max-width: 800px;
+                        line-height: 1.4;
                     }}
                     img {{
                         max-width: 100%;
                         height: auto;
+                        display: block;
                     }}
                     table {{
                         max-width: 100%;
+                        border-collapse: collapse;
+                    }}
+                    .email-container {{
+                        max-width: 800px;
+                        margin: 0 auto;
+                        background: white;
                     }}
                 </style>
             </head>
             <body>
-                {html_content}
+                <div class="email-container">
+                    {html_content}
+                </div>
             </body>
             </html>
             """
             
-            # Use Playwright to connect to Browserbase and take screenshot
-            with sync_playwright() as p:
-                # Connect to the Browserbase session
-                browser = p.chromium.connect_over_cdp(connect_url)
-                
-                # Get the default context and page
-                context = browser.contexts()[0]
-                page = context.pages()[0]
-                
-                # Set viewport
-                page.set_viewport_size({"width": 800, "height": 1200})
-                
-                # Load HTML content
-                page.set_content(clean_html)
-                page.wait_for_timeout(2000)  # Wait for images to load
-                
-                # Generate filename
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                sender_clean = re.sub(r'[^a-zA-Z0-9]', '_', email_data['sender_email'])
-                filename = f"email_screenshot_{sender_clean}_{timestamp}.png"
-                
-                # Take screenshot
-                page.screenshot(path=filename, full_page=True)
-                
-                # Close browser
-                browser.close()
-                
-                print(f"✅ Real screenshot saved via Browserbase + Playwright: {filename}")
-                return filename
+            # Prepare the API request
+            api_data = {
+                'html': clean_html,
+                'viewport_width': 800,
+                'viewport_height': 1200,
+                'device_scale_factor': 2,
+                'format': 'png',
+                'ms_delay': 1000,  # Wait 1 second for images to load
+                'google_fonts': 'Roboto|Open Sans'  # Common email fonts
+            }
+            
+            # Make API request to HTML/CSS to Image
+            response = requests.post(
+                f"{self.config['htmlcss_to_image']['base_url']}/image",
+                json=api_data,
+                auth=(self.config['htmlcss_to_image']['user_id'], self.config['htmlcss_to_image']['api_key']),
+                timeout=30
+            )
+            
+            print(f"🔍 HTML/CSS to Image API response: {response.status_code}")
+            
+            if response.status_code != 200:
+                print(f"❌ Failed to create screenshot: {response.status_code}")
+                print(f"❌ Response text: {response.text}")
+                return None
+            
+            # Get the image URL from response
+            response_data = response.json()
+            image_url = response_data.get('url')
+            
+            if not image_url:
+                print("❌ No image URL returned from API")
+                return None
+            
+            print(f"✅ Screenshot created successfully: {image_url}")
+            
+            # Download the image
+            image_response = requests.get(image_url, timeout=30)
+            if image_response.status_code != 200:
+                print(f"❌ Failed to download screenshot: {image_response.status_code}")
+                return None
+            
+            # Save the image locally
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            sender_clean = re.sub(r'[^a-zA-Z0-9]', '_', email_data['sender_email'])
+            filename = f"email_screenshot_{sender_clean}_{timestamp}.png"
+            
+            with open(filename, 'wb') as f:
+                f.write(image_response.content)
+            
+            print(f"✅ Screenshot saved locally: {filename}")
+            return filename
             
         except json.JSONDecodeError as e:
-            print(f"❌ Browserbase API returned invalid JSON: {e}")
+            print(f"❌ HTML/CSS to Image API returned invalid JSON: {e}")
             return None
         except Exception as e:
-            print(f"❌ Browserbase + Playwright screenshot failed: {e}")
+            print(f"❌ HTML/CSS to Image screenshot failed: {e}")
             return None
     
     def analyze_with_gpt4v(self, screenshot_path: str, email_data: Dict[str, Any]) -> Optional[Dict]:

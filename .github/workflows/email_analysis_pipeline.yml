@@ -40,10 +40,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Install Playwright browsers
-      run: |
-        python -m playwright install chromium
-
     - name: Write GCP credentials to file
       run: echo '${{ secrets.BIGQUERY_CREDENTIALS }}' > gcp-service-account.json
 
@@ -67,8 +63,8 @@ jobs:
         AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
         AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
         AZURE_OPENAI_DEPLOYMENT_NAME: ${{ secrets.AZURE_OPENAI_DEPLOYMENT_NAME }}
-        BROWSERBASE_API_KEY: ${{ secrets.BROWSERBASE_API_KEY }}
-        BROWSERBASE_PROJECT_ID: ${{ secrets.BROWSERBASE_PROJECT_ID }}
+        HTMLCSS_TO_IMAGE_API_KEY: ${{ secrets.HTMLCSS_TO_IMAGE_API_KEY }}
+        HTMLCSS_TO_IMAGE_USER_ID: ${{ secrets.HTMLCSS_TO_IMAGE_USER_ID }}
 
     - name: Generate analysis report
       if: always()
@@ -80,6 +76,7 @@ jobs:
         echo ""
         echo "✅ Analysis pipeline completed"
         echo "💾 Results saved to BigQuery table: email_analysis_results"
+        echo "📸 Screenshots created via HTML/CSS to Image API"
         echo "🌐 Screenshots uploaded to GCS bucket: email-screenshots-bucket-394115"
 
     - name: Upload analysis logs
