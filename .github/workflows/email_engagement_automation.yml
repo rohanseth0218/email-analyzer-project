@@ -1,0 +1,261 @@
+name: Email Engagement Automation
+
+on:
+  schedule:
+    # Run daily at 10 AM UTC (morning engagement)
+    - cron: '0 10 * * *'
+    # Run again at 6 PM UTC (evening engagement)  
+    - cron: '0 18 * * *'
+  workflow_dispatch:
+    inputs:
+      engagement_only:
+        description: 'Run engagement only (skip confirmations)'
+        required: false
+        default: false
+        type: boolean
+      confirmations_only:
+        description: 'Run confirmations only (skip engagement)'
+        required: false
+        default: false
+        type: boolean
+      max_confirmations:
+        description: 'Maximum number of confirmations to process'
+        required: false
+        default: '20'
+        type: string
+      max_engagements:
+        description: 'Maximum number of brands to engage with'
+        required: false
+        default: '30'
+        type: string
+      dry_run:
+        description: 'Dry run - query emails but dont click links'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  email-engagement:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120  # 2 hours max
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install playwright google-cloud-bigquery google-auth
+    
+    - name: Install Playwright browsers
+      run: |
+        playwright install chromium
+        playwright install-deps
+    
+    - name: Create BigQuery credentials
+      run: |
+        echo '${{ secrets.BIGQUERY_CREDENTIALS }}' > bigquery_credentials.json
+    
+    - name: Set engagement parameters
+      run: |
+        # Set parameters from inputs or defaults
+        ENGAGEMENT_ONLY="${{ github.event.inputs.engagement_only || 'false' }}"
+        CONFIRMATIONS_ONLY="${{ github.event.inputs.confirmations_only || 'false' }}"
+        MAX_CONFIRMATIONS="${{ github.event.inputs.max_confirmations || '20' }}"
+        MAX_ENGAGEMENTS="${{ github.event.inputs.max_engagements || '30' }}"
+        DRY_RUN="${{ github.event.inputs.dry_run || 'false' }}"
+        
+        echo "ENGAGEMENT_ONLY=$ENGAGEMENT_ONLY" >> $GITHUB_ENV
+        echo "CONFIRMATIONS_ONLY=$CONFIRMATIONS_ONLY" >> $GITHUB_ENV
+        echo "MAX_CONFIRMATIONS=$MAX_CONFIRMATIONS" >> $GITHUB_ENV
+        echo "MAX_ENGAGEMENTS=$MAX_ENGAGEMENTS" >> $GITHUB_ENV
+        echo "DRY_RUN=$DRY_RUN" >> $GITHUB_ENV
+        
+        echo "🤖 Email Engagement Bot Parameters:"
+        echo "   Engagement only: $ENGAGEMENT_ONLY"
+        echo "   Confirmations only: $CONFIRMATIONS_ONLY"
+        echo "   Max confirmations: $MAX_CONFIRMATIONS"
+        echo "   Max engagements: $MAX_ENGAGEMENTS"
+        echo "   Dry run: $DRY_RUN"
+    
+    - name: Create logs directory
+      run: |
+        mkdir -p logs
+        echo "📁 Created logs directory"
+    
+    - name: Download previous engagement state
+      continue-on-error: true
+      run: |
+        # Try to download previous engagement state from artifacts
+        echo "📥 Attempting to restore previous engagement state..."
+        # This will be implemented to download from previous successful runs
+        
+    - name: Run email engagement automation
+      run: |
+        echo "🤖 Starting email engagement automation..."
+        
+        # Build command with parameters
+        CMD="python email_engagement_bot.py"
+        
+        # Add parameter flags based on inputs
+        if [ "$ENGAGEMENT_ONLY" = "true" ]; then
+          CMD="$CMD --engagement-only"
+        fi
+        
+        if [ "$CONFIRMATIONS_ONLY" = "true" ]; then
+          CMD="$CMD --confirmations-only"
+        fi
+        
+        if [ "$DRY_RUN" = "true" ]; then
+          CMD="$CMD --dry-run"
+        fi
+        
+        echo "🎯 Executing: $CMD"
+        eval $CMD
+    
+    - name: Generate engagement report
+      if: always()
+      run: |
+        echo "📊 Generating engagement report..."
+        python -c "
+        import json
+        import os
+        from datetime import datetime
+        from pathlib import Path
+        
+        print('🤖 EMAIL ENGAGEMENT BOT REPORT')
+        print('=' * 50)
+        print(f'Run Date: {datetime.now().strftime(\"%Y-%m-%d %H:%M UTC\")}')
+        print(f'Parameters: Confirmations={os.environ.get(\"CONFIRMATIONS_ONLY\", \"false\")}, Engagements={os.environ.get(\"ENGAGEMENT_ONLY\", \"false\")}, Dry Run={os.environ.get(\"DRY_RUN\", \"false\")}')
+        print()
+        
+        # Check if engagement state exists
+        if Path('engagement_tracking.json').exists():
+            with open('engagement_tracking.json', 'r') as f:
+                state = json.load(f)
+            
+            confirmations = state.get('confirmations', {})
+            engagements = state.get('engagements', {})
+            
+            print(f'📊 CURRENT STATE:')
+            print(f'  ✅ Brands with confirmed subscriptions: {len(confirmations)}')
+            print(f'  🎯 Brands with engagements: {len(engagements)}')
+            print(f'  📅 Last run: {state.get(\"last_run\", \"Never\")}')
+            print()
+            
+            # Show recent engagements
+            if engagements:
+                print('🔥 RECENT ENGAGEMENTS:')
+                sorted_engagements = sorted(
+                    engagements.items(), 
+                    key=lambda x: x[1].get('last_engaged', ''), 
+                    reverse=True
+                )
+                for brand, data in sorted_engagements[:10]:
+                    last_engaged = data.get('last_engaged', 'Never')[:10]
+                    count = data.get('engagement_count', 0)
+                    print(f'  🎯 {brand}: {count} engagements (last: {last_engaged})')
+        else:
+            print('⚠️ No engagement state file found')
+        "
+    
+    - name: Upload engagement logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: email-engagement-logs-${{ github.run_number }}
+        path: |
+          engagement_tracking.json
+          logs/
+        retention-days: 30
+    
+    - name: Upload engagement state to BigQuery
+      if: success()
+      run: |
+        echo "📤 Uploading engagement state to BigQuery..."
+        python -c "
+        import json
+        import os
+        from google.cloud import bigquery
+        from google.oauth2 import service_account
+        from datetime import datetime
+        
+        # Setup BigQuery client
+        credentials = service_account.Credentials.from_service_account_file('bigquery_credentials.json')
+        client = bigquery.Client(credentials=credentials, project='instant-ground-394115')
+        
+        # Read engagement state
+        if os.path.exists('engagement_tracking.json'):
+            with open('engagement_tracking.json', 'r') as f:
+                state = json.load(f)
+            
+            # Prepare data for BigQuery
+            engagement_records = []
+            
+            # Process confirmations
+            for brand, data in state.get('confirmations', {}).items():
+                engagement_records.append({
+                    'brand_domain': brand,
+                    'engagement_type': 'confirmation',
+                    'last_activity': data.get('last_confirmed'),
+                    'activity_count': len(data.get('confirmation_urls', [])),
+                    'last_url': None,
+                    'updated_at': datetime.now().isoformat()
+                })
+            
+            # Process engagements
+            for brand, data in state.get('engagements', {}).items():
+                engagement_records.append({
+                    'brand_domain': brand,
+                    'engagement_type': 'engagement',
+                    'last_activity': data.get('last_engaged'),
+                    'activity_count': data.get('engagement_count', 0),
+                    'last_url': data.get('last_url'),
+                    'updated_at': datetime.now().isoformat()
+                })
+            
+            if engagement_records:
+                # Upload to BigQuery
+                table_id = 'instant-ground-394115.email_analytics.engagement_tracking'
+                
+                try:
+                    job_config = bigquery.LoadJobConfig(
+                        write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE,
+                        autodetect=True,
+                    )
+                    
+                    job = client.load_table_from_json(
+                        engagement_records, 
+                        table_id, 
+                        job_config=job_config
+                    )
+                    job.result()
+                    
+                    print(f'✅ Uploaded {len(engagement_records)} engagement records to BigQuery')
+                except Exception as e:
+                    print(f'⚠️ Could not upload to BigQuery: {e}')
+            else:
+                print('ℹ️ No engagement records to upload')
+        else:
+            print('⚠️ No engagement state file found')
+        "
+    
+    - name: Summary
+      if: always()
+      run: |
+        echo "✅ Email engagement automation complete!"
+        echo "🤖 Bot processed subscription confirmations and brand engagements"
+        echo "📊 Check artifacts for detailed logs and engagement state"
+        echo "🔍 Check BigQuery for engagement tracking data"
+        echo "💡 Next run scheduled for tomorrow at 10 AM UTC" 
