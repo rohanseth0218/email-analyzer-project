@@ -21,12 +21,10 @@ on:
       max_confirmations:
         description: 'Maximum number of confirmations to process'
         required: false
-        default: '20'
         type: string
       max_engagements:
         description: 'Maximum number of brands to engage with'
         required: false
-        default: '30'
         type: string
       dry_run:
         description: 'Dry run - query emails but dont click links'
