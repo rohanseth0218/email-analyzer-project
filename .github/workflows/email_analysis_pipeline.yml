@@ -55,8 +55,28 @@ jobs:
         echo "   Record limit: $RECORD_LIMIT"
         echo "   Days back: $DAYS_BACK"
 
+    - name: Debug file structure
+      run: |
+        echo "📁 Current working directory:"
+        pwd
+        echo ""
+        echo "📁 Repository contents:"
+        ls -la
+        echo ""
+        echo "📁 src directory contents:"
+        ls -la src/ || echo "src directory not found"
+
     - name: Run email analysis pipeline
-      run: python3 src/production_email_pipeline.py
+      run: |
+        if [ -f "src/production_email_pipeline.py" ]; then
+          echo "✅ Found production_email_pipeline.py"
+          python3 src/production_email_pipeline.py
+        else
+          echo "❌ production_email_pipeline.py not found"
+          echo "📁 Available files:"
+          find . -name "*.py" -type f | head -10
+          exit 1
+        fi
       env:
         EMAIL_ANALYSIS_LIMIT: ${{ env.EMAIL_ANALYSIS_LIMIT }}
         GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-service-account.json
