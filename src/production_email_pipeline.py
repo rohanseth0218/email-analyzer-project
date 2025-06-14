@@ -722,10 +722,10 @@ REMEMBER: Only return JSON. No commentary. Fill in all fields with either a valu
         
         print(f"🔍 Checking for duplicates among {len(marketing_emails)} emails...")
         
-        # Generate email IDs for all emails
+        # Generate email IDs for all emails - use email_id from BigQuery data
         email_ids = []
         for email_data in marketing_emails:
-            email_id = f"{email_data['sender_email']}_{email_data['message_id']}"
+            email_id = email_data['email_id']  # Use the email_id from BigQuery
             email_ids.append(email_id)
         
         # Check which ones already exist
@@ -733,8 +733,8 @@ REMEMBER: Only return JSON. No commentary. Fill in all fields with either a valu
         
         # Filter out existing emails
         new_emails = []
-        for i, email_data in enumerate(marketing_emails):
-            email_id = f"{email_data['sender_email']}_{email_data['message_id']}"
+        for email_data in marketing_emails:
+            email_id = email_data['email_id']  # Use the email_id from BigQuery
             if email_id not in existing_ids:
                 new_emails.append(email_data)
             else:
