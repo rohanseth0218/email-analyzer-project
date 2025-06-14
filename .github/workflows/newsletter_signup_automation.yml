@@ -1,0 +1,324 @@
+name: Newsletter Signup Automation
+
+on:
+  schedule:
+    # Run daily at 2 PM UTC (avoid peak hours)
+    - cron: '0 14 * * *'
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: 'Maximum number of domains to process'
+        required: false
+        default: '500'
+        type: string
+      industry:
+        description: 'Filter by industry (optional)'
+        required: false
+        type: string
+      country:
+        description: 'Filter by country (optional)'
+        required: false
+        type: string
+      min_employees:
+        description: 'Minimum employee count (optional)'
+        required: false
+        type: string
+      batch_size:
+        description: 'Batch size for processing'
+        required: false
+        default: '100'
+        type: string
+      max_concurrent:
+        description: 'Maximum concurrent sessions'
+        required: false
+        default: '15'
+        type: string
+      dry_run:
+        description: 'Dry run - fetch domains but dont run automation'
+        required: false
+        default: false
+        type: boolean
+      include_successful:
+        description: 'Include domains with previous successful signups (allows re-subscribing)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  newsletter-signup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 480  # 8 hours max for large runs
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+    
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Install Node.js dependencies
+      run: |
+        npm install playwright csv-parse axios
+        npx playwright install chromium
+    
+    - name: Create BigQuery credentials
+      run: |
+        echo '${{ secrets.BIGQUERY_CREDENTIALS }}' > bigquery_credentials.json
+    
+    - name: Set up Browserbase credentials
+      run: |
+        echo "Configuring Browserbase API access..."
+        # Update the JavaScript file with secrets from GitHub
+        sed -i "s/BROWSERBASE_API_KEY: 'bb_live_[^']*'/BROWSERBASE_API_KEY: '${{ secrets.BROWSERBASE_API_KEY }}'/g" full_newsletter_automation_clean.js
+        sed -i "s/BROWSERBASE_PROJECT_ID: '[^']*'/BROWSERBASE_PROJECT_ID: '${{ secrets.BROWSERBASE_PROJECT_ID }}'/g" full_newsletter_automation_clean.js
+        echo "✅ Updated Browserbase credentials from secrets"
+    
+    - name: Create mailbox accounts file
+      run: |
+        # Create mailboxaccounts.csv from the MAILBOX_ACCOUNTS secret
+        echo "Creating mailboxaccounts.csv from secret..."
+        echo '${{ secrets.MAILBOX_ACCOUNTS }}' > mailboxaccounts.csv
+        
+        # Verify the file was created and has content
+        if [ -f "mailboxaccounts.csv" ] && [ -s "mailboxaccounts.csv" ]; then
+          ACCOUNT_COUNT=$(tail -n +2 mailboxaccounts.csv | wc -l | tr -d ' ')
+          echo "✅ Created mailboxaccounts.csv with $ACCOUNT_COUNT email accounts"
+        else
+          echo "❌ Failed to create mailboxaccounts.csv or file is empty"
+          echo "Creating fallback with single test account..."
+          cat > mailboxaccounts.csv << 'EOF'
+        ﻿Email
+        test@example.com
+        EOF
+        fi
+    
+    - name: Set automation parameters
+      run: |
+        # Set parameters from inputs or defaults
+        LIMIT="${{ github.event.inputs.limit || '500' }}"
+        INDUSTRY="${{ github.event.inputs.industry || '' }}"
+        COUNTRY="${{ github.event.inputs.country || '' }}"
+        MIN_EMPLOYEES="${{ github.event.inputs.min_employees || '' }}"
+        BATCH_SIZE="${{ github.event.inputs.batch_size || '100' }}"
+        MAX_CONCURRENT="${{ github.event.inputs.max_concurrent || '15' }}"
+        DRY_RUN="${{ github.event.inputs.dry_run || 'false' }}"
+        INCLUDE_SUCCESSFUL="${{ github.event.inputs.include_successful || 'false' }}"
+        
+        echo "AUTOMATION_LIMIT=$LIMIT" >> $GITHUB_ENV
+        echo "AUTOMATION_INDUSTRY=$INDUSTRY" >> $GITHUB_ENV
+        echo "AUTOMATION_COUNTRY=$COUNTRY" >> $GITHUB_ENV
+        echo "AUTOMATION_MIN_EMPLOYEES=$MIN_EMPLOYEES" >> $GITHUB_ENV
+        echo "AUTOMATION_BATCH_SIZE=$BATCH_SIZE" >> $GITHUB_ENV
+        echo "AUTOMATION_MAX_CONCURRENT=$MAX_CONCURRENT" >> $GITHUB_ENV
+        echo "AUTOMATION_DRY_RUN=$DRY_RUN" >> $GITHUB_ENV
+        echo "AUTOMATION_INCLUDE_SUCCESSFUL=$INCLUDE_SUCCESSFUL" >> $GITHUB_ENV
+        
+        echo "🚀 Newsletter Signup Automation Parameters:"
+        echo "   Domain limit: $LIMIT"
+        echo "   Industry filter: ${INDUSTRY:-'None'}"
+        echo "   Country filter: ${COUNTRY:-'None'}"
+        echo "   Min employees: ${MIN_EMPLOYEES:-'None'}"
+        echo "   Batch size: $BATCH_SIZE"
+        echo "   Max concurrent: $MAX_CONCURRENT"
+        echo "   Dry run: $DRY_RUN"
+        echo "   Include successful: $INCLUDE_SUCCESSFUL"
+    
+    - name: Create logs directory
+      run: |
+        # Clean old logs to avoid accumulation
+        rm -rf logs
+        mkdir -p logs
+        echo "📁 Created fresh logs directory"
+    
+    - name: Run newsletter signup automation
+      run: |
+        echo "🚀 Starting newsletter signup automation..."
+        
+        # Build command with parameters
+        CMD="python newsletter_signup_bigquery.py"
+        CMD="$CMD --limit $AUTOMATION_LIMIT"
+        CMD="$CMD --batch-size $AUTOMATION_BATCH_SIZE"
+        CMD="$CMD --max-concurrent $AUTOMATION_MAX_CONCURRENT"
+        
+        if [ ! -z "$AUTOMATION_INDUSTRY" ]; then
+          CMD="$CMD --industry '$AUTOMATION_INDUSTRY'"
+        fi
+        
+        if [ ! -z "$AUTOMATION_COUNTRY" ]; then
+          CMD="$CMD --country '$AUTOMATION_COUNTRY'"
+        fi
+        
+        if [ ! -z "$AUTOMATION_MIN_EMPLOYEES" ]; then
+          CMD="$CMD --min-employees $AUTOMATION_MIN_EMPLOYEES"
+        fi
+        
+        if [ "$AUTOMATION_DRY_RUN" = "true" ]; then
+          CMD="$CMD --dry-run"
+        fi
+        
+        if [ "$AUTOMATION_INCLUDE_SUCCESSFUL" = "true" ]; then
+          CMD="$CMD --include-successful"
+        fi
+        
+        echo "🎯 Executing: $CMD"
+        eval $CMD
+    
+    - name: Generate automation report
+      if: always()
+      run: |
+        echo "📊 Generating automation report..."
+        python -c "
+        import json
+        import os
+        from datetime import datetime
+        from pathlib import Path
+        
+        print('📊 NEWSLETTER SIGNUP AUTOMATION REPORT')
+        print('=' * 50)
+        print(f'Run Date: {datetime.now().strftime(\"%Y-%m-%d %H:%M UTC\")}')
+        print(f'Parameters: Limit={os.environ.get(\"AUTOMATION_LIMIT\", \"N/A\")}, Batch={os.environ.get(\"AUTOMATION_BATCH_SIZE\", \"N/A\")}, Concurrent={os.environ.get(\"AUTOMATION_MAX_CONCURRENT\", \"N/A\")}')
+        print()
+        
+        # Check if domain metadata exists
+        if Path('domain_metadata.json').exists():
+            with open('domain_metadata.json', 'r') as f:
+                domains = json.load(f)
+            print(f'📋 Domains Prepared: {len(domains)}')
+            
+            # Count by industry
+            industries = {}
+            countries = {}
+            for domain in domains:
+                industry = domain.get('metadata', {}).get('industry', 'Unknown')
+                country = domain.get('metadata', {}).get('country', 'Unknown')
+                industries[industry] = industries.get(industry, 0) + 1
+                countries[country] = countries.get(country, 0) + 1
+            
+            print()
+            print('🏭 Top Industries:')
+            for industry, count in sorted(industries.items(), key=lambda x: x[1], reverse=True)[:5]:
+                print(f'   {industry}: {count}')
+            
+            print()
+            print('🌍 Top Countries:')
+            for country, count in sorted(countries.items(), key=lambda x: x[1], reverse=True)[:5]:
+                print(f'   {country}: {count}')
+        
+        # Check for log files
+        log_files = ['newsletter_signup.log', 'logs/successful_submissions_production.jsonl', 'logs/failed_submissions_production.jsonl']
+        
+        for log_file in log_files:
+            if Path(log_file).exists():
+                size = Path(log_file).stat().st_size
+                print(f'📄 {log_file}: {size} bytes')
+        
+        print()
+        print('✅ Report generated successfully')
+        "
+    
+    - name: Upload automation logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: newsletter-automation-logs-${{ github.run_number }}
+        path: |
+          logs/
+          *.log
+          domain_metadata.json
+          Storedomains_bigquery.csv
+        retention-days: 30
+    
+    - name: Upload results to BigQuery
+      if: success() && github.event.inputs.dry_run != 'true'
+      run: |
+        echo "📤 Uploading results to BigQuery..."
+        
+        # Check if there are results to upload
+        if [ -f "logs/successful_submissions_production.jsonl" ] || [ -f "logs/failed_submissions_production.jsonl" ]; then
+          python -c "
+        import json
+        from pathlib import Path
+        from newsletter_signup_bigquery import NewsletterSignupOrchestrator
+        
+        orchestrator = NewsletterSignupOrchestrator()
+        
+        results = []
+        
+        # Load successful submissions
+        success_file = Path('logs/successful_submissions_production.jsonl')
+        if success_file.exists():
+            with open(success_file, 'r') as f:
+                for line in f:
+                    if line.strip():
+                        data = json.loads(line)
+                        data['success'] = True
+                        results.append(data)
+        
+        # Load failed submissions
+        failed_file = Path('logs/failed_submissions_production.jsonl')
+        if failed_file.exists():
+            with open(failed_file, 'r') as f:
+                for line in f:
+                    if line.strip():
+                        data = json.loads(line)
+                        data['success'] = False
+                        results.append(data)
+        
+        if results:
+            orchestrator.log_results_to_bigquery(results)
+            print(f'✅ Uploaded {len(results)} results to BigQuery')
+        else:
+            print('ℹ️ No results to upload')
+        "
+        else
+          echo "ℹ️ No result files found to upload"
+        fi
+    
+    - name: Clean up credentials
+      if: always()
+      run: |
+        rm -f bigquery_credentials.json
+        echo "🧹 Cleaned up credentials"
+    
+    - name: Notify on failure
+      if: failure()
+      run: |
+        echo "❌ Newsletter signup automation failed!"
+        echo "Check the logs and artifacts for details."
+        
+        # Optional: Add Slack notification
+        # curl -X POST -H 'Content-type: application/json' \
+        #   --data '{"text":"❌ Newsletter signup automation failed in repo ${{ github.repository }}"}' \
+        #   ${{ secrets.SLACK_WEBHOOK_URL }}
+    
+    - name: Success summary
+      if: success()
+      run: |
+        echo "✅ Newsletter signup automation completed successfully!"
+        
+        # Count results if available
+        if [ -f "logs/successful_submissions_production.jsonl" ]; then
+          SUCCESS_COUNT=$(wc -l < logs/successful_submissions_production.jsonl)
+          echo "📈 Successful signups: $SUCCESS_COUNT"
+        fi
+        
+        if [ -f "logs/failed_submissions_production.jsonl" ]; then
+          FAILED_COUNT=$(wc -l < logs/failed_submissions_production.jsonl)
+          echo "📉 Failed signups: $FAILED_COUNT"
+        fi 

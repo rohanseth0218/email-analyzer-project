@@ -1,0 +1,69 @@
+name: Upload JSON to BigQuery
+on:
+  workflow_dispatch:  # Manual trigger only
+    inputs:
+      json_file_path:
+        description: 'Path to JSON file in repo'
+        required: true
+        default: 'data.json'
+        type: string
+      dataset_table:
+        description: 'BigQuery dataset.table'
+        required: true
+        default: 'email_analytics.storeleads'
+        type: string
+  
+jobs:
+  upload-json:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Set up BigQuery credentials
+      run: |
+        echo '${{ secrets.BIGQUERY_CREDENTIALS }}' > bigquery_credentials.json
+        
+    - name: Verify JSON file exists
+      run: |
+        if [ ! -f "${{ github.event.inputs.json_file_path }}" ]; then
+          echo "❌ JSON file not found: ${{ github.event.inputs.json_file_path }}"
+          echo "📂 Available files:"
+          find . -name "*.json" -type f | head -10
+          exit 1
+        else
+          echo "✅ JSON file found: ${{ github.event.inputs.json_file_path }}"
+          echo "📊 File size: $(du -h '${{ github.event.inputs.json_file_path }}' | cut -f1)"
+          echo "📝 First few lines:"
+          head -3 "${{ github.event.inputs.json_file_path }}"
+        fi
+        
+    - name: Upload JSON to BigQuery
+      timeout-minutes: 30
+      env:
+        JSON_FILE_PATH: ${{ github.event.inputs.json_file_path }}
+        DATASET_TABLE: ${{ github.event.inputs.dataset_table }}
+        PYTHONUNBUFFERED: "1"
+      run: |
+        echo "🚀 Starting JSON upload to BigQuery..."
+        echo "📂 File: $JSON_FILE_PATH"
+        echo "📊 Table: $DATASET_TABLE"
+        python -u upload_json_to_bigquery.py
+        echo "✅ JSON upload complete!"
+        
+    - name: Summary
+      run: |
+        echo "✅ JSON upload complete!"
+        echo "📊 Data uploaded to: ${{ github.event.inputs.dataset_table }}"
+        echo "🔍 Check BigQuery console: https://console.cloud.google.com/bigquery?project=instant-ground-394115" 

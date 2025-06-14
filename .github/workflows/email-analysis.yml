@@ -1,0 +1,70 @@
+name: Daily Email Analysis
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Run daily at 6 AM UTC
+  workflow_dispatch:  # Allow manual triggering
+    inputs:
+      days_back:
+        description: 'Number of days to analyze'
+        required: false
+        default: '1'
+        type: string
+      start_mailbox:
+        description: 'Mailbox to start from (for resuming)'
+        required: false
+        default: '1'
+        type: string
+  
+jobs:
+  analyze-emails:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Set up BigQuery credentials
+      run: |
+        echo '${{ secrets.BIGQUERY_CREDENTIALS }}' > bigquery_credentials.json
+        
+    - name: Set up mailbox credentials
+      run: |
+        echo '${{ secrets.MAILBOX_CREDENTIALS }}' > mailboxaccounts.csv
+        
+    - name: Run diagnostic first
+      timeout-minutes: 5
+      run: |
+        echo "🔍 Running diagnostics to identify issues..."
+        python quick_diagnostic.py
+        
+    - name: Run email analysis
+      timeout-minutes: 30  # Reduced to 30 minutes for 24-hour processing
+      env:
+        ANALYSIS_MODE: "cloud"
+        PYTHONUNBUFFERED: "1"
+        START_MAILBOX: ${{ github.event.inputs.start_mailbox || '1' }}
+        DAYS_BACK: ${{ github.event.inputs.days_back || '1' }}
+      run: |
+        DAYS_TEXT="day"
+        if [ "$DAYS_BACK" != "1" ]; then
+          DAYS_TEXT="days"
+        fi
+        echo "🚀 Starting email extraction from mailbox $START_MAILBOX (last $DAYS_BACK $DAYS_TEXT)..."
+        python -u export_emails_to_bigquery.py
+        echo "✅ Email extraction complete!"
+        
+    - name: Summary
+      run: |
+        echo "✅ Email extraction complete!"
+        echo "📊 Results stored in BigQuery table: marketing_emails_clean"
+        echo "🔍 Check BigQuery console: https://console.cloud.google.com/bigquery?project=instant-ground-394115" 
