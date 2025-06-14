@@ -11,6 +11,7 @@ import time
 import requests
 from datetime import datetime, timedelta
 import openai
+from playwright.sync_api import sync_playwright
 from google.cloud import bigquery
 from google.oauth2 import service_account
 from typing import Dict, List, Optional, Any
@@ -448,8 +449,8 @@ class ProductionEmailAnalysisPipeline:
         return local_path, cloud_url
     
     def create_screenshot(self, email_data: Dict[str, Any]) -> Optional[str]:
-        """Create screenshot using Browserbase API"""
-        print(f"📸 Creating screenshot via Browserbase for email from {email_data['sender_email']}")
+        """Create screenshot using Browserbase + Playwright"""
+        print(f"📸 Creating screenshot via Browserbase + Playwright for email from {email_data['sender_email']}")
         
         # Check if Browserbase credentials are available
         if not self.config['browserbase']['api_key']:
@@ -488,27 +489,72 @@ class ProductionEmailAnalysisPipeline:
                 print("❌ No HTML content available for screenshot")
                 return None
             
-            # For now, create a placeholder screenshot since Browserbase requires Playwright integration
-            # In a full implementation, you'd use the connect_url with Playwright to take actual screenshots
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            sender_clean = re.sub(r'[^a-zA-Z0-9]', '_', email_data['sender_email'])
-            filename = f"email_screenshot_{sender_clean}_{timestamp}.png"
+            # Create clean HTML template
+            clean_html = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Email Content</title>
+                <style>
+                    body {{
+                        margin: 0;
+                        padding: 20px;
+                        font-family: Arial, sans-serif;
+                        background: white;
+                        max-width: 800px;
+                    }}
+                    img {{
+                        max-width: 100%;
+                        height: auto;
+                    }}
+                    table {{
+                        max-width: 100%;
+                    }}
+                </style>
+            </head>
+            <body>
+                {html_content}
+            </body>
+            </html>
+            """
             
-            # Create a simple 1x1 pixel PNG as placeholder
-            placeholder_png = base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==')
-            
-            with open(filename, 'wb') as f:
-                f.write(placeholder_png)
-            
-            print(f"✅ Screenshot placeholder created: {filename}")
-            print("⚠️ Note: Using placeholder image. Full Browserbase integration requires Playwright.")
-            return filename
+            # Use Playwright to connect to Browserbase and take screenshot
+            with sync_playwright() as p:
+                # Connect to the Browserbase session
+                browser = p.chromium.connect_over_cdp(connect_url)
+                
+                # Get the default context and page
+                context = browser.contexts()[0]
+                page = context.pages()[0]
+                
+                # Set viewport
+                page.set_viewport_size({"width": 800, "height": 1200})
+                
+                # Load HTML content
+                page.set_content(clean_html)
+                page.wait_for_timeout(2000)  # Wait for images to load
+                
+                # Generate filename
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                sender_clean = re.sub(r'[^a-zA-Z0-9]', '_', email_data['sender_email'])
+                filename = f"email_screenshot_{sender_clean}_{timestamp}.png"
+                
+                # Take screenshot
+                page.screenshot(path=filename, full_page=True)
+                
+                # Close browser
+                browser.close()
+                
+                print(f"✅ Real screenshot saved via Browserbase + Playwright: {filename}")
+                return filename
             
         except json.JSONDecodeError as e:
             print(f"❌ Browserbase API returned invalid JSON: {e}")
             return None
         except Exception as e:
-            print(f"❌ Browserbase screenshot failed: {e}")
+            print(f"❌ Browserbase + Playwright screenshot failed: {e}")
             return None
     
     def analyze_with_gpt4v(self, screenshot_path: str, email_data: Dict[str, Any]) -> Optional[Dict]:
