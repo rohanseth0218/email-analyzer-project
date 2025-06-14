@@ -43,9 +43,9 @@ class EmailEngagementBot:
             'Connection': 'keep-alive'
         })
         
-        # Limits
-        self.max_confirmations = self.config.get('max_confirmations', 20)
-        self.max_engagements = self.config.get('max_engagements', 30)
+        # Limits (None means unlimited)
+        self.max_confirmations = self.config.get('max_confirmations')
+        self.max_engagements = self.config.get('max_engagements')
         self.dry_run = self.config.get('dry_run', False)
         self.confirmations_only = self.config.get('confirmations_only', False)
         self.engagement_only = self.config.get('engagement_only', False)
@@ -91,6 +91,7 @@ class EmailEngagementBot:
     
     def get_confirmation_emails(self):
         """Query BigQuery for emails that need subscription confirmation"""
+        limit_clause = f"LIMIT {self.max_confirmations * 2}" if self.max_confirmations else ""
         query = f"""
         SELECT 
             sender_email,
@@ -113,7 +114,7 @@ class EmailEngagementBot:
         )
         AND date_received >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY)
         ORDER BY date_received DESC
-        LIMIT {self.max_confirmations * 2}
+        {limit_clause}
         """
         
         try:
@@ -127,6 +128,7 @@ class EmailEngagementBot:
     
     def get_engagement_emails(self):
         """Query BigQuery for brands that need engagement (haven't been engaged in 7+ days)"""
+        limit_clause = f"LIMIT {self.max_engagements * 2}" if self.max_engagements else ""
         query = f"""
         WITH ranked_emails AS (
             SELECT 
@@ -152,7 +154,7 @@ class EmailEngagementBot:
         FROM ranked_emails
         WHERE rn = 1  -- One email per domain/brand
         ORDER BY date_received DESC
-        LIMIT {self.max_engagements * 2}
+        {limit_clause}
         """
         
         try:
@@ -278,7 +280,7 @@ class EmailEngagementBot:
         confirmed_count = 0
         
         for email in confirmation_emails:
-            if confirmed_count >= self.max_confirmations:
+            if self.max_confirmations and confirmed_count >= self.max_confirmations:
                 logger.info(f"📊 Reached max confirmations limit: {self.max_confirmations}")
                 break
                 
@@ -339,7 +341,7 @@ class EmailEngagementBot:
         engaged_count = 0
         
         for email in engagement_emails:
-            if engaged_count >= self.max_engagements:
+            if self.max_engagements and engaged_count >= self.max_engagements:
                 logger.info(f"📊 Reached max engagements limit: {self.max_engagements}")
                 break
                 
