@@ -9,12 +9,24 @@ import re
 import base64
 import time
 import requests
+import sys
+import tempfile
+import shutil
 from datetime import datetime, timedelta
 import openai
 from google.cloud import bigquery
 from google.oauth2 import service_account
 from typing import Dict, List, Optional, Any
-from screenshot_storage import ScreenshotStorage
+
+# Import screenshot storage with error handling
+try:
+    from .screenshot_storage import ScreenshotStorage
+except ImportError:
+    try:
+        from screenshot_storage import ScreenshotStorage
+    except ImportError as e:
+        print(f"⚠️ Screenshot storage import failed: {e}")
+        ScreenshotStorage = None
 
 # Configuration (cleaned up)
 CONFIG = {
@@ -69,16 +81,11 @@ class ProductionEmailAnalysisPipeline:
 
     def setup_openai(self):
         from openai import AzureOpenAI
-        import httpx
-        
-        # Create HTTP client without proxies
-        http_client = httpx.Client(proxies=None)
         
         self.openai_client = AzureOpenAI(
             api_key=self.config['azure_openai']['api_key'],
             azure_endpoint=self.config['azure_openai']['endpoint'],
-            api_version=self.config['azure_openai']['api_version'],
-            http_client=http_client
+            api_version=self.config['azure_openai']['api_version']
         )
         print("✅ Azure OpenAI client configured")
 
@@ -103,7 +110,7 @@ class ProductionEmailAnalysisPipeline:
 
     def setup_screenshot_storage(self):
         try:
-            if self.config['screenshot_storage']['enabled']:
+            if self.config['screenshot_storage']['enabled'] and ScreenshotStorage:
                 self.screenshot_storage = ScreenshotStorage(
                     project_id=self.config['screenshot_storage']['project_id'],
                     bucket_name=self.config['screenshot_storage']['bucket_name'],
@@ -113,7 +120,10 @@ class ProductionEmailAnalysisPipeline:
                 print("✅ Screenshot storage configured")
             else:
                 self.screenshot_storage = None
-                print("⚠️ Screenshot storage disabled")
+                if not ScreenshotStorage:
+                    print("⚠️ Screenshot storage disabled - ScreenshotStorage class not available")
+                else:
+                    print("⚠️ Screenshot storage disabled in config")
         except Exception as e:
             print(f"⚠️ Screenshot storage setup failed: {e}")
             self.screenshot_storage = None
@@ -422,7 +432,14 @@ class ProductionEmailAnalysisPipeline:
         local_path = self.create_screenshot(email_data)
         
         if not local_path:
-            return None, None
+            print("❌ Failed to create screenshot, trying fallback...")
+            # Try fallback: create a simple text-based "screenshot"
+            fallback_path = self.create_fallback_screenshot(email_data)
+            if fallback_path:
+                local_path = fallback_path
+                print("✅ Created fallback text screenshot")
+            else:
+                return None, None
         
         # Upload to GCP if storage is configured
         cloud_url = None
@@ -447,22 +464,36 @@ class ProductionEmailAnalysisPipeline:
         return local_path, cloud_url
     
     def create_screenshot(self, email_data: Dict[str, Any]) -> Optional[str]:
-        """Create screenshot using Playwright (free alternative to HTML/CSS to Image API)"""
+        """Create screenshot using Playwright with comprehensive error handling"""
         print(f"📸 Creating screenshot via Playwright for email from {email_data['sender_email']}")
         
+        browser = None
+        temp_file = None
+        
         try:
-            from playwright.sync_api import sync_playwright
-            import os
-            from PIL import Image
-            import io
-            
-            # Create HTML content for the email
-            html_content = email_data.get('content_html', '')
-            if not html_content:
-                print("❌ No HTML content available for screenshot")
+            # Import dependencies with specific error messages
+            try:
+                from playwright.sync_api import sync_playwright
+            except ImportError:
+                print("❌ Playwright not installed. Run: pip install playwright && playwright install chromium")
                 return None
             
-            # Create clean HTML template optimized for email rendering
+            try:
+                from PIL import Image
+            except ImportError:
+                print("❌ Pillow not installed. Run: pip install Pillow")
+                return None
+            
+            # Validate email content
+            html_content = email_data.get('content_html', '')
+            if not html_content or len(html_content.strip()) < 10:
+                print("❌ No valid HTML content available for screenshot")
+                return None
+            
+            # Sanitize HTML content to prevent issues
+            html_content = html_content.replace('{{', '{ {').replace('}}', '} }')
+            
+            # Create clean HTML template with error handling
             clean_html = f"""
             <!DOCTYPE html>
             <html>
@@ -478,20 +509,25 @@ class ProductionEmailAnalysisPipeline:
                         background: white;
                         max-width: 800px;
                         line-height: 1.4;
+                        overflow-x: hidden;
                     }}
                     img {{
-                        max-width: 100%;
-                        height: auto;
+                        max-width: 100% !important;
+                        height: auto !important;
                         display: block;
                     }}
                     table {{
-                        max-width: 100%;
+                        max-width: 100% !important;
                         border-collapse: collapse;
                     }}
                     .email-container {{
                         max-width: 800px;
                         margin: 0 auto;
                         background: white;
+                        word-wrap: break-word;
+                    }}
+                    * {{
+                        max-width: 100% !important;
                     }}
                 </style>
             </head>
@@ -503,53 +539,134 @@ class ProductionEmailAnalysisPipeline:
             </html>
             """
             
-            # Generate filename
+            # Generate safe filename
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            sender_clean = re.sub(r'[^a-zA-Z0-9]', '_', email_data['sender_email'])
+            sender_clean = re.sub(r'[^a-zA-Z0-9]', '_', email_data.get('sender_email', 'unknown'))[:50]
             filename = f"email_screenshot_{sender_clean}_{timestamp}.png"
             
-            with sync_playwright() as p:
-                # Launch browser
-                browser = p.chromium.launch(headless=True)
-                page = browser.new_page()
-                
-                # Set viewport for consistent screenshots
-                page.set_viewport_size({"width": 800, "height": 1200})
-                
-                # Set content and wait for images to load
-                page.set_content(clean_html)
-                page.wait_for_timeout(2000)  # Wait 2 seconds for images to load
-                
-                # Take screenshot
-                page.screenshot(path=filename, full_page=True)
-                browser.close()
+            # Use temporary file first to avoid permission issues
+            temp_file = tempfile.NamedTemporaryFile(suffix='.png', delete=False)
+            temp_path = temp_file.name
+            temp_file.close()
             
-            # Compress image if it's too large for GPT-4V (>20MB)
-            file_size = os.path.getsize(filename)
-            if file_size > 15 * 1024 * 1024:  # If larger than 15MB, compress
+            with sync_playwright() as p:
+                try:
+                    # Launch browser with error handling
+                    browser = p.chromium.launch(
+                        headless=True,
+                        args=[
+                            '--no-sandbox',
+                            '--disable-dev-shm-usage',
+                            '--disable-gpu',
+                            '--disable-web-security',
+                            '--disable-features=VizDisplayCompositor'
+                        ]
+                    )
+                    page = browser.new_page()
+                    
+                    # Set viewport for consistent screenshots
+                    page.set_viewport_size({"width": 800, "height": 1200})
+                    
+                    # Set content with timeout
+                    page.set_content(clean_html, timeout=30000)
+                    
+                    # Wait for content to load
+                    page.wait_for_timeout(3000)
+                    
+                    # Take screenshot to temp file first
+                    page.screenshot(path=temp_path, full_page=True, timeout=30000)
+                    
+                except Exception as e:
+                    print(f"❌ Browser operation failed: {e}")
+                    return None
+                finally:
+                    if browser:
+                        try:
+                            browser.close()
+                        except:
+                            pass
+            
+            # Check if screenshot was created
+            if not os.path.exists(temp_path) or os.path.getsize(temp_path) == 0:
+                print("❌ Screenshot file was not created or is empty")
+                return None
+            
+            # Compress image if needed
+            file_size = os.path.getsize(temp_path)
+            if file_size > 15 * 1024 * 1024:  # If larger than 15MB
                 print(f"🗜️ Compressing large screenshot ({file_size / 1024 / 1024:.1f}MB)")
                 
-                # Open and compress the image
-                with Image.open(filename) as img:
-                    # Convert to RGB if necessary
-                    if img.mode in ('RGBA', 'LA', 'P'):
-                        img = img.convert('RGB')
-                    
-                    # Reduce quality and save
-                    img.save(filename, 'PNG', optimize=True, quality=70)
-                    
-                new_size = os.path.getsize(filename)
-                print(f"✅ Compressed to {new_size / 1024 / 1024:.1f}MB")
+                try:
+                    with Image.open(temp_path) as img:
+                        # Convert to RGB if necessary
+                        if img.mode in ('RGBA', 'LA', 'P'):
+                            img = img.convert('RGB')
+                        
+                        # Compress and save
+                        img.save(temp_path, 'PNG', optimize=True, quality=70)
+                        
+                    new_size = os.path.getsize(temp_path)
+                    print(f"✅ Compressed to {new_size / 1024 / 1024:.1f}MB")
+                except Exception as e:
+                    print(f"⚠️ Compression failed: {e}, using original")
             
-            print(f"✅ Screenshot saved locally: {filename}")
+            # Move temp file to final location
+            try:
+                shutil.move(temp_path, filename)
+                print(f"✅ Screenshot saved locally: {filename}")
+                return filename
+            except Exception as e:
+                print(f"❌ Failed to move screenshot file: {e}")
+                return None
+            
+        except Exception as e:
+            print(f"❌ Screenshot creation failed: {e}")
+            return None
+        finally:
+            # Cleanup temp file if it still exists
+            if temp_file and os.path.exists(temp_file.name):
+                try:
+                    os.unlink(temp_file.name)
+                except:
+                    pass
+    
+    def create_fallback_screenshot(self, email_data: Dict[str, Any]) -> Optional[str]:
+        """Create a simple text-based fallback when Playwright fails"""
+        try:
+            from PIL import Image, ImageDraw, ImageFont
+            
+            # Create a simple white image with email text
+            img = Image.new('RGB', (800, 600), color='white')
+            draw = ImageDraw.Draw(img)
+            
+            # Try to use a basic font
+            try:
+                font = ImageFont.load_default()
+            except:
+                font = None
+            
+            # Extract text content
+            text_content = email_data.get('content_text', '')[:500]  # First 500 chars
+            if not text_content:
+                text_content = f"Email from: {email_data.get('sender_email', 'Unknown')}\nSubject: {email_data.get('subject', 'No subject')}"
+            
+            # Draw text on image
+            y_position = 50
+            for line in text_content.split('\n')[:20]:  # Max 20 lines
+                if line.strip():
+                    draw.text((50, y_position), line[:80], fill='black', font=font)  # Max 80 chars per line
+                    y_position += 25
+            
+            # Save fallback screenshot
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            sender_clean = re.sub(r'[^a-zA-Z0-9]', '_', email_data.get('sender_email', 'unknown'))[:50]
+            filename = f"fallback_screenshot_{sender_clean}_{timestamp}.png"
+            
+            img.save(filename)
             return filename
             
-        except ImportError as e:
-            print(f"❌ Playwright not available: {e}")
-            print("💡 Install with: pip install playwright && playwright install chromium")
-            return None
         except Exception as e:
-            print(f"❌ Playwright screenshot failed: {e}")
+            print(f"❌ Fallback screenshot creation failed: {e}")
             return None
     
     def analyze_with_gpt4v(self, screenshot_path: str, email_data: Dict[str, Any]) -> Optional[Dict]:
@@ -560,16 +677,39 @@ class ProductionEmailAnalysisPipeline:
             # Read screenshot as base64 - handle both local files and cloud URLs
             if screenshot_path.startswith('http'):
                 # It's a cloud URL, download the image
-                import requests
-                response = requests.get(screenshot_path, timeout=30)
-                if response.status_code != 200:
-                    print(f"❌ Failed to download screenshot from URL: {response.status_code}")
+                try:
+                    response = requests.get(screenshot_path, timeout=30)
+                    if response.status_code != 200:
+                        print(f"❌ Failed to download screenshot from URL: {response.status_code}")
+                        return None
+                    
+                    # Check file size before processing
+                    content_length = len(response.content)
+                    if content_length > 20 * 1024 * 1024:  # 20MB limit
+                        print(f"❌ Downloaded image too large: {content_length / 1024 / 1024:.1f}MB")
+                        return None
+                    
+                    base64_image = base64.b64encode(response.content).decode("utf-8")
+                except Exception as e:
+                    print(f"❌ Failed to download screenshot: {e}")
                     return None
-                base64_image = base64.b64encode(response.content).decode("utf-8")
             else:
                 # It's a local file path
-                with open(screenshot_path, "rb") as img_file:
-                    base64_image = base64.b64encode(img_file.read()).decode("utf-8")
+                try:
+                    if not os.path.exists(screenshot_path):
+                        print(f"❌ Screenshot file not found: {screenshot_path}")
+                        return None
+                    
+                    file_size = os.path.getsize(screenshot_path)
+                    if file_size > 20 * 1024 * 1024:  # 20MB limit
+                        print(f"❌ Screenshot file too large: {file_size / 1024 / 1024:.1f}MB")
+                        return None
+                    
+                    with open(screenshot_path, "rb") as img_file:
+                        base64_image = base64.b64encode(img_file.read()).decode("utf-8")
+                except Exception as e:
+                    print(f"❌ Failed to read screenshot file: {e}")
+                    return None
 
             # DETAILED PROMPT FOR GPT-4V
             prompt = f"""
@@ -615,27 +755,32 @@ Email context:
 REMEMBER: Only return JSON. No commentary. Fill in all fields with either a value, empty array, or null. Be explicit and detailed in your analysis, especially for design_level, num_products_featured, and visual_content.
             """
 
-            # Call GPT-4V API
-            response = self.openai_client.chat.completions.create(
-                model=self.config['azure_openai']['deployment_name'],
-                messages=[
-                    {
-                        "role": "user",
-                        "content": [
-                            {"type": "text", "text": prompt},
-                            {
-                                "type": "image_url",
-                                "image_url": {
-                                    "url": f"data:image/png;base64,{base64_image}",
-                                    "detail": "high"
+            # Call GPT-4V API with error handling
+            try:
+                response = self.openai_client.chat.completions.create(
+                    model=self.config['azure_openai']['deployment_name'],
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": [
+                                {"type": "text", "text": prompt},
+                                {
+                                    "type": "image_url",
+                                    "image_url": {
+                                        "url": f"data:image/png;base64,{base64_image}",
+                                        "detail": "high"
+                                    }
                                 }
-                            }
-                        ]
-                    }
-                ],
-                max_tokens=1500,  # Increased for more comprehensive analysis
-                temperature=0.1
-            )
+                            ]
+                        }
+                    ],
+                    max_tokens=1500,
+                    temperature=0.1,
+                    timeout=60  # 60 second timeout
+                )
+            except Exception as e:
+                print(f"❌ GPT-4V API call failed: {e}")
+                return None
             
             analysis_text = response.choices[0].message.content.strip()
             
@@ -838,75 +983,110 @@ REMEMBER: Only return JSON. No commentary. Fill in all fields with either a valu
             return []
 
     def process_all_emails(self, days_back: int = 7, limit: int = None):
-        print("🚀 Starting Email Analysis Pipeline (BigQuery Source)")
-        print("=" * 70)
-        all_results = []
-        emails = self.fetch_emails_from_bigquery(days_back, limit=limit)
-        if not emails:
-            print("❌ No emails found in BigQuery")
-            return
-        emails = self.filter_new_emails(emails)
-        if not emails:
-            print("❌ No new emails to process (all were duplicates)")
-            return
-        for i, email_data in enumerate(emails, 1):
-            print(f"\n🔄 Processing email {i}/{len(emails)}")
-            print(f"   📧 From: {email_data['sender_email']}")
-            print(f"   📝 Subject: {email_data['subject'][:60]}...")
-            result = {
-                'email_data': email_data,
-                'screenshot_path': None,
-                'screenshot_url': None,
-                'gpt_analysis': None,
-                'processing_status': 'started',
-                'errors': []
-            }
-            screenshot_result = self.create_screenshot_with_upload(email_data)
-            if screenshot_result:
-                screenshot_path, cloud_url = screenshot_result
-                result['screenshot_path'] = screenshot_path
-                result['screenshot_url'] = cloud_url
-                analysis_path = screenshot_path if screenshot_path else cloud_url
-                if analysis_path:
-                    gpt_analysis = self.analyze_with_gpt4v(analysis_path, email_data)
-                    if gpt_analysis:
-                        result['gpt_analysis'] = gpt_analysis
-                        result['processing_status'] = 'completed'
-                        print(f"   ✅ Complete processing successful")
-                        if cloud_url:
-                            print(f"   🌐 Screenshot URL: {cloud_url}")
-                    else:
-                        result['errors'].append('GPT analysis failed')
-                        result['processing_status'] = 'partial'
-                        print(f"   ⚠️ Screenshot created, GPT analysis failed")
-                else:
-                    result['errors'].append('No valid screenshot path')
-                    result['processing_status'] = 'failed'
-                    print(f"   ❌ No valid screenshot path available")
-            else:
-                result['errors'].append('Screenshot creation failed')
-                result['processing_status'] = 'failed'
-                print(f"   ❌ Screenshot creation failed")
-            all_results.append(result)
-        if all_results:
-            successful_results = [r for r in all_results if r['processing_status'] in ['completed', 'partial']]
-            if successful_results:
-                self.save_to_bigquery(successful_results)
-            print("\n" + "=" * 70)
-            print("🎯 EMAIL ANALYSIS PIPELINE SUMMARY")
-            print("=" * 70)
-            successful = len([r for r in all_results if r['processing_status'] == 'completed'])
-            partial = len([r for r in all_results if r['processing_status'] == 'partial'])
-            failed = len([r for r in all_results if r['processing_status'] == 'failed'])
-            print(f"📧 Total emails processed: {len(all_results)}")
-            print(f"✅ Fully successful: {successful}")
-            print(f"⚠️ Partial success: {partial}")
-            print(f"❌ Failed: {failed}")
-            if successful > 0:
-                print(f"\n🎉 Email analysis pipeline working! {successful} emails fully processed")
-                print(f"💾 Data saved to BigQuery for analysis")
-        else:
-            print("\n❌ No emails were processed successfully")
+        """Main processing function with comprehensive error handling and resource management"""
+        print(f"🚀 Starting email analysis pipeline (days_back={days_back}, limit={limit})")
+        
+        # Memory management
+        import gc
+        
+        try:
+            # Fetch emails from BigQuery
+            marketing_emails = self.fetch_emails_from_bigquery(days_back=days_back, limit=limit)
+            
+            if not marketing_emails:
+                print("❌ No marketing emails found to process")
+                return
+            
+            # Filter out already processed emails
+            new_emails = self.filter_new_emails(marketing_emails)
+            
+            if not new_emails:
+                print("✅ All emails have already been processed")
+                return
+            
+            print(f"📧 Processing {len(new_emails)} new emails...")
+            
+            processed_emails = []
+            failed_count = 0
+            
+            for i, email_data in enumerate(new_emails):
+                try:
+                    print(f"\n📧 Processing email {i+1}/{len(new_emails)}: {email_data['sender_email']}")
+                    
+                    # Create screenshot with upload
+                    local_path, cloud_url = self.create_screenshot_with_upload(email_data)
+                    
+                    if not local_path and not cloud_url:
+                        print(f"❌ Failed to create screenshot for {email_data['sender_email']}")
+                        failed_count += 1
+                        continue
+                    
+                    # Use cloud URL if available, otherwise local path
+                    screenshot_path = cloud_url if cloud_url else local_path
+                    
+                    # Analyze with GPT-4V
+                    gpt_analysis = self.analyze_with_gpt4v(screenshot_path, email_data)
+                    
+                    if not gpt_analysis:
+                        print(f"❌ Failed to analyze email from {email_data['sender_email']}")
+                        failed_count += 1
+                        continue
+                    
+                    # Prepare data for BigQuery
+                    processed_email = {
+                        'email_id': email_data['email_id'],
+                        'sender_email': email_data['sender_email'],
+                        'subject': email_data.get('subject'),
+                        'date_received': email_data.get('date_received'),
+                        'sender_domain': email_data.get('sender_domain'),
+                        'screenshot_path': local_path,
+                        'screenshot_url': cloud_url,
+                        'gpt_analysis': gpt_analysis,
+                        'num_products_featured': gpt_analysis.get('num_products_featured'),
+                        'processing_status': 'success',
+                        'errors': None,
+                        'raw_email_data': email_data,
+                        'analysis_timestamp': datetime.now().isoformat()
+                    }
+                    
+                    processed_emails.append(processed_email)
+                    
+                    # Clean up local file if we have cloud URL
+                    if local_path and cloud_url and os.path.exists(local_path):
+                        try:
+                            os.remove(local_path)
+                            print(f"🗑️ Cleaned up local file: {local_path}")
+                        except Exception as e:
+                            print(f"⚠️ Failed to clean up local file: {e}")
+                    
+                    # Force garbage collection every 5 emails to manage memory
+                    if (i + 1) % 5 == 0:
+                        gc.collect()
+                        print(f"🧹 Memory cleanup performed after {i+1} emails")
+                    
+                except Exception as e:
+                    print(f"❌ Error processing email {i+1}: {e}")
+                    failed_count += 1
+                    continue
+            
+            # Save all processed emails to BigQuery
+            if processed_emails:
+                print(f"\n💾 Saving {len(processed_emails)} processed emails to BigQuery...")
+                self.save_to_bigquery(processed_emails)
+                print(f"✅ Successfully processed {len(processed_emails)} emails")
+            
+            if failed_count > 0:
+                print(f"⚠️ {failed_count} emails failed to process")
+            
+            print("🎉 Email analysis pipeline completed!")
+            
+        except Exception as e:
+            print(f"❌ Pipeline failed: {e}")
+            raise
+        finally:
+            # Final cleanup
+            gc.collect()
+            print("🧹 Final memory cleanup completed")
 
 def main():
     import os

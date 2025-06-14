@@ -40,10 +40,14 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libnss3 libatk-bridge2.0-0 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libxss1 libasound2
+
     - name: Install Playwright browsers
       run: |
-        playwright install chromium
-        playwright install-deps
+        playwright install chromium --with-deps
 
     - name: Write GCP credentials to file
       run: echo '${{ secrets.BIGQUERY_CREDENTIALS }}' > gcp-service-account.json
