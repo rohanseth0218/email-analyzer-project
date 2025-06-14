@@ -95,9 +95,9 @@ class EmailEngagementBot:
         SELECT 
             sender_email,
             subject,
-            body_html,
-            body_text,
-            received_date,
+            html_content,
+            text_content,
+            date_received,
             email_id,
             REGEXP_EXTRACT(sender_email, r'@(.+)') as domain
         FROM `{self.project_id}.{self.dataset_id}.{self.emails_table}`
@@ -107,12 +107,12 @@ class EmailEngagementBot:
             LOWER(subject) LIKE '%activate%account%' OR
             LOWER(subject) LIKE '%complete%signup%' OR
             LOWER(subject) LIKE '%welcome%confirm%' OR
-            LOWER(body_text) LIKE '%confirm%subscription%' OR
-            LOWER(body_text) LIKE '%click%confirm%' OR
-            LOWER(body_html) LIKE '%confirm%subscription%'
+            LOWER(text_content) LIKE '%confirm%subscription%' OR
+            LOWER(text_content) LIKE '%click%confirm%' OR
+            LOWER(html_content) LIKE '%confirm%subscription%'
         )
-        AND received_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
-        ORDER BY received_date DESC
+        AND date_received >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY)
+        ORDER BY date_received DESC
         LIMIT {self.max_confirmations * 2}
         """
         
@@ -132,16 +132,16 @@ class EmailEngagementBot:
             SELECT 
                 sender_email,
                 subject,
-                body_html,
-                body_text,
-                received_date,
+                html_content,
+                text_content,
+                date_received,
                 email_id,
                 REGEXP_EXTRACT(sender_email, r'@(.+)') as domain,
-                ROW_NUMBER() OVER (PARTITION BY REGEXP_EXTRACT(sender_email, r'@(.+)') ORDER BY received_date DESC) as rn
+                ROW_NUMBER() OVER (PARTITION BY REGEXP_EXTRACT(sender_email, r'@(.+)') ORDER BY date_received DESC) as rn
             FROM `{self.project_id}.{self.dataset_id}.{self.emails_table}`
-            WHERE received_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
-            AND body_html IS NOT NULL
-            AND LENGTH(body_html) > 100
+            WHERE date_received >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY)
+            AND html_content IS NOT NULL
+            AND LENGTH(html_content) > 100
             AND NOT (
                 LOWER(subject) LIKE '%unsubscribe%' OR
                 LOWER(subject) LIKE '%confirm%subscription%' OR
@@ -151,7 +151,7 @@ class EmailEngagementBot:
         SELECT *
         FROM ranked_emails
         WHERE rn = 1  -- One email per domain/brand
-        ORDER BY received_date DESC
+        ORDER BY date_received DESC
         LIMIT {self.max_engagements * 2}
         """
         
@@ -164,20 +164,20 @@ class EmailEngagementBot:
             logger.error(f"❌ Error querying engagement emails: {e}")
             return []
     
-    def extract_links_from_email(self, body_html, body_text="", domain=""):
+    def extract_links_from_email(self, html_content, text_content="", domain=""):
         """Extract clickable links from email content"""
         links = []
         
-        if body_html:
+        if html_content:
             # Extract href links from HTML
             href_pattern = r'href=["\']([^"\']+)["\']'
-            html_links = re.findall(href_pattern, body_html, re.IGNORECASE)
+            html_links = re.findall(href_pattern, html_content, re.IGNORECASE)
             links.extend(html_links)
         
-        if body_text:
+        if text_content:
             # Extract URLs from plain text
             url_pattern = r'https?://[^\s<>"]+[^\s<>".,)]'
-            text_links = re.findall(url_pattern, body_text)
+            text_links = re.findall(url_pattern, text_content)
             links.extend(text_links)
         
         # Filter and clean links
@@ -290,7 +290,7 @@ class EmailEngagementBot:
                 continue
             
             # Extract confirmation links
-            links = self.extract_links_from_email(email.body_html, email.body_text, domain)
+            links = self.extract_links_from_email(email.html_content, email.text_content, domain)
             
             # Look for confirmation-specific links
             confirmation_links = [
@@ -350,7 +350,7 @@ class EmailEngagementBot:
                 continue
             
             # Extract engagement links
-            links = self.extract_links_from_email(email.body_html, email.body_text, domain)
+            links = self.extract_links_from_email(email.html_content, email.text_content, domain)
             
             if links:
                 success = self.click_link_with_http(links[0], "engagement")
