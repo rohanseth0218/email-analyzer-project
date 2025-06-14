@@ -451,6 +451,14 @@ class ProductionEmailAnalysisPipeline:
         """Create screenshot using Browserbase API"""
         print(f"📸 Creating screenshot via Browserbase for email from {email_data['sender_email']}")
         
+        # Check if Browserbase credentials are available
+        if not self.config['browserbase']['api_key']:
+            print("❌ Browserbase API key not found in environment variables")
+            return None
+        if not self.config['browserbase']['project_id']:
+            print("❌ Browserbase project ID not found in environment variables")
+            return None
+        
         try:
             # Create a session with Browserbase
             session_response = requests.post(
@@ -464,12 +472,15 @@ class ProductionEmailAnalysisPipeline:
                 }
             )
             
+            print(f"🔍 Session creation response: {session_response.status_code}")
             if session_response.status_code != 200:
                 print(f"❌ Failed to create Browserbase session: {session_response.status_code}")
+                print(f"❌ Response text: {session_response.text}")
                 return None
                 
             session_data = session_response.json()
             session_id = session_data['id']
+            print(f"✅ Created Browserbase session: {session_id}")
             
             # Create HTML content for the email
             html_content = email_data.get('content_html', '')
@@ -495,8 +506,10 @@ class ProductionEmailAnalysisPipeline:
                 }
             )
             
+            print(f"🔍 Screenshot response: {screenshot_response.status_code}")
             if screenshot_response.status_code != 200:
                 print(f"❌ Failed to take screenshot: {screenshot_response.status_code}")
+                print(f"❌ Response text: {screenshot_response.text}")
                 return None
             
             # Save screenshot locally
@@ -510,6 +523,9 @@ class ProductionEmailAnalysisPipeline:
             print(f"✅ Screenshot saved via Browserbase: {filename}")
             return filename
             
+        except json.JSONDecodeError as e:
+            print(f"❌ Browserbase API returned invalid JSON: {e}")
+            return None
         except Exception as e:
             print(f"❌ Browserbase screenshot failed: {e}")
             return None
