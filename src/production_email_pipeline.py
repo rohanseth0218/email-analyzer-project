@@ -469,8 +469,16 @@ class ProductionEmailAnalysisPipeline:
                     'Content-Type': 'application/json'
                 },
                 json={
-                    'projectId': self.config['browserbase']['project_id']
-                }
+                    'projectId': self.config['browserbase']['project_id'],
+                    'browserSettings': {
+                        'viewport': {'width': 1920, 'height': 1080},
+                        'stealth': True,
+                        'geolocation': {'latitude': 40.7128, 'longitude': -74.0060},
+                        'locale': 'en-US',
+                        'permissions': ['geolocation']
+                    }
+                },
+                timeout=15
             )
             
             print(f"🔍 Session creation response: {session_response.status_code}")
