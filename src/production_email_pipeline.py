@@ -595,7 +595,7 @@ You are an expert email analyst. Analyze the provided email screenshot and HTML.
 "event_or_seasonality": "string or null: Is there a specific event or seasonality referenced? (e.g., Black Friday, Summer Sale, Back to School, Mother's Day, etc.). If not present, return null.",
 "discount_percent": "string or null: What is the discount percent, if any? (e.g., '20%', '50% off'). If not present, return null.",
 
-"design_level": "string: Rate the design complexity as one of the following, based on the entire email:\n- Basic: Could be designed in a simple HTML editor, no text over images, mostly plain text and basic buttons, minimal or no images.\n- Intermediate: Contains 1-2 images (e.g., a hero image or banner), but most of the layout is built in an HTML editor (like Klaviyo). May have some text over images, but not complex. Some visual hierarchy, but still simple.\n- Advanced: Most of the email is made up of images (e.g., banners, product blocks), likely designed outside an HTML editor (e.g., in Canva or Photoshop), but not highly bespoke. May have text over images, custom backgrounds, and more complex layouts.\n- Super Advanced: Highly bespoke, custom design, likely made by a professional designer. Complex layouts, custom illustrations, advanced visual effects, heavy use of images, and unique branding. Looks expensive and unique.\nBe explicit and use only one of these four options.",
+"design_level": "string: Rate the design complexity as one of the following, based on the entire email:\\n- Basic: Could be designed in a simple HTML editor, no text over images, mostly plain text and basic buttons, minimal or no images.\\n- Intermediate: Contains 1-2 images (e.g., a hero image or banner), but most of the layout is built in an HTML editor (like Klaviyo). May have some text over images, but not complex. Some visual hierarchy, but still simple.\\n- Advanced: Most of the email is made up of images (e.g., banners, product blocks), likely designed outside an HTML editor (e.g., in Canva or Photoshop), but not highly bespoke. May have text over images, custom backgrounds, and more complex layouts.\\n- Super Advanced: Highly bespoke, custom design, likely made by a professional designer. Complex layouts, custom illustrations, advanced visual effects, heavy use of images, and unique branding. Looks expensive and unique.\\nBe explicit and use only one of these four options.",
 
 "image_vs_text_ratio": "float: Ratio of image content to text content in the email (0.0 = all text, 1.0 = all images). Estimate based on the visible layout and HTML structure.",
 
@@ -606,7 +606,7 @@ You are an expert email analyst. Analyze the provided email screenshot and HTML.
 "num_products_featured": "integer or null: How many distinct products are featured in the email? Count all unique products shown, whether in a grid, list, or individually. If not applicable, return null.",
 
 "visual_content": [
-  {
+  {{
     "block_index": "integer: The order of the block in the email, starting from 0 at the top.",
     "role": "string: The type of block. Use one of: Text, Button, Image, Banner, Collection, Content, Footer, Hero, Infographic, List, Logo, Navigation, Products, Review, Transition, CTA, or Other.",
     "style": "string: Highly specific visual description of the block's layout, color, placement, and any distinguishing features. Be as detailed as possible (e.g., 'full-width blue banner with white bold headline, left-aligned button below').",
@@ -616,7 +616,7 @@ You are an expert email analyst. Analyze the provided email screenshot and HTML.
     "has_image": "boolean: Does this block contain an image?",
     "has_button": "boolean: Does this block contain a button or clickable element?",
     "columns": "integer or null: Number of columns in this block, if applicable (e.g., product grid). Otherwise null."
-  }
+  }}
 ],
 
 "emotional_tone": "string: What is the overall emotional tone of the email? Use one or more of: urgent, friendly, exclusive, informative, celebratory, instructional, luxury, playful, sincere, bold, casual, or other (specify). Be explicit."
