@@ -19,9 +19,9 @@ from screenshot_storage import ScreenshotStorage
 # Configuration (cleaned up)
 CONFIG = {
     'azure_openai': {
-        'api_key': '13cee442c9ba4f5382ed2781af2be124',
-        'endpoint': 'https://ripple-gpt.openai.azure.com/',
-        'deployment_name': 'gpt-4o',
+        'api_key': os.getenv('AZURE_OPENAI_API_KEY', '13cee442c9ba4f5382ed2781af2be124'),
+        'endpoint': os.getenv('AZURE_OPENAI_ENDPOINT', 'https://ripple-gpt.openai.azure.com/'),
+        'deployment_name': os.getenv('AZURE_OPENAI_DEPLOYMENT_NAME', 'gpt-4o'),
         'api_version': '2024-02-01'
     },
     'browserbase': {
@@ -69,10 +69,16 @@ class ProductionEmailAnalysisPipeline:
 
     def setup_openai(self):
         from openai import AzureOpenAI
+        import httpx
+        
+        # Create HTTP client without proxies
+        http_client = httpx.Client(proxies=None)
+        
         self.openai_client = AzureOpenAI(
             api_key=self.config['azure_openai']['api_key'],
             azure_endpoint=self.config['azure_openai']['endpoint'],
-            api_version=self.config['azure_openai']['api_version']
+            api_version=self.config['azure_openai']['api_version'],
+            http_client=http_client
         )
         print("✅ Azure OpenAI client configured")
 
