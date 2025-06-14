@@ -431,8 +431,7 @@ class ProductionEmailAnalysisPipeline:
             # Use signed URL method for secure access (valid for 7 days)
             cloud_url = self.screenshot_storage.upload_screenshot_with_signed_url(
                 local_path, 
-                email_data, 
-                expiration_hours=168  # 7 days
+                expires_minutes=168*60  # 7 days in minutes
             )
             
             # Clean up local file if configured and upload successful
