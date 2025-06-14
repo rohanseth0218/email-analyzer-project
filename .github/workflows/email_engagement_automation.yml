@@ -250,4 +250,40 @@ jobs:
         echo "🤖 Bot processed subscription confirmations and brand engagements"
         echo "📊 Check artifacts for detailed logs and engagement state"
         echo "🔍 Check BigQuery for engagement tracking data"
-        echo "💡 Next run scheduled for tomorrow at 10 AM UTC" 
+        echo "💡 Next run scheduled for tomorrow at 10 AM UTC"
+
+  email-analysis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Write GCP credentials to file
+        run: echo '${{ secrets.BIGQUERY_CREDENTIALS }}' > gcp-service-account.json
+
+      - name: Set environment variables for Azure OpenAI
+        run: |
+          echo "AZURE_OPENAI_API_KEY=${{ secrets.AZURE_OPENAI_API_KEY }}" >> $GITHUB_ENV
+          echo "AZURE_OPENAI_ENDPOINT=${{ secrets.AZURE_OPENAI_ENDPOINT }}" >> $GITHUB_ENV
+          echo "AZURE_OPENAI_DEPLOYMENT_NAME=${{ secrets.AZURE_OPENAI_DEPLOYMENT_NAME }}" >> $GITHUB_ENV
+          echo "GOOGLE_APPLICATION_CREDENTIALS=${{ github.workspace }}/gcp-service-account.json" >> $GITHUB_ENV
+
+      - name: Run production email analysis pipeline
+        run: python3 src/production_email_pipeline.py
+        env:
+          EMAIL_ANALYSIS_LIMIT: 10
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-service-account.json
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_DEPLOYMENT_NAME: ${{ secrets.AZURE_OPENAI_DEPLOYMENT_NAME }} 
