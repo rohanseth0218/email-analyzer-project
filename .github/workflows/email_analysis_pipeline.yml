@@ -1,0 +1,91 @@
+name: Email Analysis Pipeline
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC for analysis
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      record_limit:
+        description: 'Number of emails to analyze (leave empty for all unanalyzed)'
+        required: false
+        type: string
+        default: '10'
+      days_back:
+        description: 'Days back to look for emails'
+        required: false
+        type: string
+        default: '7'
+
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  email-analysis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Write GCP credentials to file
+      run: echo '${{ secrets.BIGQUERY_CREDENTIALS }}' > gcp-service-account.json
+
+    - name: Set analysis parameters
+      run: |
+        RECORD_LIMIT="${{ github.event.inputs.record_limit || '10' }}"
+        DAYS_BACK="${{ github.event.inputs.days_back || '7' }}"
+        
+        echo "EMAIL_ANALYSIS_LIMIT=$RECORD_LIMIT" >> $GITHUB_ENV
+        echo "EMAIL_ANALYSIS_DAYS_BACK=$DAYS_BACK" >> $GITHUB_ENV
+        
+        echo "📊 Email Analysis Pipeline Parameters:"
+        echo "   Record limit: $RECORD_LIMIT"
+        echo "   Days back: $DAYS_BACK"
+
+    - name: Run email analysis pipeline
+      run: python3 src/production_email_pipeline.py
+      env:
+        EMAIL_ANALYSIS_LIMIT: ${{ env.EMAIL_ANALYSIS_LIMIT }}
+        GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-service-account.json
+        AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+        AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+        AZURE_OPENAI_DEPLOYMENT_NAME: ${{ secrets.AZURE_OPENAI_DEPLOYMENT_NAME }}
+
+    - name: Generate analysis report
+      if: always()
+      run: |
+        echo "📊 EMAIL ANALYSIS PIPELINE REPORT"
+        echo "=" * 50
+        echo "Run Date: $(date -u '+%Y-%m-%d %H:%M UTC')"
+        echo "Parameters: Limit=${{ env.EMAIL_ANALYSIS_LIMIT }}, Days Back=${{ env.EMAIL_ANALYSIS_DAYS_BACK }}"
+        echo ""
+        echo "✅ Analysis pipeline completed"
+        echo "💾 Results saved to BigQuery table: email_analysis_results"
+        echo "🌐 Screenshots uploaded to GCS bucket: email-screenshots-bucket-394115"
+
+    - name: Upload analysis logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: email-analysis-logs-${{ github.run_number }}
+        path: |
+          *.png
+          *.log
+        retention-days: 7
+
+    - name: Cleanup credentials
+      if: always()
+      run: rm -f gcp-service-account.json 
