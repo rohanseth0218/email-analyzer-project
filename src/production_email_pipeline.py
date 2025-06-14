@@ -571,9 +571,19 @@ class ProductionEmailAnalysisPipeline:
         Analyze the email screenshot and HTML using GPT-4V, extracting only the required fields with detailed, explicit instructions.
         """
         try:
-            # Read screenshot as base64
-            with open(screenshot_path, "rb") as img_file:
-                base64_image = base64.b64encode(img_file.read()).decode("utf-8")
+            # Read screenshot as base64 - handle both local files and cloud URLs
+            if screenshot_path.startswith('http'):
+                # It's a cloud URL, download the image
+                import requests
+                response = requests.get(screenshot_path, timeout=30)
+                if response.status_code != 200:
+                    print(f"❌ Failed to download screenshot from URL: {response.status_code}")
+                    return None
+                base64_image = base64.b64encode(response.content).decode("utf-8")
+            else:
+                # It's a local file path
+                with open(screenshot_path, "rb") as img_file:
+                    base64_image = base64.b64encode(img_file.read()).decode("utf-8")
 
             # DETAILED PROMPT FOR GPT-4V
             prompt = f"""
