@@ -895,6 +895,16 @@ REMEMBER: Only return JSON. No commentary. Fill in all fields with either a valu
             print(f"❌ GPT-4V analysis failed: {e}")
             return None
     
+    def save_single_email_to_bigquery(self, processed_email: Dict[str, Any]) -> bool:
+        """Save a single processed email immediately to BigQuery"""
+        try:
+            # Use the existing save_to_bigquery method with a single email
+            self.save_to_bigquery([processed_email])
+            return True
+        except Exception as e:
+            print(f"❌ Failed to save email {processed_email.get('email_id', 'unknown')} to BigQuery: {e}")
+            return False
+
     def save_to_bigquery(self, processed_emails: list):
         """Save processed email analysis results to the new analysis table"""
         table_id = f"{self.config['bigquery']['project_id']}.{self.config['bigquery']['dataset_id']}.{self.config['bigquery']['table_id']}"
@@ -1094,6 +1104,16 @@ REMEMBER: Only return JSON. No commentary. Fill in all fields with either a valu
                 'analysis_timestamp': datetime.now().isoformat()
             }
             
+            # Save to BigQuery immediately
+            save_success = self.save_single_email_to_bigquery(processed_email)
+            if not save_success:
+                print(f"❌ Failed to save email {email_data['email_id']} to BigQuery")
+                with self._processing_lock:
+                    self._failed_count += 1
+                return None
+            
+            print(f"💾 Saved email {email_data['email_id']} to BigQuery successfully")
+            
             # Clean up local file if we have cloud URL and cleanup is enabled
             if (local_path and cloud_url and 
                 self.config['screenshot_storage']['cleanup_local_files'] and 
@@ -1174,11 +1194,9 @@ REMEMBER: Only return JSON. No commentary. Fill in all fields with either a valu
             gc.collect()
             print("🧹 Memory cleanup performed after parallel processing")
             
-            # Save all processed emails to BigQuery
-            if processed_emails:
-                print(f"\n💾 Saving {len(processed_emails)} processed emails to BigQuery...")
-                self.save_to_bigquery(processed_emails)
-                print(f"✅ Successfully processed {len(processed_emails)} emails")
+            # Note: Emails are saved individually during processing, no batch save needed
+            successful_count = len(processed_emails)
+            print(f"✅ Successfully processed and saved {successful_count} emails to BigQuery")
             
             # Final summary
             total_attempted = len(new_emails)
