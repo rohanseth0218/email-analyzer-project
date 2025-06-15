@@ -20,6 +20,13 @@ from google.cloud import bigquery
 from google.oauth2 import service_account
 from typing import Dict, List, Optional, Any
 
+# Custom JSON encoder to handle datetime objects
+class DateTimeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return super().default(obj)
+
 # Import screenshot storage with error handling
 try:
     from .screenshot_storage import ScreenshotStorage
@@ -64,7 +71,7 @@ CONFIG = {
     'parallel_processing': {
         'enabled': True,
         'max_workers': int(os.getenv('EMAIL_ANALYSIS_WORKERS', '3')),  # Default 3 workers
-        'batch_size': 10  # Process in batches to manage memory
+        'batch_size': int(os.getenv('EMAIL_ANALYSIS_BATCH_SIZE', '20'))  # Increased batch size for better throughput
     }
 }
 
@@ -787,7 +794,7 @@ REMEMBER: Only return JSON. No commentary. Fill in all fields with either a valu
                             ]
                         }
                     ],
-                    max_tokens=1500,
+                    max_tokens=4000,  # Increased to handle complex JSON responses with visual_content array
                     temperature=0.1,
                     timeout=60  # 60 second timeout
                 )
@@ -811,12 +818,24 @@ REMEMBER: Only return JSON. No commentary. Fill in all fields with either a valu
                 import re
                 analysis_text = re.sub(r',(\s*[}\]])', r'\1', analysis_text)
                 
+                # Try to fix truncated JSON responses
+                if not analysis_text.endswith('}'):
+                    print("⚠️ JSON appears truncated, attempting to fix...")
+                    # Count open braces vs close braces
+                    open_braces = analysis_text.count('{')
+                    close_braces = analysis_text.count('}')
+                    missing_braces = open_braces - close_braces
+                    
+                    # Add missing closing braces
+                    if missing_braces > 0:
+                        analysis_text += '}' * missing_braces
+                        print(f"   Added {missing_braces} missing closing braces")
+                
                 # Try to find and fix unterminated strings
-                if 'Unterminated string' in str(analysis_text):
+                if analysis_text.count('"') % 2 != 0:
                     print("⚠️ Attempting to fix unterminated string in JSON...")
-                    # Add closing quote if missing at end
-                    if analysis_text.count('"') % 2 != 0:
-                        analysis_text += '"'
+                    # Find the last quote and add closing quote
+                    analysis_text += '"'
                 
                 gpt_analysis = json.loads(analysis_text)
                 
@@ -909,19 +928,24 @@ REMEMBER: Only return JSON. No commentary. Fill in all fields with either a valu
                     'sender_domain': result.get('sender_domain')
                 }
             
+            # Convert datetime objects to strings for BigQuery
+            date_received = email_data['date_received']
+            if isinstance(date_received, datetime):
+                date_received = date_received.isoformat()
+            
             row = {
                 'email_id': email_data['email_id'],
                 'sender_email': email_data['sender_email'],
                 'subject': email_data['subject'],
-                'date_received': email_data['date_received'],
+                'date_received': date_received,
                 'sender_domain': email_data['sender_domain'],
                 'screenshot_path': screenshot_path,
                 'screenshot_url': screenshot_url,
-                'gpt_analysis': json.dumps(gpt_analysis) if gpt_analysis else None,
+                'gpt_analysis': json.dumps(gpt_analysis, cls=DateTimeEncoder) if gpt_analysis else None,
                 'num_products_featured': gpt_analysis.get('num_products_featured'),
                 'processing_status': processing_status,
-                'errors': json.dumps(errors) if errors else None,
-                'raw_email_data': json.dumps(raw_email_data),
+                'errors': json.dumps(errors, cls=DateTimeEncoder) if errors else None,
+                'raw_email_data': json.dumps(raw_email_data, cls=DateTimeEncoder),
                 'analysis_timestamp': datetime.utcnow().isoformat(),
             }
             rows_to_insert.append(row)
