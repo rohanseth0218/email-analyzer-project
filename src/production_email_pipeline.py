@@ -131,13 +131,18 @@ class ProductionEmailAnalysisPipeline:
     def setup_screenshot_storage(self):
         try:
             if self.config['screenshot_storage']['enabled'] and ScreenshotStorage:
+                print(f"🔧 Setting up screenshot storage...")
+                print(f"   Bucket: {self.config['screenshot_storage']['bucket_name']}")
+                print(f"   Project: {self.config['screenshot_storage']['project_id']}")
+                print(f"   Credentials: {self.config['screenshot_storage']['credentials_path']}")
+                
                 self.screenshot_storage = ScreenshotStorage(
                     project_id=self.config['screenshot_storage']['project_id'],
                     bucket_name=self.config['screenshot_storage']['bucket_name'],
                     credentials_path=self.config['screenshot_storage']['credentials_path'],
                     bucket_region=self.config['screenshot_storage']['bucket_region']
                 )
-                print("✅ Screenshot storage configured")
+                print("✅ Screenshot storage configured successfully")
             else:
                 self.screenshot_storage = None
                 if not ScreenshotStorage:
@@ -471,16 +476,12 @@ class ProductionEmailAnalysisPipeline:
                 expires_minutes=168*60  # 7 days in minutes
             )
             
-            # Clean up local file if configured and upload successful
-            if cloud_url and self.config['screenshot_storage']['cleanup_local_files']:
-                try:
-                    os.remove(local_path)
-                    print(f"🗑️ Cleaned up local screenshot: {local_path}")
-                    # Return only cloud URL since local file is deleted
-                    return None, cloud_url
-                except Exception as e:
-                    print(f"⚠️ Failed to delete local screenshot: {e}")
+            if cloud_url:
+                print(f"✅ Screenshot uploaded successfully: {cloud_url[:100]}...")
+            else:
+                print("❌ Failed to upload screenshot to GCP")
         
+        # Always return both paths - cleanup will happen later in process_single_email
         return local_path, cloud_url
     
     def create_screenshot(self, email_data: Dict[str, Any]) -> Optional[str]:
@@ -1093,11 +1094,15 @@ REMEMBER: Only return JSON. No commentary. Fill in all fields with either a valu
                 'analysis_timestamp': datetime.now().isoformat()
             }
             
-            # Clean up local file if we have cloud URL
-            if local_path and cloud_url and os.path.exists(local_path):
+            # Clean up local file if we have cloud URL and cleanup is enabled
+            if (local_path and cloud_url and 
+                self.config['screenshot_storage']['cleanup_local_files'] and 
+                os.path.exists(local_path)):
                 try:
                     os.remove(local_path)
                     print(f"🗑️ Cleaned up local file: {local_path}")
+                    # Update the processed_email to reflect that local file is gone
+                    processed_email['screenshot_path'] = None
                 except Exception as e:
                     print(f"⚠️ Failed to clean up local file: {e}")
             
