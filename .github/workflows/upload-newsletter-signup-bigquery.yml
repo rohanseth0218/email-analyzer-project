@@ -5,8 +5,11 @@ on:
       json_file_path:
         description: 'Path to newsletter signup JSON file in repo'
         required: true
-        default: 'bigquery_upload_data.json'
+        default: 'newsletter_signup_results.json'
         type: string
+
+env:
+  PYTHON_VERSION: '3.11'
   
 jobs:
   upload-newsletter-signup:
@@ -19,7 +22,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.9'
+        python-version: ${{ env.PYTHON_VERSION }}
         
     - name: Install dependencies
       run: |
@@ -44,18 +47,36 @@ jobs:
           head -1 "${{ github.event.inputs.json_file_path }}" | jq -r 'if type == "array" then "JSON Array with \(length) records" else "Single JSON object" end' || echo "Not valid JSON"
         fi
         
+    - name: Verify upload script exists
+      run: |
+        if [ ! -f "upload_newsletter_signup_to_bigquery.py" ]; then
+          echo "❌ Upload script not found in root directory"
+          echo "📂 Looking for script in subdirectories..."
+          find . -name "upload_newsletter_signup_to_bigquery.py" -type f
+          exit 1
+        else
+          echo "✅ Upload script found: upload_newsletter_signup_to_bigquery.py"
+        fi
+        
     - name: Upload Newsletter Signup Data to BigQuery
       timeout-minutes: 30
       env:
         JSON_FILE_PATH: ${{ github.event.inputs.json_file_path }}
         DATASET_TABLE: email_analytics.newsletter_signup_results_v2
         PYTHONUNBUFFERED: "1"
+        GOOGLE_APPLICATION_CREDENTIALS: bigquery_credentials.json
       run: |
         echo "🚀 Starting newsletter signup data upload to BigQuery..."
         echo "📂 File: $JSON_FILE_PATH"
         echo "📊 Table: $DATASET_TABLE"
+        echo "🔧 Python version: $(python --version)"
         python -u upload_newsletter_signup_to_bigquery.py
         echo "✅ Newsletter signup data upload complete!"
+        
+    - name: Cleanup credentials
+      if: always()
+      run: |
+        rm -f bigquery_credentials.json
         
     - name: Summary
       run: |

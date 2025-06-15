@@ -12,6 +12,9 @@ on:
         required: true
         default: 'email_analytics.storeleads'
         type: string
+
+env:
+  PYTHON_VERSION: '3.11'
   
 jobs:
   upload-json:
@@ -24,7 +27,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.9'
+        python-version: ${{ env.PYTHON_VERSION }}
         
     - name: Install dependencies
       run: |
@@ -48,6 +51,17 @@ jobs:
           echo "📝 First few lines:"
           head -3 "${{ github.event.inputs.json_file_path }}"
         fi
+
+    - name: Verify upload script exists
+      run: |
+        if [ ! -f "upload_json_to_bigquery.py" ]; then
+          echo "❌ Upload script not found in root directory"
+          echo "📂 Looking for script in subdirectories..."
+          find . -name "upload_json_to_bigquery.py" -type f
+          exit 1
+        else
+          echo "✅ Upload script found: upload_json_to_bigquery.py"
+        fi
         
     - name: Upload JSON to BigQuery
       timeout-minutes: 30
@@ -55,12 +69,19 @@ jobs:
         JSON_FILE_PATH: ${{ github.event.inputs.json_file_path }}
         DATASET_TABLE: ${{ github.event.inputs.dataset_table }}
         PYTHONUNBUFFERED: "1"
+        GOOGLE_APPLICATION_CREDENTIALS: bigquery_credentials.json
       run: |
         echo "🚀 Starting JSON upload to BigQuery..."
         echo "📂 File: $JSON_FILE_PATH"
         echo "📊 Table: $DATASET_TABLE"
+        echo "🔧 Python version: $(python --version)"
         python -u upload_json_to_bigquery.py
         echo "✅ JSON upload complete!"
+
+    - name: Cleanup credentials
+      if: always()
+      run: |
+        rm -f bigquery_credentials.json
         
     - name: Summary
       run: |

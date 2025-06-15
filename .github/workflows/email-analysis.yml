@@ -14,6 +14,9 @@ on:
         required: false
         default: '1'
         type: string
+
+env:
+  PYTHON_VERSION: '3.11'
   
 jobs:
   analyze-emails:
@@ -26,7 +29,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.9'
+        python-version: ${{ env.PYTHON_VERSION }}
         
     - name: Install dependencies
       run: |
@@ -41,6 +44,18 @@ jobs:
       run: |
         echo '${{ secrets.MAILBOX_CREDENTIALS }}' > mailboxaccounts.csv
         
+    - name: Verify required scripts exist
+      run: |
+        if [ ! -f "quick_diagnostic.py" ]; then
+          echo "❌ quick_diagnostic.py not found"
+          exit 1
+        fi
+        if [ ! -f "export_emails_to_bigquery.py" ]; then
+          echo "❌ export_emails_to_bigquery.py not found"
+          exit 1
+        fi
+        echo "✅ All required scripts found"
+        
     - name: Run diagnostic first
       timeout-minutes: 5
       run: |
@@ -54,14 +69,22 @@ jobs:
         PYTHONUNBUFFERED: "1"
         START_MAILBOX: ${{ github.event.inputs.start_mailbox || '1' }}
         DAYS_BACK: ${{ github.event.inputs.days_back || '1' }}
+        GOOGLE_APPLICATION_CREDENTIALS: bigquery_credentials.json
       run: |
         DAYS_TEXT="day"
         if [ "$DAYS_BACK" != "1" ]; then
           DAYS_TEXT="days"
         fi
         echo "🚀 Starting email extraction from mailbox $START_MAILBOX (last $DAYS_BACK $DAYS_TEXT)..."
+        echo "🔧 Python version: $(python --version)"
         python -u export_emails_to_bigquery.py
         echo "✅ Email extraction complete!"
+
+    - name: Cleanup credentials
+      if: always()
+      run: |
+        rm -f bigquery_credentials.json
+        rm -f mailboxaccounts.csv
         
     - name: Summary
       run: |
