@@ -31,8 +31,11 @@ class EmailScopeSync:
         self.supabase_key = supabase_key
         self.bigquery_project = bigquery_project
         
-        # Initialize BigQuery client
-        self.bigquery_client = bigquery.Client(project=bigquery_project)
+        # Initialize BigQuery client with service account
+        self.bigquery_client = bigquery.Client(
+            project=bigquery_project,
+            credentials=None  # Will use GOOGLE_APPLICATION_CREDENTIALS env var or service account file
+        )
         
         # Parse Supabase connection details
         self.pg_conn = None
@@ -221,18 +224,224 @@ class EmailScopeSync:
                 self.pg_conn.rollback()
             return False
     
+    def fetch_storeleads_from_bigquery(self, limit: Optional[int] = None) -> List[Dict[str, Any]]:
+        """Fetch storeleads data from BigQuery"""
+        logger.info("🏪 Fetching storeleads from BigQuery...")
+        
+        query = """
+        SELECT 
+            store_id,
+            platform_domain,
+            merchant_name,
+            platform,
+            country_code,
+            region,
+            subregion,
+            location,
+            state,
+            email,
+            contact_page,
+            about_us,
+            title,
+            description,
+            klaviyo_installed_at,
+            klaviyo_active,
+            avg_price,
+            product_count,
+            employee_count,
+            estimated_sales_yearly,
+            estimated_page_views,
+            rank,
+            categories
+        FROM `instant-ground-394115.email_analytics.storeleads`
+        WHERE store_id IS NOT NULL
+        ORDER BY estimated_sales_yearly DESC
+        """
+        
+        if limit:
+            query += f" LIMIT {limit}"
+        
+        try:
+            query_job = self.bigquery_client.query(query)
+            results = query_job.result()
+            
+            storeleads = []
+            for row in results:
+                # Convert BigQuery row to dict
+                storelead = dict(row)
+                storeleads.append(storelead)
+            
+            logger.info(f"✅ Fetched {len(storeleads)} storeleads from BigQuery")
+            return storeleads
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to fetch storeleads from BigQuery: {e}")
+            return []
+
+    def create_storeleads_table(self) -> bool:
+        """Create storeleads table in Supabase if it doesn't exist"""
+        logger.info("📋 Creating/verifying storeleads table in Supabase...")
+        
+        try:
+            with self.pg_conn.cursor() as cursor:
+                create_table_query = """
+                CREATE TABLE IF NOT EXISTS storeleads (
+                    id SERIAL PRIMARY KEY,
+                    store_id VARCHAR(255) UNIQUE NOT NULL,
+                    platform_domain VARCHAR(255),
+                    merchant_name VARCHAR(255),
+                    platform VARCHAR(100),
+                    country_code VARCHAR(10),
+                    region VARCHAR(100),
+                    subregion VARCHAR(100),
+                    location VARCHAR(255),
+                    state VARCHAR(100),
+                    email VARCHAR(255),
+                    contact_page TEXT,
+                    about_us TEXT,
+                    title VARCHAR(500),
+                    description TEXT,
+                    klaviyo_installed_at VARCHAR(50),
+                    klaviyo_active BOOLEAN,
+                    avg_price DECIMAL(15,2),
+                    product_count INTEGER,
+                    employee_count INTEGER,
+                    estimated_sales_yearly BIGINT,
+                    estimated_page_views DECIMAL(15,2),
+                    rank INTEGER,
+                    categories JSONB,
+                    created_at TIMESTAMP DEFAULT NOW(),
+                    updated_at TIMESTAMP DEFAULT NOW()
+                );
+                
+                CREATE INDEX IF NOT EXISTS idx_storeleads_store_id ON storeleads(store_id);
+                CREATE INDEX IF NOT EXISTS idx_storeleads_merchant_name ON storeleads(merchant_name);
+                """
+                
+                cursor.execute(create_table_query)
+                self.pg_conn.commit()
+                logger.info("✅ Storeleads table created/verified")
+                return True
+                
+        except Exception as e:
+            logger.error(f"❌ Failed to create storeleads table: {e}")
+            if self.pg_conn:
+                self.pg_conn.rollback()
+            return False
+
+    def upsert_storeleads_to_supabase(self, storeleads: List[Dict[str, Any]]) -> bool:
+        """Insert or update storeleads in Supabase"""
+        if not storeleads:
+            logger.info("No storeleads to sync")
+            return True
+            
+        logger.info(f"💾 Upserting {len(storeleads)} storeleads to Supabase...")
+        
+        try:
+            with self.pg_conn.cursor() as cursor:
+                # Prepare the upsert query
+                upsert_query = """
+                INSERT INTO storeleads (
+                    store_id, platform_domain, merchant_name, platform, country_code,
+                    region, subregion, location, state, email, contact_page, about_us,
+                    title, description, klaviyo_installed_at, klaviyo_active, avg_price,
+                    product_count, employee_count, estimated_sales_yearly, estimated_page_views,
+                    rank, categories
+                ) VALUES %s
+                ON CONFLICT (store_id) DO UPDATE SET
+                    platform_domain = EXCLUDED.platform_domain,
+                    merchant_name = EXCLUDED.merchant_name,
+                    platform = EXCLUDED.platform,
+                    country_code = EXCLUDED.country_code,
+                    region = EXCLUDED.region,
+                    subregion = EXCLUDED.subregion,
+                    location = EXCLUDED.location,
+                    state = EXCLUDED.state,
+                    email = EXCLUDED.email,
+                    contact_page = EXCLUDED.contact_page,
+                    about_us = EXCLUDED.about_us,
+                    title = EXCLUDED.title,
+                    description = EXCLUDED.description,
+                    klaviyo_installed_at = EXCLUDED.klaviyo_installed_at,
+                    klaviyo_active = EXCLUDED.klaviyo_active,
+                    avg_price = EXCLUDED.avg_price,
+                    product_count = EXCLUDED.product_count,
+                    employee_count = EXCLUDED.employee_count,
+                    estimated_sales_yearly = EXCLUDED.estimated_sales_yearly,
+                    estimated_page_views = EXCLUDED.estimated_page_views,
+                    rank = EXCLUDED.rank,
+                    categories = EXCLUDED.categories,
+                    updated_at = NOW()
+                """
+                
+                # Prepare data tuples
+                data_tuples = []
+                for storelead in storeleads:
+                    data_tuple = (
+                        storelead.get('store_id'),
+                        storelead.get('platform_domain'),
+                        storelead.get('merchant_name'),
+                        storelead.get('platform'),
+                        storelead.get('country_code'),
+                        storelead.get('region'),
+                        storelead.get('subregion'),
+                        storelead.get('location'),
+                        storelead.get('state'),
+                        storelead.get('email'),
+                        storelead.get('contact_page'),
+                        storelead.get('about_us'),
+                        storelead.get('title'),
+                        storelead.get('description'),
+                        storelead.get('klaviyo_installed_at'),
+                        storelead.get('klaviyo_active'),
+                        storelead.get('avg_price'),
+                        storelead.get('product_count'),
+                        storelead.get('employee_count'),
+                        storelead.get('estimated_sales_yearly'),
+                        storelead.get('estimated_page_views'),
+                        storelead.get('rank'),
+                        json.dumps(storelead.get('categories', []))
+                    )
+                    data_tuples.append(data_tuple)
+                
+                # Execute batch upsert in chunks to avoid memory issues
+                batch_size = 100
+                for i in range(0, len(data_tuples), batch_size):
+                    batch = data_tuples[i:i + batch_size]
+                    execute_values(cursor, upsert_query, batch)
+                    logger.info(f"✅ Processed batch {i//batch_size + 1}/{(len(data_tuples) + batch_size - 1)//batch_size}")
+                
+                self.pg_conn.commit()
+                logger.info(f"✅ Successfully upserted {len(storeleads)} storeleads to Supabase")
+                return True
+                
+        except Exception as e:
+            logger.error(f"❌ Failed to upsert storeleads to Supabase: {e}")
+            if self.pg_conn:
+                self.pg_conn.rollback()
+            return False
+
     def get_sync_stats(self) -> Dict[str, Any]:
         """Get statistics about the synced data"""
         try:
             with self.pg_conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                # Get campaign stats
                 cursor.execute("SELECT * FROM campaign_stats")
-                stats = cursor.fetchone()
-                return dict(stats) if stats else {}
+                campaign_stats = cursor.fetchone()
+                
+                # Get storeleads stats
+                cursor.execute("SELECT COUNT(*) as total_storeleads FROM storeleads")
+                storeleads_count = cursor.fetchone()
+                
+                stats = dict(campaign_stats) if campaign_stats else {}
+                stats['total_storeleads'] = storeleads_count['total_storeleads'] if storeleads_count else 0
+                
+                return stats
         except Exception as e:
             logger.error(f"❌ Failed to get sync stats: {e}")
             return {}
     
-    def run_sync(self, limit: Optional[int] = None) -> bool:
+    def run_sync(self, limit: Optional[int] = None, sync_storeleads: bool = True) -> bool:
         """Run the complete sync process"""
         logger.info("🚀 Starting EmailScope sync job...")
         
@@ -241,25 +450,50 @@ class EmailScopeSync:
             return False
         
         try:
-            # Fetch data from BigQuery
+            # Sync campaigns
+            logger.info("📧 Syncing email campaigns...")
             campaigns = self.fetch_campaigns_from_bigquery(limit)
             
             if not campaigns:
                 logger.warning("No campaigns fetched from BigQuery")
-                return False
+                campaigns_success = False
+            else:
+                campaigns_success = self.upsert_campaigns_to_supabase(campaigns)
             
-            # Upsert to Supabase
-            success = self.upsert_campaigns_to_supabase(campaigns)
+            # Sync storeleads if requested
+            storeleads_success = True
+            if sync_storeleads:
+                logger.info("🏪 Syncing storeleads...")
+                
+                # Create storeleads table if needed
+                if not self.create_storeleads_table():
+                    logger.error("Failed to create storeleads table")
+                    storeleads_success = False
+                else:
+                    # Fetch and sync all storeleads (no limit for full replica)
+                    storeleads_limit = None if limit is None else limit
+                    storeleads = self.fetch_storeleads_from_bigquery(storeleads_limit)
+                    
+                    if storeleads:
+                        storeleads_success = self.upsert_storeleads_to_supabase(storeleads)
+                    else:
+                        logger.warning("No storeleads fetched from BigQuery")
+                        storeleads_success = False
             
-            if success:
+            # Overall success if both campaigns and storeleads succeeded (or storeleads was skipped)
+            overall_success = campaigns_success and storeleads_success
+            
+            if overall_success:
                 # Get final stats
                 stats = self.get_sync_stats()
                 logger.info(f"📊 Sync completed successfully!")
                 logger.info(f"   Total campaigns: {stats.get('total_campaigns', 'N/A')}")
                 logger.info(f"   Unique brands: {stats.get('unique_brands', 'N/A')}")
                 logger.info(f"   Unique themes: {stats.get('unique_themes', 'N/A')}")
+                if sync_storeleads:
+                    logger.info(f"   Total storeleads: {stats.get('total_storeleads', 'N/A')}")
                 
-            return success
+            return overall_success
             
         finally:
             if self.pg_conn:

@@ -275,117 +275,75 @@ app.get('/api/filters', async (req, res) => {
   }
 });
 
-// Campaign details endpoint - get detailed campaign info with storeleads data
+// Campaign details endpoint - get detailed campaign info from Supabase
 app.get('/api/campaigns/:id', async (req, res) => {
   try {
     const { id } = req.params;
     console.log(`Fetching campaign details for ID: ${id}`);
     const startTime = Date.now();
 
-    // For now, we'll use BigQuery to get the storeleads data since it's not in Supabase yet
-    // This is a temporary solution until we sync storeleads data to Supabase
-    const { BigQuery } = require('@google-cloud/bigquery');
-    const bigquery = new BigQuery({
-      projectId: 'instant-ground-394115',
-      keyFilename: '../gcp-service-account.json'
-    });
-
+    // Get campaign data from Supabase (fast!)
     const query = `
       SELECT 
-        a.email_id,
-        a.screenshot_url,
-        a.gpt_analysis,
-        e.sender_email,
-        e.sender_domain,
-        e.subject,
-        e.date_received,
-        s.merchant_name,
-        s.platform_domain,
-        s.platform,
-        s.country_code,
-        s.region,
-        s.subregion,
-        s.location,
-        s.state,
-        s.description,
-        s.avg_price,
-        s.product_count,
-        s.employee_count,
-        s.estimated_sales_yearly,
-        s.categories
-      FROM \`instant-ground-394115.email_analytics.email_analysis_results_v3\` a
-      JOIN \`instant-ground-394115.email_analytics.marketing_emails_clean_20250612_082945\` e 
-        ON a.email_id = e.email_id
-      LEFT JOIN \`instant-ground-394115.email_analytics.storeleads\` s 
-        ON LOWER(e.sender_domain) = LOWER(s.store_id)
-        OR LOWER(REGEXP_REPLACE(e.sender_domain, r'^www.', '')) = LOWER(s.store_id)
-        OR LOWER(CONCAT('www.', e.sender_domain)) = LOWER(s.store_id)
-      WHERE a.email_id = @email_id
+        email_id as id,
+        brand,
+        subject,
+        date_received as date,
+        screenshot_url as screenshot,
+        campaign_theme,
+        design_level,
+        discount_percent,
+        emotional_tone,
+        event_or_seasonality,
+        flow_type,
+        flow_vs_campaign,
+        image_vs_text_ratio,
+        num_products_featured,
+        personalization_used,
+        social_proof_used,
+        unsubscribe_visible,
+        estimated_revenue,
+        sender_domain,
+        store_id,
+        gpt_analysis
+      FROM email_campaigns
+      WHERE email_id = $1
       LIMIT 1
     `;
 
-    const options = {
-      query: query,
-      params: { email_id: id }
-    };
-
-    const [rows] = await bigquery.query(options);
+    const result = await pool.query(query, [id]);
     
-    if (rows.length === 0) {
+    if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Campaign not found' });
     }
 
-    const campaign = rows[0];
+    const campaign = result.rows[0];
     const queryTime = Date.now() - startTime;
     console.log(`Fetched campaign details in ${queryTime}ms`);
 
-    // Parse GPT analysis
-    let gptData = {};
-    try {
-      if (campaign.gpt_analysis) {
-        gptData = typeof campaign.gpt_analysis === 'string' 
-          ? JSON.parse(campaign.gpt_analysis) 
-          : campaign.gpt_analysis;
-      }
-    } catch (error) {
-      console.error('Error parsing GPT analysis:', error);
-    }
-
     // Transform the data
     const transformedCampaign = {
-      id: campaign.email_id,
-      brand: campaign.merchant_name || campaign.sender_domain,
+      id: campaign.id,
+      brand: campaign.brand || campaign.sender_domain,
       subject: campaign.subject,
-      date: campaign.date_received?.value || campaign.date_received,
-      screenshot: campaign.screenshot_url,
-      campaign_theme: gptData.campaign_theme || null,
-      design_level: gptData.design_level || null,
-      discount_percent: gptData.discount_percent || null,
-      emotional_tone: gptData.emotional_tone || null,
-      event_or_seasonality: gptData.event_or_seasonality || null,
-      flow_vs_campaign: gptData.flow_vs_campaign || null,
-      image_vs_text_ratio: gptData.image_vs_text_ratio || null,
-      num_products_featured: gptData.num_products_featured || null,
-      personalization_used: gptData.personalization_used || null,
-      social_proof_used: gptData.social_proof_used || null,
-      unsubscribe_visible: gptData.unsubscribe_visible || null,
+      date: campaign.date,
+      screenshot: campaign.screenshot,
+      campaign_theme: campaign.campaign_theme,
+      design_level: campaign.design_level,
+      discount_percent: campaign.discount_percent,
+      emotional_tone: campaign.emotional_tone,
+      event_or_seasonality: campaign.event_or_seasonality,
+      flow_type: campaign.flow_type,
+      flow_vs_campaign: campaign.flow_vs_campaign,
+      image_vs_text_ratio: campaign.image_vs_text_ratio,
+      num_products_featured: campaign.num_products_featured,
+      personalization_used: campaign.personalization_used,
+      social_proof_used: campaign.social_proof_used,
+      unsubscribe_visible: campaign.unsubscribe_visible,
+      estimated_revenue: campaign.estimated_revenue,
       sender_domain: campaign.sender_domain,
-      gpt_analysis: campaign.gpt_analysis,
-      // Storeleads data
-      merchant_name: campaign.merchant_name,
-      platform_domain: campaign.platform_domain,
-      platform: campaign.platform,
-      country_code: campaign.country_code,
-      region: campaign.region,
-      subregion: campaign.subregion,
-      location: campaign.location,
-      state: campaign.state,
-      description: campaign.description,
-      avg_price: campaign.avg_price ? Math.round(campaign.avg_price / 100 * 100) / 100 : null,
-      product_count: campaign.product_count,
-      employee_count: campaign.employee_count,
-      estimated_sales_yearly: campaign.estimated_sales_yearly ? Math.round(campaign.estimated_sales_yearly / 100) : null,
-      categories: campaign.categories
+      store_id: campaign.store_id,
+      gpt_analysis: campaign.gpt_analysis
     };
 
     res.json({
@@ -397,6 +355,97 @@ app.get('/api/campaigns/:id', async (req, res) => {
     console.error('Error fetching campaign details:', error);
     res.status(500).json({ 
       error: 'Failed to fetch campaign details',
+      details: error.message 
+    });
+  }
+});
+
+// Store/merchant details endpoint - get store information
+app.get('/api/stores/:domain', async (req, res) => {
+  try {
+    const { domain } = req.params;
+    console.log(`Fetching store details for domain: ${domain}`);
+    const startTime = Date.now();
+
+    // Get store data from Supabase storeleads table
+    const query = `
+      SELECT 
+        store_id,
+        merchant_name,
+        platform,
+        country_code,
+        region,
+        subregion,
+        location,
+        state,
+        email,
+        contact_page,
+        about_us,
+        title,
+        description,
+        klaviyo_installed_at,
+        klaviyo_active,
+        avg_price,
+        product_count,
+        employee_count,
+        estimated_sales_yearly,
+        estimated_page_views,
+        rank,
+        categories
+      FROM storeleads
+      WHERE 
+        LOWER(store_id) = LOWER($1)
+        OR LOWER(store_id) = LOWER(REGEXP_REPLACE($1, '^www\.', ''))
+        OR LOWER(store_id) = LOWER(CONCAT('www.', $1))
+      LIMIT 1
+    `;
+
+    const result = await pool.query(query, [domain]);
+    const queryTime = Date.now() - startTime;
+    
+    if (result.rows.length === 0) {
+      console.log(`No store found for domain: ${domain} in ${queryTime}ms`);
+      return res.json({
+        store: null,
+        queryTime: queryTime
+      });
+    }
+
+    const store = result.rows[0];
+    console.log(`Fetched store details for ${store.merchant_name} in ${queryTime}ms`);
+
+    res.json({
+      store: {
+        store_id: store.store_id,
+        merchant_name: store.merchant_name,
+        platform: store.platform,
+        country_code: store.country_code,
+        region: store.region,
+        subregion: store.subregion,
+        location: store.location,
+        state: store.state,
+        email: store.email,
+        contact_page: store.contact_page,
+        about_us: store.about_us,
+        title: store.title,
+        description: store.description,
+        klaviyo_installed_at: store.klaviyo_installed_at,
+        klaviyo_active: store.klaviyo_active,
+        avg_price: store.avg_price,
+        product_count: store.product_count,
+        employee_count: store.employee_count,
+        estimated_sales_yearly: store.estimated_sales_yearly,
+        estimated_page_views: store.estimated_page_views,
+        rank: store.rank,
+        categories: store.categories
+      },
+      queryTime: queryTime
+    });
+
+  } catch (error) {
+    console.error('Error fetching store details:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch store details',
       details: error.message 
     });
   }
