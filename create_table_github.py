@@ -19,6 +19,7 @@ def create_table_via_github():
         
         print("✅ Pipeline initialized successfully")
         print(f"✅ Table {CONFIG['bigquery']['table_id']} is ready")
+        print("🆕 This is a fresh table - no duplicate prevention needed")
         
         return True
         

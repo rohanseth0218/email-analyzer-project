@@ -53,7 +53,7 @@ CONFIG = {
     'bigquery': {
         'project_id': 'instant-ground-394115',
         'dataset_id': 'email_analytics',
-        'table_id': 'email_analysis_results_v2',  # Updated to new table with correct schema
+        'table_id': 'email_analysis_results_v3',  # New table for fixed screenshot URL processing
         'credentials_path': './gcp-service-account.json'
     },
     'screenshot_storage': {
@@ -65,7 +65,7 @@ CONFIG = {
         'bucket_region': 'us-central1'
     },
     'duplicate_prevention': {
-        'enabled': True,
+        'enabled': True,  # Re-enabled since we're using a new table
         'check_days_back': 30,
     },
     'parallel_processing': {
