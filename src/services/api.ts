@@ -1,6 +1,9 @@
 import { EmailCampaign, FilterOptions } from '../types/email';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+console.log('🔍 API_BASE_URL:', API_BASE_URL);
+console.log('🔍 Environment variables:', import.meta.env);
 
 export interface CampaignsResponse {
   campaigns: EmailCampaign[];
@@ -59,23 +62,23 @@ class ApiService {
       params.append('search', searchQuery);
     }
 
-    return this.fetchJson<CampaignsResponse>(`${API_BASE_URL}/campaigns?${params}`);
+    return this.fetchJson<CampaignsResponse>(`${API_BASE_URL}/api/campaigns?${params}`);
   }
 
   async getFilters(): Promise<FiltersResponse> {
-    return this.fetchJson<FiltersResponse>(`${API_BASE_URL}/filters`);
+    return this.fetchJson<FiltersResponse>(`${API_BASE_URL}/api/filters`);
   }
 
   async getStats(): Promise<StatsResponse> {
-    return this.fetchJson<StatsResponse>(`${API_BASE_URL}/stats`);
+    return this.fetchJson<StatsResponse>(`${API_BASE_URL}/api/stats`);
   }
 
   async getCampaignDetails(campaignId: string): Promise<{ campaign: EmailCampaign; queryTime: number }> {
-    return this.fetchJson<{ campaign: EmailCampaign; queryTime: number }>(`${API_BASE_URL}/campaigns/${campaignId}`);
+    return this.fetchJson<{ campaign: EmailCampaign; queryTime: number }>(`${API_BASE_URL}/api/campaigns/${campaignId}`);
   }
 
   async healthCheck(): Promise<{ status: string; timestamp: string }> {
-    return this.fetchJson(`${API_BASE_URL.replace('/api', '')}/health`);
+    return this.fetchJson(`${API_BASE_URL}/health`);
   }
 }
 
