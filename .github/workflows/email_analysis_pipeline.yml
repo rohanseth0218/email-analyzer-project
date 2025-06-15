@@ -127,6 +127,13 @@ jobs:
         echo "🧪 Testing pipeline setup..."
         python3 test_pipeline_setup.py || echo "⚠️ Some tests failed, but pipeline may still work with fallbacks"
 
+    - name: Create BigQuery table
+      run: |
+        echo "📊 Creating BigQuery table with correct schema..."
+        python3 create_table_github.py
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-service-account.json
+
     - name: Set analysis parameters
       run: |
         RECORD_LIMIT="${{ github.event.inputs.record_limit || '10' }}"

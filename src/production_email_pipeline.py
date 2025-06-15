@@ -53,7 +53,7 @@ CONFIG = {
     'bigquery': {
         'project_id': 'instant-ground-394115',
         'dataset_id': 'email_analytics',
-        'table_id': 'email_analysis_results',
+        'table_id': 'email_analysis_results_v2',  # Updated to new table with correct schema
         'credentials_path': './gcp-service-account.json'
     },
     'screenshot_storage': {
