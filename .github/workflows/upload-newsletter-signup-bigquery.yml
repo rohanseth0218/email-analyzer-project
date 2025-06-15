@@ -62,7 +62,7 @@ jobs:
       timeout-minutes: 30
       env:
         JSON_FILE_PATH: ${{ github.event.inputs.json_file_path }}
-        DATASET_TABLE: email_analytics.newsletter_signup_results_v2
+        DATASET_TABLE: email_analytics.newsletter_signup_results_v3
         PYTHONUNBUFFERED: "1"
         GOOGLE_APPLICATION_CREDENTIALS: bigquery_credentials.json
       run: |
@@ -81,6 +81,6 @@ jobs:
     - name: Summary
       run: |
         echo "✅ Newsletter signup data upload complete!"
-        echo "📊 Data uploaded to: email_analytics.newsletter_signup_results_v2"
+        echo "📊 Data uploaded to: email_analytics.newsletter_signup_results_v3"
         echo "🔍 Check BigQuery console: https://console.cloud.google.com/bigquery?project=instant-ground-394115"
         echo "💡 These domains will now be excluded from future newsletter signup attempts!" 
