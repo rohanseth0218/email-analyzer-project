@@ -64,8 +64,8 @@ jobs:
         # Set parameters from inputs or defaults
         ENGAGEMENT_ONLY="${{ github.event.inputs.engagement_only || 'false' }}"
         CONFIRMATIONS_ONLY="${{ github.event.inputs.confirmations_only || 'false' }}"
-        MAX_CONFIRMATIONS="${{ github.event.inputs.max_confirmations || '20' }}"
-        MAX_ENGAGEMENTS="${{ github.event.inputs.max_engagements || '30' }}"
+        MAX_CONFIRMATIONS="${{ github.event.inputs.max_confirmations || '200' }}"
+        MAX_ENGAGEMENTS="${{ github.event.inputs.max_engagements || '2000' }}"
         DRY_RUN="${{ github.event.inputs.dry_run || 'false' }}"
         
         echo "ENGAGEMENT_ONLY=$ENGAGEMENT_ONLY" >> $GITHUB_ENV
