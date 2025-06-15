@@ -10,12 +10,12 @@ on:
         description: 'Number of emails to analyze (leave empty for all unanalyzed)'
         required: false
         type: string
-        default: '500'  # Increased default for better testing, use 4000 for full run
+        default: '2000'  # Increased to 2000 emails per day
       days_back:
         description: 'Days back to look for emails'
         required: false
         type: string
-        default: '7'
+        default: '14'    # Increased to 14 days lookback
 
 env:
   NODE_VERSION: '18'
@@ -136,8 +136,8 @@ jobs:
 
     - name: Set analysis parameters
       run: |
-        RECORD_LIMIT="${{ github.event.inputs.record_limit || '500' }}"
-        DAYS_BACK="${{ github.event.inputs.days_back || '7' }}"
+        RECORD_LIMIT="${{ github.event.inputs.record_limit || '2000' }}"
+        DAYS_BACK="${{ github.event.inputs.days_back || '14' }}"
         
         echo "EMAIL_ANALYSIS_LIMIT=$RECORD_LIMIT" >> $GITHUB_ENV
         echo "EMAIL_ANALYSIS_DAYS_BACK=$DAYS_BACK" >> $GITHUB_ENV

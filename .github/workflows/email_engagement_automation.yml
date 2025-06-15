@@ -21,10 +21,12 @@ on:
       max_confirmations:
         description: 'Maximum number of confirmations to process'
         required: false
+        default: '200'
         type: string
       max_engagements:
         description: 'Maximum number of brands to engage with'
         required: false
+        default: '2000'
         type: string
       dry_run:
         description: 'Dry run - query emails but dont click links'
@@ -97,8 +99,10 @@ jobs:
       run: |
         echo "🤖 Starting email engagement automation..."
         
-        # Build command with parameters
+        # Build command with parameters - Updated to use correct parameter names
         CMD="python email_engagement_bot_simple.py"
+        CMD="$CMD --max-confirmations $MAX_CONFIRMATIONS"
+        CMD="$CMD --max-engagements $MAX_ENGAGEMENTS"
         
         # Add parameter flags based on inputs
         if [ "$ENGAGEMENT_ONLY" = "true" ]; then
