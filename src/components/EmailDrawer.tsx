@@ -27,13 +27,19 @@ export const EmailDrawer: React.FC<EmailDrawerProps> = ({ email, isOpen, onClose
     });
   };
 
-  const formatCurrency = (amount: number) => {
-    if (amount >= 1000000) {
-      return `$${(amount / 1000000).toFixed(1)}M`;
-    } else if (amount >= 1000) {
-      return `$${(amount / 1000).toFixed(0)}K`;
+  const formatCurrency = (amount: number | string) => {
+    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+    if (!numAmount || isNaN(numAmount)) return '$0';
+    
+    // Divide by 100 to convert from cents to dollars
+    const dollarAmount = numAmount / 100;
+    
+    if (dollarAmount >= 1000000) {
+      return `$${(dollarAmount / 1000000).toFixed(1)}M`;
+    } else if (dollarAmount >= 1000) {
+      return `$${(dollarAmount / 1000).toFixed(0)}K`;
     }
-    return `$${amount?.toLocaleString() || 0}`;
+    return `$${dollarAmount.toLocaleString()}`;
   };
 
   const getBrandInitials = (brand: string) => {
@@ -198,7 +204,7 @@ export const EmailDrawer: React.FC<EmailDrawerProps> = ({ email, isOpen, onClose
                               <Package className="w-3 h-3" />
                               Product Catalog
                             </label>
-                            <p className="text-sm font-medium text-gray-900 mt-1">{email.product_count?.toLocaleString()} products</p>
+                            <p className="text-sm font-medium text-gray-900 mt-1">{typeof email.product_count === 'number' ? email.product_count.toLocaleString() : parseInt(email.product_count).toLocaleString()} products</p>
                           </div>
                         )}
 
@@ -208,7 +214,7 @@ export const EmailDrawer: React.FC<EmailDrawerProps> = ({ email, isOpen, onClose
                               <User className="w-3 h-3" />
                               Team Size
                             </label>
-                            <p className="text-sm font-medium text-gray-900 mt-1">{email.employee_count?.toLocaleString()} employees</p>
+                            <p className="text-sm font-medium text-gray-900 mt-1">{typeof email.employee_count === 'number' ? email.employee_count.toLocaleString() : parseInt(email.employee_count).toLocaleString()} employees</p>
                           </div>
                         )}
 
@@ -218,7 +224,7 @@ export const EmailDrawer: React.FC<EmailDrawerProps> = ({ email, isOpen, onClose
                               <DollarSign className="w-3 h-3" />
                               Average Price
                             </label>
-                            <p className="text-sm font-medium text-gray-900 mt-1">${email.avg_price?.toFixed(2)}</p>
+                            <p className="text-sm font-medium text-gray-900 mt-1">${typeof email.avg_price === 'number' ? (email.avg_price / 100).toFixed(2) : (parseFloat(email.avg_price) / 100).toFixed(2)}</p>
                           </div>
                         )}
                       </CardContent>

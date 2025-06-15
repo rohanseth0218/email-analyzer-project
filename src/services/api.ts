@@ -77,6 +77,10 @@ class ApiService {
     return this.fetchJson<{ campaign: EmailCampaign; queryTime: number }>(`${API_BASE_URL}/api/campaigns/${campaignId}`);
   }
 
+  async getStoreDetails(domain: string): Promise<{ store: any; queryTime: number }> {
+    return this.fetchJson<{ store: any; queryTime: number }>(`${API_BASE_URL}/api/stores/${domain}`);
+  }
+
   async healthCheck(): Promise<{ status: string; timestamp: string }> {
     return this.fetchJson(`${API_BASE_URL}/health`);
   }

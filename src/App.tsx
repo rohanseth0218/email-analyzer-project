@@ -82,22 +82,61 @@ function App() {
     setIsDrawerOpen(true);
     setIsLoadingDetails(true);
     
-    // Fetch detailed campaign data with storeleads info
+    // Fetch detailed campaign data and store data in parallel
     try {
       console.log('Fetching details for campaign:', email.id);
-      const response = await apiService.getCampaignDetails(email.id);
-      console.log('Received detailed campaign data:', response.campaign);
       
-      // Merge the detailed data with the original email data to ensure no fields are lost
-      const mergedData = {
-        ...email,
-        ...response.campaign
-      };
+      const promises: Promise<any>[] = [
+        apiService.getCampaignDetails(email.id)
+      ];
+      
+      // Also fetch store data if we have a sender domain
+      if (email.sender_domain) {
+        promises.push(apiService.getStoreDetails(email.sender_domain));
+      }
+      
+      const results = await Promise.allSettled(promises);
+      
+      let mergedData = { ...email };
+      
+      // Merge campaign details if successful
+      if (results[0].status === 'fulfilled') {
+        console.log('Received detailed campaign data:', results[0].value.campaign);
+        mergedData = {
+          ...mergedData,
+          ...results[0].value.campaign
+        };
+      } else {
+        console.error('Error fetching campaign details:', results[0].reason);
+      }
+      
+      // Merge store details if successful
+      if (results[1] && results[1].status === 'fulfilled') {
+        const storeData = (results[1] as PromiseFulfilledResult<any>).value;
+        if (storeData.store) {
+          console.log('Received store data:', storeData.store);
+          mergedData = {
+            ...mergedData,
+            // Map store fields to campaign fields for the drawer
+            description: storeData.store.description || storeData.store.about_us,
+            estimated_sales_yearly: storeData.store.estimated_sales_yearly,
+            location: storeData.store.location || `${storeData.store.state}, ${storeData.store.country_code}`,
+            product_count: storeData.store.product_count,
+            employee_count: storeData.store.employee_count,
+            categories: storeData.store.categories,
+            platform: storeData.store.platform,
+            avg_price: storeData.store.avg_price,
+            merchant_name: storeData.store.merchant_name
+          };
+        }
+      } else if (results[1]) {
+        console.error('Error fetching store details:', results[1].reason);
+      }
       
       console.log('Setting merged campaign data:', mergedData);
       setSelectedEmail(mergedData);
     } catch (error) {
-      console.error('Error fetching campaign details:', error);
+      console.error('Error fetching details:', error);
       // Keep the basic email data if detailed fetch fails
       console.log('Keeping original email data due to error');
     } finally {
