@@ -41,7 +41,7 @@ env:
 jobs:
   email-engagement:
     runs-on: ubuntu-latest
-    timeout-minutes: 60  # 1 hour max (much faster without browser)
+    timeout-minutes: 360  # 6 hours max for large-scale engagement processing
     
     steps:
     - name: Checkout code
