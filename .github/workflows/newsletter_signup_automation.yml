@@ -295,30 +295,78 @@ jobs:
       run: |
         rm -f bigquery_credentials.json
         echo "🧹 Cleaned up credentials"
-    
-    - name: Notify on failure
-      if: failure()
+
+    - name: Send Slack notification
+      if: always()
       run: |
-        echo "❌ Newsletter signup automation failed!"
-        echo "Check the logs and artifacts for details."
-        
-        # Optional: Add Slack notification
-        # curl -X POST -H 'Content-type: application/json' \
-        #   --data '{"text":"❌ Newsletter signup automation failed in repo ${{ github.repository }}"}' \
-        #   ${{ secrets.SLACK_WEBHOOK_URL }}
-    
-    - name: Success summary
-      if: success()
-      run: |
-        echo "✅ Newsletter signup automation completed successfully!"
-        
-        # Count results if available
-        if [ -f "logs/successful_submissions_production.jsonl" ]; then
-          SUCCESS_COUNT=$(wc -l < logs/successful_submissions_production.jsonl)
-          echo "📈 Successful signups: $SUCCESS_COUNT"
+        # Determine status and emoji
+        if [ "${{ job.status }}" = "success" ]; then
+          STATUS_EMOJI="✅"
+          STATUS_COLOR="good"
+          STATUS_TEXT="SUCCESS"
+          NEXT_STEPS="• Upload results to BigQuery\\n• Check for failed signups"
+        else
+          STATUS_EMOJI="❌"
+          STATUS_COLOR="danger"
+          STATUS_TEXT="FAILED"
+          NEXT_STEPS="🚨 Check workflow logs and fix issues"
         fi
         
+        # Count results if available
+        SUCCESS_COUNT="0"
+        FAILED_COUNT="0"
+        if [ -f "logs/successful_submissions_production.jsonl" ]; then
+          SUCCESS_COUNT=$(wc -l < logs/successful_submissions_production.jsonl 2>/dev/null || echo "0")
+        fi
         if [ -f "logs/failed_submissions_production.jsonl" ]; then
-          FAILED_COUNT=$(wc -l < logs/failed_submissions_production.jsonl)
-          echo "📉 Failed signups: $FAILED_COUNT"
-        fi 
+          FAILED_COUNT=$(wc -l < logs/failed_submissions_production.jsonl 2>/dev/null || echo "0")
+        fi
+        
+        # Create Slack message
+        curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+          -H "Content-Type: application/json" \
+          -d "{
+            \"text\": \"📰 Newsletter Signup Bot $STATUS_EMOJI $STATUS_TEXT\",
+            \"attachments\": [
+              {
+                \"color\": \"$STATUS_COLOR\",
+                \"fields\": [
+                  {
+                    \"title\": \"Workflow\",
+                    \"value\": \"📰 Newsletter Signup Bot\",
+                    \"short\": true
+                  },
+                  {
+                    \"title\": \"Status\",
+                    \"value\": \"$STATUS_EMOJI $STATUS_TEXT\",
+                    \"short\": true
+                  },
+                  {
+                    \"title\": \"Results\",
+                    \"value\": \"✅ Successful: $SUCCESS_COUNT\\n❌ Failed: $FAILED_COUNT\",
+                    \"short\": false
+                  },
+                  {
+                    \"title\": \"Parameters\",
+                    \"value\": \"Limit: ${{ env.AUTOMATION_LIMIT }}, Batch: ${{ env.AUTOMATION_BATCH_SIZE }}, Dry Run: ${{ env.AUTOMATION_DRY_RUN }}\",
+                    \"short\": false
+                  },
+                  {
+                    \"title\": \"Next Steps\",
+                    \"value\": \"$NEXT_STEPS\",
+                    \"short\": false
+                  }
+                ],
+                \"actions\": [
+                  {
+                    \"type\": \"button\",
+                    \"text\": \"View Run\",
+                    \"url\": \"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",
+                    \"style\": \"$([ '${{ job.status }}' = 'success' ] && echo 'primary' || echo 'danger')\"
+                  }
+                ],
+                \"footer\": \"GitHub Actions\",
+                \"ts\": $(date +%s)
+              }
+            ]
+          }" 

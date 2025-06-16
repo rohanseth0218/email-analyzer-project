@@ -254,4 +254,66 @@ jobs:
         echo "🤖 Bot processed subscription confirmations and brand engagements"
         echo "📊 Check artifacts for detailed logs and engagement state"
         echo "🔍 Check BigQuery for engagement tracking data"
-        echo "💡 Next run scheduled for tomorrow at 10 AM UTC" 
+        echo "💡 Next run scheduled for tomorrow at 10 AM UTC"
+
+    - name: Send Slack notification
+      if: always()
+      run: |
+        # Determine status and emoji
+        if [ "${{ job.status }}" = "success" ]; then
+          STATUS_EMOJI="✅"
+          STATUS_COLOR="good"
+          STATUS_TEXT="SUCCESS"
+        else
+          STATUS_EMOJI="❌"
+          STATUS_COLOR="danger"
+          STATUS_TEXT="FAILED"
+        fi
+        
+        # Calculate duration
+        START_TIME="${{ github.event.head_commit.timestamp || github.run_id }}"
+        DURATION="Unknown"
+        
+        # Create Slack message
+        curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+          -H "Content-Type: application/json" \
+          -d "{
+            \"text\": \"📧 Email Engagement Bot $STATUS_EMOJI $STATUS_TEXT\",
+            \"attachments\": [
+              {
+                \"color\": \"$STATUS_COLOR\",
+                \"fields\": [
+                  {
+                    \"title\": \"Workflow\",
+                    \"value\": \"📧 Email Engagement Bot\",
+                    \"short\": true
+                  },
+                  {
+                    \"title\": \"Status\",
+                    \"value\": \"$STATUS_EMOJI $STATUS_TEXT\",
+                    \"short\": true
+                  },
+                  {
+                    \"title\": \"Parameters\",
+                    \"value\": \"Confirmations: ${{ env.MAX_CONFIRMATIONS }}, Engagements: ${{ env.MAX_ENGAGEMENTS }}\",
+                    \"short\": false
+                  },
+                  {
+                    \"title\": \"Next Steps\",
+                    \"value\": \"$([ '${{ job.status }}' = 'success' ] && echo '• Check BigQuery for new engagement data\\n• Review confirmation rates' || echo '🚨 Check workflow logs and fix issues')\",
+                    \"short\": false
+                  }
+                ],
+                \"actions\": [
+                  {
+                    \"type\": \"button\",
+                    \"text\": \"View Run\",
+                    \"url\": \"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",
+                    \"style\": \"$([ '${{ job.status }}' = 'success' ] && echo 'primary' || echo 'danger')\"
+                  }
+                ],
+                \"footer\": \"GitHub Actions\",
+                \"ts\": $(date +%s)
+              }
+            ]
+          }" 

@@ -214,4 +214,64 @@ jobs:
 
     - name: Cleanup credentials
       if: always()
-      run: rm -f gcp-service-account.json 
+      run: rm -f gcp-service-account.json
+
+    - name: Send Slack notification
+      if: always()
+      run: |
+        # Determine status and emoji
+        if [ "${{ job.status }}" = "success" ]; then
+          STATUS_EMOJI="✅"
+          STATUS_COLOR="good"
+          STATUS_TEXT="SUCCESS"
+          NEXT_STEPS="• New email analysis available in Pulse app\\n• Screenshots updated in GCS bucket"
+        else
+          STATUS_EMOJI="❌"
+          STATUS_COLOR="danger"
+          STATUS_TEXT="FAILED"
+          NEXT_STEPS="🚨 Check workflow logs and fix issues"
+        fi
+        
+        # Create Slack message
+        curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+          -H "Content-Type: application/json" \
+          -d "{
+            \"text\": \"🔍 Email Analysis Pipeline $STATUS_EMOJI $STATUS_TEXT\",
+            \"attachments\": [
+              {
+                \"color\": \"$STATUS_COLOR\",
+                \"fields\": [
+                  {
+                    \"title\": \"Workflow\",
+                    \"value\": \"🔍 Email Analysis Pipeline\",
+                    \"short\": true
+                  },
+                  {
+                    \"title\": \"Status\",
+                    \"value\": \"$STATUS_EMOJI $STATUS_TEXT\",
+                    \"short\": true
+                  },
+                  {
+                    \"title\": \"Parameters\",
+                    \"value\": \"Emails: ${{ env.EMAIL_ANALYSIS_LIMIT }}, Days Back: ${{ env.EMAIL_ANALYSIS_DAYS_BACK }}\",
+                    \"short\": false
+                  },
+                  {
+                    \"title\": \"Next Steps\",
+                    \"value\": \"$NEXT_STEPS\",
+                    \"short\": false
+                  }
+                ],
+                \"actions\": [
+                  {
+                    \"type\": \"button\",
+                    \"text\": \"View Run\",
+                    \"url\": \"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",
+                    \"style\": \"$([ '${{ job.status }}' = 'success' ] && echo 'primary' || echo 'danger')\"
+                  }
+                ],
+                \"footer\": \"GitHub Actions\",
+                \"ts\": $(date +%s)
+              }
+            ]
+          }" 

@@ -75,15 +75,63 @@ jobs:
         echo "✅ Sync job completed successfully!"
         echo "📊 Email campaign data synced from BigQuery to Supabase"
         echo "🔍 Check Supabase dashboard for updated data"
-    
-    - name: Notify on failure
-      if: failure()
+
+    - name: Send Slack notification
+      if: always()
       run: |
-        echo "❌ Sync job failed! Check the logs for details."
-        # You can add Slack/Discord/email notifications here if needed
-    
-    - name: Notify on success
-      if: success()
-      run: |
-        echo "✅ Sync job completed successfully!"
-        # You can add success notifications here if needed 
+        # Determine status and emoji
+        if [ "${{ job.status }}" = "success" ]; then
+          STATUS_EMOJI="✅"
+          STATUS_COLOR="good"
+          STATUS_TEXT="SUCCESS"
+          NEXT_STEPS="• Pulse app data refreshed\\n• Frontend cache updated"
+        else
+          STATUS_EMOJI="❌"
+          STATUS_COLOR="danger"
+          STATUS_TEXT="FAILED"
+          NEXT_STEPS="🚨 Check workflow logs and fix issues"
+        fi
+        
+        # Create Slack message
+        curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+          -H "Content-Type: application/json" \
+          -d "{
+            \"text\": \"🔄 Data Sync $STATUS_EMOJI $STATUS_TEXT\",
+            \"attachments\": [
+              {
+                \"color\": \"$STATUS_COLOR\",
+                \"fields\": [
+                  {
+                    \"title\": \"Workflow\",
+                    \"value\": \"🔄 BigQuery to Supabase Sync\",
+                    \"short\": true
+                  },
+                  {
+                    \"title\": \"Status\",
+                    \"value\": \"$STATUS_EMOJI $STATUS_TEXT\",
+                    \"short\": true
+                  },
+                  {
+                    \"title\": \"Description\",
+                    \"value\": \"Email campaign data synchronized from BigQuery to Supabase\",
+                    \"short\": false
+                  },
+                  {
+                    \"title\": \"Next Steps\",
+                    \"value\": \"$NEXT_STEPS\",
+                    \"short\": false
+                  }
+                ],
+                \"actions\": [
+                  {
+                    \"type\": \"button\",
+                    \"text\": \"View Run\",
+                    \"url\": \"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",
+                    \"style\": \"$([ '${{ job.status }}' = 'success' ] && echo 'primary' || echo 'danger')\"
+                  }
+                ],
+                \"footer\": \"GitHub Actions\",
+                \"ts\": $(date +%s)
+              }
+            ]
+          }" 
