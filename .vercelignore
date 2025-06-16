@@ -1,0 +1,30 @@
+# Python files
+*.py
+__pycache__/
+*.pyc
+venv/
+.env
+
+# Backend API (deployed separately on Railway)
+api/
+
+# Data files
+*.json
+!package*.json
+*.sql
+*.zip
+
+# Logs and temp files
+*.log
+.DS_Store
+
+# Project management and tools
+project_management/
+bigquery_tools/
+email_analytics/
+newsletter_automation/
+github_artifact_logs/
+
+# Requirements and configs for Python
+requirements.txt*
+BigQuery*.json 
