@@ -123,7 +123,7 @@ class NewsletterSignupOrchestrator:
         Prepare domains in the format expected by the JavaScript automation
         """
         try:
-            # Convert to the format expected by full_newsletter_automation_clean.js
+            # Convert to the format expected by full_newsletter_automation_clean.cjs
             formatted_domains = []
             
             for domain_info in domains:
@@ -189,7 +189,7 @@ class NewsletterSignupOrchestrator:
             self.update_automation_config(config)
             
             # Run the automation
-            cmd = ['node', 'full_newsletter_automation_clean.js']
+            cmd = ['node', 'full_newsletter_automation_clean.cjs']
             
             logger.info(f"🎯 Executing: {' '.join(cmd)}")
             
@@ -238,7 +238,7 @@ class NewsletterSignupOrchestrator:
         """
         try:
             # Read the original file
-            with open('full_newsletter_automation_clean.js', 'r') as f:
+            with open('full_newsletter_automation_clean.cjs', 'r') as f:
                 content = f.read()
             
             # Update CSV file reference

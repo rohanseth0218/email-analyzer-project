@@ -85,8 +85,8 @@ jobs:
       run: |
         echo "Configuring Browserbase API access..."
         # Update the JavaScript file with secrets from GitHub
-        sed -i "s/BROWSERBASE_API_KEY: 'bb_live_[^']*'/BROWSERBASE_API_KEY: '${{ secrets.BROWSERBASE_API_KEY }}'/g" full_newsletter_automation_clean.js
-        sed -i "s/BROWSERBASE_PROJECT_ID: '[^']*'/BROWSERBASE_PROJECT_ID: '${{ secrets.BROWSERBASE_PROJECT_ID }}'/g" full_newsletter_automation_clean.js
+        sed -i "s/BROWSERBASE_API_KEY: 'bb_live_[^']*'/BROWSERBASE_API_KEY: '${{ secrets.BROWSERBASE_API_KEY }}'/g" full_newsletter_automation_clean.cjs
+        sed -i "s/BROWSERBASE_PROJECT_ID: '[^']*'/BROWSERBASE_PROJECT_ID: '${{ secrets.BROWSERBASE_PROJECT_ID }}'/g" full_newsletter_automation_clean.cjs
         echo "✅ Updated Browserbase credentials from secrets"
     
     - name: Create mailbox accounts file
