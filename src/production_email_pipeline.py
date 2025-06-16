@@ -100,14 +100,36 @@ class ProductionEmailAnalysisPipeline:
         print("✅ Production Email Analysis Pipeline initialized")
 
     def setup_openai(self):
-        from openai import AzureOpenAI
-        
-        self.openai_client = AzureOpenAI(
-            api_key=self.config['azure_openai']['api_key'],
-            azure_endpoint=self.config['azure_openai']['endpoint'],
-            api_version=self.config['azure_openai']['api_version']
-        )
-        print("✅ Azure OpenAI client configured")
+        try:
+            from openai import AzureOpenAI
+            
+            # Validate required environment variables
+            api_key = self.config['azure_openai']['api_key']
+            endpoint = self.config['azure_openai']['endpoint']
+            api_version = self.config['azure_openai']['api_version']
+            
+            if not api_key or api_key == '':
+                raise ValueError("AZURE_OPENAI_API_KEY is required")
+            if not endpoint or endpoint == '':
+                raise ValueError("AZURE_OPENAI_ENDPOINT is required")
+            
+            print(f"🔧 Setting up Azure OpenAI client...")
+            print(f"   Endpoint: {endpoint}")
+            print(f"   API Version: {api_version}")
+            
+            self.openai_client = AzureOpenAI(
+                api_key=api_key,
+                azure_endpoint=endpoint,
+                api_version=api_version
+            )
+            print("✅ Azure OpenAI client configured")
+        except ImportError as e:
+            print(f"❌ Failed to import AzureOpenAI: {e}")
+            print("💡 Try: pip install openai>=1.12.0")
+            self.openai_client = None
+        except Exception as e:
+            print(f"❌ Azure OpenAI setup failed: {e}")
+            self.openai_client = None
 
     def setup_bigquery(self):
         try:

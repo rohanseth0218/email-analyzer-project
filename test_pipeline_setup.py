@@ -111,12 +111,29 @@ def test_pipeline_init():
         from production_email_pipeline import ProductionEmailAnalysisPipeline, CONFIG
         
         # Try to initialize (this will test config and basic setup)
+        print("   🔧 Initializing pipeline with Azure OpenAI...")
         pipeline = ProductionEmailAnalysisPipeline(CONFIG)
+        
+        # Check if critical components are set up
+        if hasattr(pipeline, 'openai_client') and pipeline.openai_client is not None:
+            print("   ✅ Azure OpenAI client initialized")
+        else:
+            print("   ⚠️ Azure OpenAI client failed to initialize (may work with fallbacks)")
+        
+        if hasattr(pipeline, 'bq_client') and pipeline.bq_client is not None:
+            print("   ✅ BigQuery client initialized")
+        else:
+            print("   ⚠️ BigQuery client failed to initialize")
         
         print("✅ Pipeline initialization successful")
         return True
+    except ImportError as e:
+        print(f"❌ Pipeline import failed: {e}")
+        print("💡 Make sure all dependencies are installed")
+        return False
     except Exception as e:
         print(f"❌ Pipeline initialization failed: {e}")
+        print("💡 Check Azure OpenAI credentials and BigQuery setup")
         return False
 
 def main():
