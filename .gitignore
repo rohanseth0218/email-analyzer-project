@@ -25,3 +25,8 @@ dist-ssr
 .env
 .vercel
 .env*.local
+
+# BigQuery credentials - keep secure!
+BigQuery Credentials.json
+bigquery_credentials.json
+*credentials*.json

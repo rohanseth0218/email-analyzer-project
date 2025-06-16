@@ -12,9 +12,10 @@ interface EmailDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   isLoadingDetails: boolean;
+  onBrandClick?: (brandName: string) => void;
 }
 
-export const EmailDrawer: React.FC<EmailDrawerProps> = ({ email, isOpen, onClose, isLoadingDetails }) => {
+export const EmailDrawer: React.FC<EmailDrawerProps> = ({ email, isOpen, onClose, isLoadingDetails, onBrandClick }) => {
   if (!email) return null;
 
   const formatDate = (dateString: string) => {
@@ -108,7 +109,12 @@ export const EmailDrawer: React.FC<EmailDrawerProps> = ({ email, isOpen, onClose
                         {getBrandInitials(email.brand)}
                       </div>
                       <div>
-                        <h2 className="text-lg font-semibold text-gray-900">{email.brand}</h2>
+                        <h2 
+                          className="text-lg font-semibold text-gray-900 hover:text-blue-600 cursor-pointer transition-colors"
+                          onClick={() => onBrandClick?.(email.brand)}
+                        >
+                          {email.brand}
+                        </h2>
                         <p className="text-sm text-gray-500">{typeof email.categories === 'string' ? email.categories.split('/')[0] : 'Brand'}</p>
                       </div>
                     </div>

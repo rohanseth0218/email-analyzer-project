@@ -150,9 +150,43 @@ function App() {
     setTimeout(() => setSelectedEmail(null), 300);
   };
 
+  const handleBrandClick = (brandName: string) => {
+    // Close the drawer
+    handleCloseDrawer();
+    
+    // Set the brand filter and clear others
+    setFilters({
+      brand: brandName,
+      dateRange: 'All Time',
+      theme: 'All Themes',
+      designLevel: 'All Levels'
+    });
+    
+    // Clear search query
+    setSearchQuery('');
+  };
+
+  const handleLogoClick = () => {
+    // Clear all filters
+    setFilters({
+      brand: 'All Brands',
+      dateRange: 'All Time',
+      theme: 'All Themes',
+      designLevel: 'All Levels'
+    });
+    
+    // Clear search query
+    setSearchQuery('');
+    
+    // Close drawer if open
+    if (isDrawerOpen) {
+      handleCloseDrawer();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Header onLogoClick={handleLogoClick} />
       <FilterBar 
         filters={filters}
         onFiltersChange={setFilters}
@@ -283,6 +317,7 @@ function App() {
         isOpen={isDrawerOpen}
         onClose={handleCloseDrawer}
         isLoadingDetails={isLoadingDetails}
+        onBrandClick={handleBrandClick}
       />
     </div>
   );

@@ -122,31 +122,45 @@ app.get('/api/campaigns', async (req, res) => {
     const whereClause = whereConditions.length > 0 ? 'WHERE ' + whereConditions.join(' AND ') : '';
     
     let query = `
+      WITH deduplicated_campaigns AS (
+        SELECT 
+          ec.email_id as id,
+          ec.brand,
+          ec.subject,
+          ec.date_received as date,
+          ec.screenshot_url as screenshot,
+          ec.campaign_theme,
+          ec.design_level,
+          ec.discount_percent,
+          ec.emotional_tone,
+          ec.event_or_seasonality,
+          ec.flow_type,
+          ec.flow_vs_campaign,
+          ec.image_vs_text_ratio,
+          ec.num_products_featured,
+          ec.personalization_used,
+          ec.social_proof_used,
+          ec.unsubscribe_visible,
+          ec.estimated_revenue,
+          ec.sender_domain,
+          ec.store_id,
+          ec.gpt_analysis,
+          ROW_NUMBER() OVER (
+            PARTITION BY ec.brand, ec.subject 
+            ORDER BY ec.date_received DESC
+          ) as rn
+        FROM email_campaigns ec
+        ${whereClause.replace('email_campaigns', 'ec')}
+      )
       SELECT 
-        ec.email_id as id,
-        ec.brand,
-        ec.subject,
-        ec.date_received as date,
-        ec.screenshot_url as screenshot,
-        ec.campaign_theme,
-        ec.design_level,
-        ec.discount_percent,
-        ec.emotional_tone,
-        ec.event_or_seasonality,
-        ec.flow_type,
-        ec.flow_vs_campaign,
-        ec.image_vs_text_ratio,
-        ec.num_products_featured,
-        ec.personalization_used,
-        ec.social_proof_used,
-        ec.unsubscribe_visible,
-        ec.estimated_revenue,
-        ec.sender_domain,
-        ec.store_id,
-        ec.gpt_analysis
-      FROM email_campaigns ec
-      ${whereClause.replace('email_campaigns', 'ec')}
-      ORDER BY ec.date_received DESC
+        id, brand, subject, date, screenshot, campaign_theme, design_level,
+        discount_percent, emotional_tone, event_or_seasonality, flow_type,
+        flow_vs_campaign, image_vs_text_ratio, num_products_featured,
+        personalization_used, social_proof_used, unsubscribe_visible,
+        estimated_revenue, sender_domain, store_id, gpt_analysis
+      FROM deduplicated_campaigns 
+      WHERE rn = 1
+      ORDER BY date DESC
     `;
 
     // Add pagination
